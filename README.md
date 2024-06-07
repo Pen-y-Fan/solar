@@ -84,17 +84,23 @@ php artisan migrate --seed
 php artisan migrate:fresh --seed
 ```
 
+## Login
+
+Open the site **https://solar.test**
+
+Login with the seeded user:
+
+- Email: **test@example.com**
+- Password: **password**
+
 ## Packages
 
 The following packages have been used:
 
-TBC
-
-<!--
-- [Filament admin panel](https://filamentphp.com/docs/3.x/admin/installation) - Admin panel restricted to admin users
-  only. Forms can be re-used in the front end!
+- [Filament admin panel](https://filamentphp.com/docs/3.x/admin/installation) - Admin panel restricted to authenticated users.
 - [Laravel Livewire](https://laravel-livewire.com/) - Included with Filament.
 
+<!--
 ### Dev Tooling
 
 - [Easy Coding Standard (ECS)](https://github.com/symplify/easy-coding-standard) - Preferred coding standard for this
