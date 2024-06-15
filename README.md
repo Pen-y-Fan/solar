@@ -46,17 +46,27 @@ cp .env.example .env
 
 ## Configure Laravel
 
-Configure the Laravel **.env** as per you local setup.
-
-e.g.
+Configure the Laravel **.env** as per you local setup. e.g.
 
 ```text
 APP_NAME=Solar
 
 APP_URL=https://solar.test
+
+# Sign up for Solcast API: https://docs.solcast.com.au/
+SOLCAST_API_KEY=
+SOLCAST_RESOURCE_ID=
 ```
 
-Laravel 11 can use many databases, by default the database is **sqlite**, update the .env file as required e.g. for **MySQL**
+Laravel 11 can use many databases, by default the database is **sqlite**, update the .env file as required e.g. 
+for **MySQL**
+
+### Solcast
+
+The app will display actual and forecast data based on your solar panel's location, 
+a [free account](https://toolkit.solcast.com.au/register) can be created for home user hobbyists.
+
+Once registered enter your **API key** and **resource id** in the **.env** file.
 
 ## Generate APP_KEY
 
