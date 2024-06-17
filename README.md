@@ -2,7 +2,14 @@
 
 This is a **personal project** to experiment with Solar panel APIs.
 
-- [Solcast](https://docs.solcast.com.au/)
+- [Solcast](https://docs.solcast.com.au/) estimate forecast based on cloud cover
+- [Agile costs](https://developer.octopus.energy/docs/api/)
+- [Wholesale cost](https://www.epexspot.com/en/market-data?market_area=GB&modality=Auction&sub_modality=DayAhead&product=30&data_mode=table&period=) for extended forecast?
+- [Agile import and export tariff](https://www.guylipman.com/octopus/api_guide.html)
+- [Historic usage](https://octopus.energy/dashboard/new/accounts/personal-details/api-access)
+- Calculate cost
+- Calculate rolling average usage per 30 min.
+- Try to forecast battery and solar usage with cost(s)
 
 ## Requirements
 
@@ -123,7 +130,6 @@ The following packages have been used:
 - [Laravel debug bar](https://github.com/barryvdh/laravel-debugbar) - debug bar for views, shows models, db calls etc.
 - [GrumPHP](https://github.com/phpro/grumphp) - pre-commit hook to run the above tools before committing code
 -->
-
 
 ## Contributing
 

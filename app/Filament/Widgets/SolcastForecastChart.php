@@ -30,18 +30,18 @@ class SolcastForecastChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Forecast',
-                    'data' => $rawData->map(fn($item): string => $item['pv_estimate']),
-                    'fill' => "+1",
-                    'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
-                    'borderColor' => 'rgb(255, 99, 132)'
-                ],
-                [
                     'label' => 'Forecast (10%)',
                     'data' => $rawData->map(fn($item): string => $item['pv_estimate10']),
                     'fill' => "+1",
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
                     'borderColor' => 'rgb(75, 192, 192)'
+                ],
+                [
+                    'label' => 'Forecast',
+                    'data' => $rawData->map(fn($item): string => $item['pv_estimate']),
+                    'fill' => "+1",
+                    'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
+                    'borderColor' => 'rgb(255, 99, 132)'
                 ],
                 [
                     'label' => 'Forecast (90%)',
@@ -82,9 +82,8 @@ class SolcastForecastChart extends ChartWidget
         $api = Config::get('solcast.api_key');
         $resourceId = Config::get('solcast.resource_id');
 
-
         $url = sprintf(
-            'https://api.solcast.com.au/rooftop_sites/%s/forecasts/?hours=24',
+            'https://api.solcast.com.au/rooftop_sites/%s/forecasts/?hours=48',
             $resourceId
         );
 
