@@ -107,7 +107,7 @@ class ForecastTest extends TestCase
         $additionalForecast = Forecast::upsert(
             $newData,
             uniqueBy: ['period_end'],
-            update: ['pv_estimate']
+            update: ['pv_estimate', 'pv_estimate10', 'pv_estimate90']
         );
 
         $this->assertDatabaseCount(Forecast::class, 2);
@@ -118,9 +118,13 @@ class ForecastTest extends TestCase
         $this->assertInstanceOf(Forecast::class, $forecast);
         $this->assertSame($newData[0]['pv_estimate'], $forecast->pv_estimate);
         $this->assertNotSame($data['pv_estimate'], $forecast->pv_estimate);
+        $this->assertNotSame($data['pv_estimate10'], $forecast->pv_estimate10);
+        $this->assertNotSame($data['pv_estimate90'], $forecast->pv_estimate90);
 
         $newForecast = Forecast::wherePeriodEnd($newData[1]['period_end'])->first();
         $this->assertInstanceOf(Forecast::class, $newForecast);
         $this->assertSame($newData[1]['pv_estimate'], $newForecast->pv_estimate);
+        $this->assertSame($newData[1]['pv_estimate10'], $newForecast->pv_estimate10);
+        $this->assertSame($newData[1]['pv_estimate90'], $newForecast->pv_estimate90);
     }
 }
