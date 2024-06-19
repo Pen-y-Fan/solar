@@ -12,10 +12,13 @@ use Illuminate\Support\Facades\Log;
 
 class OctopusExport
 {
+    /**
+     * @throws \Throwable
+     */
     public function run()
     {
         Log::info('Start running Octopus export action');
-        // check the last run (latest updated at), return if < 1 hour
+
         $lastExport = \App\Models\OctopusExport::query()
             ->latest('interval_start')
             ->first('interval_start') ?? ['interval_start' => now()->subDays(2)];

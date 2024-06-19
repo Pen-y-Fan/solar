@@ -12,6 +12,9 @@ This is a **personal project** to experiment with Solar panel APIs.
 - Calculate rolling average usage per 30 min.
 - Try to forecast battery and solar usage with cost(s)
 
+// import: https://api.octopus.energy/v1/products/AGILE-23-12-06/electricity-tariffs/E-1R-AGILE-23-12-06-K/standard-unit-rates/?page_size=1500&period_from=2024-06-11T23:00:00.000Z&period_to=2024-06-20T23:00:00.000Z
+// export: https://api.octopus.energy/v1/products/AGILE-OUTGOING-BB-23-02-28/electricity-tariffs/E-1R-AGILE-OUTGOING-BB-23-02-28-K/standard-unit-rates/?page_size=1500&period_from=2024-06-11T23:00:00.000Z&period_to=2024-06-20T23:00:00.000Z
+
 ## Requirements
 
 This is a Laravel 11 project. The requirements are the same as a 
