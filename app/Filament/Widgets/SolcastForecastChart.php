@@ -17,10 +17,10 @@ class SolcastForecastChart extends ChartWidget
 
         self::$heading = sprintf('Solis forecast for %s to %s',
             Carbon::parse($rawData->first()['period_end'], 'UTC')
-                ->timezone(config('app.timezone'))
+                ->timezone('Europe/London')
                 ->format('d M H:i'),
             Carbon::parse($rawData->last()['period_end'], 'UTC')
-                ->timezone(config('app.timezone'))
+                ->timezone('Europe/London')
                 ->format('d M Y H:i')
         );
 
@@ -46,7 +46,7 @@ class SolcastForecastChart extends ChartWidget
                 ],
             ],
             'labels' => $rawData->map(fn($item): string => Carbon::parse($item['period_end'], 'UTC')
-                ->timezone(config('app.timezone'))
+                ->timezone('Europe/London')
                 ->format('H:i')),
         ];
     }

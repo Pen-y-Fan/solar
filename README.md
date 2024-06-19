@@ -3,17 +3,13 @@
 This is a **personal project** to experiment with Solar panel APIs.
 
 - [Solcast](https://docs.solcast.com.au/) estimate forecast based on cloud cover
-- [Agile costs](https://developer.octopus.energy/docs/api/)
-- [Wholesale cost](https://www.epexspot.com/en/market-data?market_area=GB&modality=Auction&sub_modality=DayAhead&product=30&data_mode=table&period=) for extended forecast?
-- [Agile import and export tariff](https://www.guylipman.com/octopus/api_guide.html)
+- [Agile import and export tariff](https://www.guylipman.com/octopus/api_guide.html) also 
+  see [Agile costs](https://developer.octopus.energy/docs/api/)
 - [Historic usage](https://octopus.energy/dashboard/new/accounts/personal-details/api-access)
 - Investigate downloadable data from Solis inverter
 - Calculate cost
 - Calculate rolling average usage per 30 min.
 - Try to forecast battery and solar usage with cost(s)
-
-// import: https://api.octopus.energy/v1/products/AGILE-23-12-06/electricity-tariffs/E-1R-AGILE-23-12-06-K/standard-unit-rates/?page_size=1500&period_from=2024-06-11T23:00:00.000Z&period_to=2024-06-20T23:00:00.000Z
-// export: https://api.octopus.energy/v1/products/AGILE-OUTGOING-BB-23-02-28/electricity-tariffs/E-1R-AGILE-OUTGOING-BB-23-02-28-K/standard-unit-rates/?page_size=1500&period_from=2024-06-11T23:00:00.000Z&period_to=2024-06-20T23:00:00.000Z
 
 ## Requirements
 

@@ -23,10 +23,10 @@ class SolcastActualChart extends ChartWidget
 
         $label = sprintf('actual from %s to %s',
             Carbon::parse($rawData->first()['period_end'], 'UTC')
-                ->timezone(config('app.timezone'))
+                ->timezone('Europe/London')
                 ->format('d M H:i'),
             Carbon::parse($rawData->last()['period_end'], 'UTC')
-                ->timezone(config('app.timezone'))
+                ->timezone('Europe/London')
                 ->format('d M Y H:i')
         );
 
@@ -45,7 +45,7 @@ class SolcastActualChart extends ChartWidget
             ],
             'labels' => $rawData->map(function ($item) {
                 return Carbon::parse($item['period_end'], 'UTC')
-                    ->timezone(config('app.timezone'))
+                    ->timezone('Europe/London')
                     ->format('H:i');
             }),
         ];
