@@ -10,14 +10,16 @@ class AgileImportTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_an_octopus_import_can_be_created(): void
+    public function test_an_agile_import_can_be_created(): void
     {
-        $estimate = fake()->randomFloat(4);
+        $valueExcVat = fake()->randomFloat(4);
+        $valueIncVat = fake()->randomFloat(4);
+
         $data = [
             'valid_from' => now()->addHours(2)->startOfHour(),
             'valid_to' => now()->addHours(2)->startOfHour()->addMinutes(30),
-            'value_exc_vat' => $estimate,
-            'value_inc_vat' => $estimate*1.05,
+            'value_exc_vat' => $valueExcVat,
+            'value_inc_vat' => $valueIncVat,
         ];
         $agileImport = AgileImport::create($data);
 
@@ -31,14 +33,14 @@ class AgileImportTest extends TestCase
 
     public function test_a_agileImport_can_be_created_with_utc_iso_8601_date_string(): void
     {
-        $estimateIncVat = fake()->randomFloat(4);
-        $estimateExcVat = fake()->randomFloat(4);
+        $valueIncVat = fake()->randomFloat(4);
+        $valueExcVat = fake()->randomFloat(4);
 
         $data = [
             "valid_from" => now('UTC')->parse("2024-06-15T09:00:00.0000000Z")->toDateTimeString(),
             "valid_to" => now('UTC')->parse("2024-06-15T09:00:30.0000000Z")->toDateTimeString(),
-            'value_exc_vat' => $estimateIncVat,
-            'value_inc_vat' => $estimateExcVat,
+            'value_exc_vat' => $valueIncVat,
+            'value_inc_vat' => $valueExcVat,
         ];
         $agileImport = AgileImport::create($data);
 
@@ -50,7 +52,7 @@ class AgileImportTest extends TestCase
         $this->assertSame($data['value_inc_vat'], $agileImport->value_inc_vat);
     }
 
-    public function test_an_octopus_import_can_not_be_created_for_the_same_period(): void
+    public function test_an_agile_import_can_not_be_created_for_the_same_period(): void
     {
         $this->expectException(\Illuminate\Database\UniqueConstraintViolationException::class);
         $data = [
@@ -74,14 +76,13 @@ class AgileImportTest extends TestCase
         AgileImport::create($newData);
     }
 
-    public function test_an_octopus_import_can_be_upserted_for_the_same_period(): void
+    public function test_an_agile_import_can_be_upserted_for_the_same_period(): void
     {
-        $estimate = fake()->randomFloat(4);
         $data = [
             'valid_from' => now()->addHours(2)->startOfHour(),
             'valid_to' => now()->addHours(2)->startOfHour()->addMinutes(30),
-            'value_exc_vat' => $estimate,
-            'value_inc_vat' => $estimate,
+            'value_exc_vat' => fake()->randomFloat(4),
+            'value_inc_vat' => fake()->randomFloat(4),
         ];
 
 
@@ -90,23 +91,23 @@ class AgileImportTest extends TestCase
         $this->assertInstanceOf(AgileImport::class, $agileImport);
         $this->assertSame($data['value_exc_vat'], $agileImport->value_exc_vat);
 
-        $estimateExcVat1 = 2.22;
-        $estimateIncVat1 = 2.44;
-        $estimateExcVat2 = 3.22;
-        $estimateIncVat2 = 3.55;
+        $valueExcVat1 = 2.22;
+        $valueIncVat1 = 2.44;
+        $valueExcVat2 = 3.22;
+        $valueIncVat2 = 3.55;
 
         $newData = [
             [
                 'valid_from' => $data['valid_from']->timezone('UTC')->toDateTimeString(),
                 'valid_to' => $data['valid_to']->timezone('UTC')->toDateTimeString(),
-                'value_exc_vat' => $estimateExcVat1,
-                'value_inc_vat' => $estimateIncVat1,
+                'value_exc_vat' => $valueExcVat1,
+                'value_inc_vat' => $valueIncVat1,
             ],
             [
                 'valid_from' => $data['valid_from']->clone()->addMinutes(30)->timezone('UTC')->toDateTimeString(),
                 'valid_to' => $data['valid_to']->clone()->addMinutes(30)->timezone('UTC')->toDateTimeString(),
-                'value_exc_vat' => $estimateExcVat2,
-                'value_inc_vat' => $estimateIncVat2,
+                'value_exc_vat' => $valueExcVat2,
+                'value_inc_vat' => $valueIncVat2,
             ],
         ];
 

@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Actions\OctopusExport;
 use App\Actions\OctopusImport;
 use App\Actions\AgileImport;
+use App\Actions\AgileExport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -27,7 +28,7 @@ class Octopus extends Command
     /**
      * Execute the console command.
      */
-    public function handle(OctopusImport $octopusImport, OctopusExport $octopusExport, AgileImport $agileImport)
+    public function handle(OctopusImport $octopusImport, OctopusExport $octopusExport, AgileImport $agileImport, AgileExport $agileExport)
     {
         $this->info('Running Octopus action!');
 
@@ -52,6 +53,14 @@ class Octopus extends Command
             $this->info('Octopus Agile import has been fetched!');
         } catch (\Throwable $th) {
             Log::error('Error running Octopus Agile import action:', ['error message' => $th->getMessage()]);
+            $this->error($th->getMessage());
+        }
+
+        try {
+            $agileExport->run();
+            $this->info('Octopus Agile export has been fetched!');
+        } catch (\Throwable $th) {
+            Log::error('Error running Octopus Agile export action:', ['error message' => $th->getMessage()]);
             $this->error($th->getMessage());
         }
     }
