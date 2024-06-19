@@ -8,7 +8,7 @@ use Illuminate\Support\Carbon;
 
 class SolcastForecastChart extends ChartWidget
 {
-    protected static ?string $heading = 'Solis Forecast';
+    protected static ?string $heading = 'Solcast forecast';
     protected static ?string $pollingInterval = '120s';
 
     protected function getData(): array
@@ -55,7 +55,7 @@ class SolcastForecastChart extends ChartWidget
           'rgba(255, 99, 132, 0.2)',
           'rgba(255, 159, 64, 0.2)',
           'rgba(255, 205, 86, 0.2)',
-          'rgba(75, 192, 192, 0.2)',
+          'rgba(75, 192, 192, 0.2)', // blue
           'rgba(54, 162, 235, 0.2)',
           'rgba(153, 102, 255, 0.2)',
           'rgba(201, 203, 207, 0.2)'

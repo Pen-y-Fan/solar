@@ -10,28 +10,29 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class OctopusImport
+class OctopusExport
 {
     public function run()
     {
-        Log::info('Start running Octopus import action');
+        Log::info('Start running Octopus export action');
         // check the last run (latest updated at), return if < 1 hour
-        $lastImport = \App\Models\OctopusImport::query()
+        $lastExport = \App\Models\OctopusExport::query()
             ->latest('interval_start')
             ->first('interval_start') ?? ['interval_start' => now()->subDays(2)];
 
-        throw_if(!empty($lastImport) && $lastImport['interval_start'] >= now()->subDay(),
+        throw_if(!empty($lastExport) && $lastExport['interval_start'] >= now()->subDay(),
             sprintf(
                 'Last updated in the day, try again in %s',
-                $lastImport['interval_start']->addDay()->diffForHumans()
+                $lastExport['interval_start']->addDay()->diffForHumans()
             )
         );
 
-        // fetch the latest import data
-        $data = $this->getImportData();
+        // fetch the latest export data
+        $data = $this->getExportData();
+
 
         // save it to the database
-        \App\Models\OctopusImport::upsert(
+        \App\Models\OctopusExport::upsert(
             $data,
             uniqueBy: ['interval_start'],
             update: ['consumption']
@@ -41,33 +42,33 @@ class OctopusImport
     /**
      * @throws \Throwable
      */
-    private function getImportData()
+    private function getExportData()
     {
         $api = Config::get('octopus.api_key');
-        $importMpan = Config::get('octopus.import_mpan');
-        $importSerialNumber = Config::get('octopus.import_serial_number');
+        $exportMan = Config::get('octopus.export_mpan');
+        $exportSerialNumber = Config::get('octopus.export_serial_number');
 
         $url = sprintf(
             'https://api.octopus.energy/v1/electricity-meter-points/%s/meters/%s/consumption/',
-            $importMpan,
-            $importSerialNumber,
+            $exportMan,
+            $exportSerialNumber,
         );
 
         try {
             $response = Http::withBasicAuth($api, '')->get($url);
         } catch (ConnectionException $e) {
-            Log::error('There was a connection error trying to get Octopus import data:' . $e->getMessage());
-            throw new \RuntimeException('There was a connection error trying to get Octopus import data:' . $e->getMessage());
+            Log::error('There was a connection error trying to get Octopus export data:' . $e->getMessage());
+            throw new \RuntimeException('There was a connection error trying to get Octopus export data:' . $e->getMessage());
         }
 
         $data = $response->json();
-        Log::info('Octopus import action',
+        Log::info('Octopus export action',
             [
                 'successful' => $response->successful(),
                 'json' => $data
             ]);
 
-        throw_if($response->failed(), "Unsuccessful Octopus import, check the log file for more details.");
+        throw_if($response->failed(), "Unsuccessful Octopus export, check the log file for more details.");
 
         return collect($data['results'])
             ->map(function ($item) {

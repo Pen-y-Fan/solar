@@ -2,13 +2,13 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\OctopusImport;
+use App\Models\OctopusExport;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
 
-class OctopusImportChart extends ChartWidget
+class OctopusExportChart extends ChartWidget
 {
-    protected static ?string $heading = 'Electricity import';
+    protected static ?string $heading = 'Electricity export';
     protected static ?string $pollingInterval = '120s';
 
     protected function getData(): array
@@ -16,11 +16,11 @@ class OctopusImportChart extends ChartWidget
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
-            self::$heading = 'No electric usage data';
+            self::$heading = 'No electric export data';
             return [];
         }
 
-        $label = sprintf('usage from %s to %s',
+        $label = sprintf('export from %s to %s',
             Carbon::parse($rawData->first()['interval_start'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('d M H:i'),
@@ -40,8 +40,8 @@ class OctopusImportChart extends ChartWidget
                     'data' => $rawData->map(function ($item) {
                         return $item['consumption'];
                     }),
-                    'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
-                    'borderColor' => 'rgb(54, 162, 235)'
+                    'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
+                    'borderColor' => 'rgb(75, 192, 192)'
                 ],
             ],
             'labels' => $rawData->map(function ($item) {
@@ -59,15 +59,15 @@ class OctopusImportChart extends ChartWidget
 
     private function getDatabaseData()
     {
-        $lastImport = OctopusImport::query()
+        $lastExport = OctopusExport::query()
             ->latest('interval_start')
             ->first() ?? now();
 
-        $data = OctopusImport::query()
+        $data = OctopusExport::query()
             ->where(
                 'interval_start', '>=',
                 // possibly use a sub query to get the last interval and sub 1 day
-                $lastImport->interval_start->timezone('Europe/London')->subDay()
+                $lastExport->interval_start->timezone('Europe/London')->subDay()
                     ->startOfDay()->timezone('UTC')
             )
             ->orderBy('interval_start')

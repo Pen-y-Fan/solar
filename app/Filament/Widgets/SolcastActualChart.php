@@ -9,7 +9,7 @@ use Illuminate\Support\Carbon;
 
 class SolcastActualChart extends ChartWidget
 {
-    protected static ?string $heading = 'Solis Actual';
+    protected static ?string $heading = 'Solcast actual';
     protected static ?string $pollingInterval = '120s';
 
     protected function getData(): array
@@ -30,7 +30,7 @@ class SolcastActualChart extends ChartWidget
                 ->format('d M Y H:i')
         );
 
-        self::$heading = 'Solis ' . $label;
+        self::$heading = 'Solcast ' . $label;
 
         $label = str($label)->ucfirst();
 

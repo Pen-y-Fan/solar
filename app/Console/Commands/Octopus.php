@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\OctopusExport;
 use App\Actions\OctopusImport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -25,7 +26,7 @@ class Octopus extends Command
     /**
      * Execute the console command.
      */
-    public function handle(OctopusImport $octopusImport)
+    public function handle(OctopusImport $octopusImport, OctopusExport $octopusExport)
     {
         $this->info('Running Octopus action!');
         try {
@@ -33,6 +34,14 @@ class Octopus extends Command
             $this->info('Octopus import has been fetched!');
         } catch (\Throwable $th) {
             Log::error('Error running Octopus import action:', ['error message' => $th->getMessage()]);
+            $this->error($th->getMessage());
+        }
+
+        try {
+            $octopusExport->run();
+            $this->info('Octopus export has been fetched!');
+        } catch (\Throwable $th) {
+            Log::error('Error running Octopus export action:', ['error message' => $th->getMessage()]);
             $this->error($th->getMessage());
         }
     }
