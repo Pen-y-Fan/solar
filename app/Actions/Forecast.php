@@ -70,9 +70,9 @@ class Forecast
                 'json' => $data
             ]);
 
-        throw_if($response->failed() || str_contains($data, "response_status"), "Unsuccessful forecast, check the log file for more details.");
+        throw_if($response->failed(), "Unsuccessful forecast, check the log file for more details.");
 
-        return collect(json_decode($data, true, 512, JSON_THROW_ON_ERROR)['forecasts'])
+        return collect($data['forecasts'])
             ->map(function ($item) {
                 return [
                     "period_end" => Carbon::parse($item['period_end'])->timezone('UTC')->toDateTimeString(),

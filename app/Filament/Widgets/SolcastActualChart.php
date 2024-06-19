@@ -4,11 +4,7 @@ namespace App\Filament\Widgets;
 
 use App\Models\ActualForecast;
 use Filament\Widgets\ChartWidget;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 
 class SolcastActualChart extends ChartWidget

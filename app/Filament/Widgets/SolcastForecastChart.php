@@ -15,7 +15,7 @@ class SolcastForecastChart extends ChartWidget
     {
         $rawData = $this->getDatabaseData();
 
-        self::$heading = sprintf('Solis forecast from %s to %s',
+        self::$heading = sprintf('Solis forecast for %s to %s',
             Carbon::parse($rawData->first()['period_end'], 'UTC')
                 ->timezone(config('app.timezone'))
                 ->format('d M H:i'),
@@ -74,7 +74,7 @@ class SolcastForecastChart extends ChartWidget
     private function getDatabaseData()
     {
         $data = Forecast::where('period_end', '>=', now()->startOfHour())->orderBy('period_end')->limit(48)->get();
-        // check if empty and call Action!
+        // TODO: check if empty and call Action!
         return $data;
     }
 
