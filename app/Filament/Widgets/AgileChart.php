@@ -4,7 +4,6 @@ namespace App\Filament\Widgets;
 
 use App\Models\AgileExport;
 use App\Models\AgileImport;
-use Filament\Support\RawJs;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
 
@@ -33,7 +32,7 @@ class AgileChart extends ChartWidget
                 [
                     'label' => 'Export value',
                     'data' => $data->map(fn($item): string => $item['export_value_inc_vat']),
-                    'fill' => "-1",
+                    'fill' => true,
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
                     'borderColor' => 'rgb(75, 192, 192)',
                     'stepped' => 'middle',
@@ -41,7 +40,7 @@ class AgileChart extends ChartWidget
                 [
                     'label' => 'Import value',
                     'data' => $data->map(fn($item): string => $item['import_value_inc_vat']),
-                    'fill' => "-1",
+                    'fill' => '-1',
                     'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
                     'borderColor' => 'rgb(255, 99, 132)',
                     'stepped' => 'middle',
