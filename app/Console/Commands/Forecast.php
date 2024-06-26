@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Actions\ActualForecast;
 use App\Actions\Forecast as ForecastAction;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 
 class Forecast extends Command
 {
@@ -32,6 +33,8 @@ class Forecast extends Command
             $forecast->run();
             $this->info('Forecast has been fetched!');
         } catch (\Throwable $th) {
+            Log::error('Error running forecast import action', ['error message' => $th->getMessage()]);
+            $this->error('Error running forecast import action:');
             $this->error($th->getMessage());
         }
 
@@ -39,6 +42,8 @@ class Forecast extends Command
             $actualForecast->run();
             $this->info('Actual forecast has been fetched!');
         } catch (\Throwable $th) {
+            Log::error('Error running actual forecast import action', ['error message' => $th->getMessage()]);
+            $this->error('Error running actual forecast import action:');
             $this->error($th->getMessage());
         }
     }
