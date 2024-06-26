@@ -1,11 +1,12 @@
 {
-    "name": "laravel/laravel",
+    "name": "pen-y-fan/solar",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "Personal project to display PV solar usage.",
+    "keywords": ["Solar", "PV", "Solis", "Octopus"],
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "eightynine/filament-excel-import": "^3.0",
         "filament/filament": "^3.2",
         "laravel/framework": "^11.9",
         "laravel/tinker": "^2.9"
