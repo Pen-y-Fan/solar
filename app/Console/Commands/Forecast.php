@@ -21,8 +21,7 @@ class Forecast extends Command
      *
      * @var string
      */
-    protected $description = 'Fetch forecast data';
-
+    protected $description = 'Fetch forecast data from the Solis API and save it to the database';
 
     /**
      * Execute the console command.

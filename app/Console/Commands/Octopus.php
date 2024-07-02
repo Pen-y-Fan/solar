@@ -23,7 +23,7 @@ class Octopus extends Command
      *
      * @var string
      */
-    protected $description = 'Fetch Octopus data from their API and save it to the database';
+    protected $description = 'Fetch Octopus usage and cost data from their API and save it to the database';
 
     /**
      * Execute the console command.
