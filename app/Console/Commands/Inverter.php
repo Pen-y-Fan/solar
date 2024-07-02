@@ -4,7 +4,10 @@ namespace App\Console\Commands;
 
 use App\Imports\InverterImport;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Maatwebsite\Excel\Excel as ReaderType;
 use Maatwebsite\Excel\Facades\Excel;
 
 class Inverter extends Command
@@ -31,37 +34,41 @@ class Inverter extends Command
     public function handle(InverterImport $inverterImport)
     {
         $this->info('Finding inverter data.');
-        $directory = env('APP_ENV') === 'testing' ? 'tests' : 'uploads';
+        Log::info('Finding inverter data.');
+        $directory = 'uploads';
 
-        // find the file in the uploads directory
+        // find the files in the uploads directory
         $files = Storage::files($directory);
 
-        if (count($files) === 0) {
-            $this->fail('No files found, upload files to storage/app/uploads/');
-        }
+        $count = 0;
+        foreach ($files as $file) {
 
-        if (count($files) === 1) {
-            $file = $files[0];
-        } else {
-            $file = $this->choice(
-                'Choose the input file',
-                $files,
-                0
+            if (! Str::contains($file, '.xls')) {
+                $this->error('File not processed as it is not an excel .xls file:');
+                $this->error($file);
+                continue;
+            }
+
+            Excel::import(
+                $inverterImport,
+                $file,
+                null,
+                ReaderType::XLS
             );
-        }
 
-        Excel::import(
-            $inverterImport,
-            $file,
-            null,
-            \Maatwebsite\Excel\Excel::XLS
-        );
-        $this->info('Successfully imported inverter data!');
-
-        if (env('APP_ENV') !== 'testing') {
-            $newLocation = str_replace('uploads', 'uploads/processed', $file);
+            $newLocation = Str::replaceFirst('uploads', 'uploads/processed', $file);
             Storage::move($file, $newLocation);
-            $this->info('File processed and moved to: ' . $newLocation);
+
+            $this->info('File processed and moved to:');
+            $this->info($newLocation);
+            Log::info('File processed and moved to:', ['file' => $newLocation]);
+
+            $count++;
         }
+        if ($count === 0) {
+            $this->fail('No files processed, upload files to storage/app/uploads/');
+        }
+
+        $this->info('Successfully imported inverter data!');
     }
 }
