@@ -20,7 +20,7 @@ class InverterChart extends ChartWidget
     {
         $data = $this->getDatabaseData();
 
-        $label = sprintf('PV yield from %s to %s',
+        self::$heading = sprintf('Inverter consumption from %s to %s',
             Carbon::parse($data->first()['period'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('d M H:i'),
@@ -29,13 +29,11 @@ class InverterChart extends ChartWidget
                 ->format('d M Y H:i')
         );
 
-        self::$heading = 'Inverter ' . $label;
-
         return [
             'datasets' => [
                 [
-                    'label' => 'Yield',
-                    'data' => $data->map(fn($item): string => $item['yield']),
+                    'label' => 'Consumption',
+                    'data' => $data->map(fn($item): string => $item['consumption']),
                     'fill' => true,
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
                     'borderColor' => 'rgb(75, 192, 192)',
@@ -43,7 +41,9 @@ class InverterChart extends ChartWidget
                 ],
 
             ],
-            'labels' => $data->map(fn($item): string => $item['period'])
+            'labels' => $data->map(fn($item): string => Carbon::parse($item['period'], 'UTC')
+                ->timezone('Europe/London')
+                ->format('j M H:i'))
         ];
     }
 

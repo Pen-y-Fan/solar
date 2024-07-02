@@ -2,9 +2,11 @@
 
 namespace App\Filament\Widgets;
 
+use App\Actions\Forecast as ForecastAction;
 use App\Models\Forecast;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class SolcastForecastChart extends ChartWidget
 {
@@ -15,11 +17,14 @@ class SolcastForecastChart extends ChartWidget
     {
         $rawData = $this->getDatabaseData();
 
-        self::$heading = sprintf('Solis forecast for %s to %s',
+        self::$heading = sprintf('Solis forecast for %s to %s (last updated %s)',
             Carbon::parse($rawData->first()['period_end'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('d M H:i'),
             Carbon::parse($rawData->last()['period_end'], 'UTC')
+                ->timezone('Europe/London')
+                ->format('d M Y H:i'),
+            Carbon::parse($rawData->last()['updated_at'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('d M Y H:i')
         );
@@ -50,6 +55,7 @@ class SolcastForecastChart extends ChartWidget
                 ->format('H:i')),
         ];
     }
+
     /*
         backgroundColor: [
           'rgba(255, 99, 132, 0.2)',
@@ -73,13 +79,31 @@ class SolcastForecastChart extends ChartWidget
 
     private function getDatabaseData()
     {
-        $data = Forecast::where('period_end', '>=', now()->startOfHour())->orderBy('period_end')->limit(48)->get();
-        // TODO: check if empty and call Action!
+        $data = Forecast::query()
+            ->where('period_end', '>=', now()->startOfHour())
+            ->orderBy('period_end')
+            ->limit(48)
+            ->get();
+
+        if ($data->last()->updated_at < now()->subHours(3)) {
+            $this->updateSolcast();
+        }
+
         return $data;
     }
 
     protected function getType(): string
     {
         return 'line';
+    }
+
+    private function updateSolcast(): void
+    {
+        try {
+            (new ForecastAction())->run();
+        } catch (\Throwable $th) {
+            Log::error('Error running forecast import action', ['error message' => $th->getMessage()]);
+        }
+
     }
 }
