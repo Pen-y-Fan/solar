@@ -10,7 +10,9 @@ use App\Models\AgileExport;
 use App\Models\AgileImport;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class AgileChart extends ChartWidget
 {
@@ -33,10 +35,10 @@ class AgileChart extends ChartWidget
         self::$heading = sprintf('Agile costs from %s to %s',
             Carbon::parse($data->first()['valid_from'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('d M H:i'),
+                ->format('D jS M Y H:i'),
             Carbon::parse($data->last()['valid_from'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('d M Y H:i')
+                ->format('jS M H:i'),
         );
 
         return [
@@ -58,9 +60,14 @@ class AgileChart extends ChartWidget
                     'stepped' => 'middle',
                 ],
             ],
-            'labels' => $data->map(fn($item): string => Carbon::parse($item['valid_from'], 'UTC')
-                ->timezone('Europe/London')
-                ->format('j M H:i')),
+            'labels' => $data->map(function ($item): string {
+                $date = Carbon::parse($item['valid_from'], 'UTC')
+                    ->timezone('Europe/London');
+
+                $format = $date->format('H:i') === '00:00' ? 'j M H:i' : 'H:i';
+
+                return $date->format($format);
+            }),
         ];
     }
 
@@ -75,17 +82,17 @@ class AgileChart extends ChartWidget
           'rgba(201, 203, 207, 0.2)'
         ],
         borderColor: [
-          'rgb(255, 99, 132)',
-          'rgb(255, 159, 64)',
-          'rgb(255, 205, 86)',
+          'rgb(255, 99, 132)', // red
+          'rgb(255, 159, 64)', // orange
+          'rgb(255, 205, 86)', // yellow
           'rgb(75, 192, 192)', // green
           'rgb(54, 162, 235)', // blue
-          'rgb(153, 102, 255)',
-          'rgb(201, 203, 207)'
+          'rgb(153, 102, 255)', // purple
+          'rgb(201, 203, 207)' // grey
         ],
      */
 
-    private function getDatabaseData(): \Illuminate\Support\Collection
+    private function getDatabaseData(): Collection
     {
         $limit = 96;
         $start = now()->timezone('Europe/London')->startOfDay()->timezone('UTC');
@@ -131,7 +138,8 @@ class AgileChart extends ChartWidget
         return $importData->map(fn($item) => [
             'valid_from' => $item->valid_from,
             'import_value_inc_vat' => $item->value_inc_vat,
-            'export_value_inc_vat' => $exportData->where('valid_from', '=', $item->valid_from)->first()?->value_inc_vat ?? 0
+            'export_value_inc_vat' => $exportData->where('valid_from', '=', $item->valid_from)
+                    ->first()?->value_inc_vat ?? 0
         ]);
     }
 
@@ -158,14 +166,14 @@ class AgileChart extends ChartWidget
 
         try {
             (new AgileImportAction())->run();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             Log::error('Error running Octopus Agile import action:', ['error message' => $th->getMessage()]);
         }
 
         try {
             (new OctopusImport())->run();
             Log::info('Octopus import has been fetched!');
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             Log::error('Error running Octopus import action:', ['error message' => $th->getMessage()]);
         }
     }
@@ -176,13 +184,13 @@ class AgileChart extends ChartWidget
 
         try {
             (new AgileExportAction())->run();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             Log::error('Error running Octopus Agile export action:', ['error message' => $th->getMessage()]);
         }
 
         try {
             (new OctopusExport)->run();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             Log::error('Error running Octopus export action:', ['error message' => $th->getMessage()]);
         }
     }

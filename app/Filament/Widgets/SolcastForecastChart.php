@@ -5,8 +5,10 @@ namespace App\Filament\Widgets;
 use App\Actions\Forecast as ForecastAction;
 use App\Models\Forecast;
 use Filament\Widgets\ChartWidget;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class SolcastForecastChart extends ChartWidget
 {
@@ -20,13 +22,13 @@ class SolcastForecastChart extends ChartWidget
         self::$heading = sprintf('Solis forecast for %s to %s (last updated %s)',
             Carbon::parse($rawData->first()['period_end'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('d M H:i'),
+                ->format('D jS M Y H:i'),
             Carbon::parse($rawData->last()['period_end'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('d M Y H:i'),
+                ->format('jS M H:i'),
             Carbon::parse($rawData->last()['updated_at'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('d M Y H:i')
+                ->format('D jS M Y H:i'),
         );
 
         return [
@@ -77,7 +79,7 @@ class SolcastForecastChart extends ChartWidget
         ],
      */
 
-    private function getDatabaseData()
+    private function getDatabaseData(): Collection|array
     {
         $data = Forecast::query()
             ->where('period_end', '>=', now()->startOfHour())
@@ -101,7 +103,7 @@ class SolcastForecastChart extends ChartWidget
     {
         try {
             (new ForecastAction())->run();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             Log::error('Error running forecast import action', ['error message' => $th->getMessage()]);
         }
 

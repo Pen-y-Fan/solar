@@ -4,15 +4,14 @@ namespace App\Filament\Widgets;
 
 use App\Models\Inverter;
 use Filament\Widgets\ChartWidget;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 
 class InverterChart extends ChartWidget
 {
     protected static ?string $heading = 'Inverter yield';
 
-    protected int|string|array $columnSpan = 1;
-
-    protected static ?string $pollingInterval = '10s';
+    protected static ?string $pollingInterval = '120s';
 
     public int $count = 1;
 
@@ -23,10 +22,10 @@ class InverterChart extends ChartWidget
         self::$heading = sprintf('Inverter consumption from %s to %s',
             Carbon::parse($data->first()['period'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('d M H:i'),
+                ->format('D jS M Y H:i'),
             Carbon::parse($data->last()['period'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('d M Y H:i')
+                ->format('jS M H:i'),
         );
 
         return [
@@ -43,11 +42,11 @@ class InverterChart extends ChartWidget
             ],
             'labels' => $data->map(fn($item): string => Carbon::parse($item['period'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('j M H:i'))
+                ->format('H:i')),
         ];
     }
 
-    private function getDatabaseData()
+    private function getDatabaseData(): Collection|array
     {
         $lastExport = Inverter::query()
             ->latest('period')

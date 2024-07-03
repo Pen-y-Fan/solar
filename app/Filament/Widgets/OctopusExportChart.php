@@ -13,37 +13,34 @@ use Throwable;
 class OctopusExportChart extends ChartWidget
 {
     protected static ?string $heading = 'Electricity export';
-    protected static ?string $pollingInterval = '20s';
+
+    protected static ?string $pollingInterval = '120s';
 
     protected function getData(): array
     {
         $rawData = $this->getDatabaseData();
-        Log::info('export chart with costs', ['data' => $rawData]);
+
         if ($rawData->count() === 0) {
             self::$heading = 'No electric export data';
             return [];
         }
 
-        $label = sprintf('export from %s to %s (last updated %s)',
+        self::$heading = sprintf('Electric export from %s to %s (last updated %s)',
             Carbon::parse($rawData->first()['interval_start'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('d M H:i'),
+                ->format('D jS M Y H:i'),
             Carbon::parse($rawData->last()['interval_end'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('d M Y H:i'),
+                ->format('jS M H:i'),
             Carbon::parse($rawData->last()['updated_at'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('d M Y H:i')
+                ->format('D jS M Y H:i')
         );
-
-        self::$heading = 'Electric ' . $label;
-
-        $label = str($label)->ucfirst();
 
         return [
             'datasets' => [
                 [
-                    'label' => $label,
+                    'label' => 'Export',
                     'type' => 'bar',
                     'data' => $rawData->map(fn($item) => $item['consumption']),
                     'backgroundColor' => 'rgba(255, 159, 64, 0.2)',

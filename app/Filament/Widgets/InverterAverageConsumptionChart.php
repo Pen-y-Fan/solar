@@ -5,20 +5,21 @@ namespace App\Filament\Widgets;
 use App\Models\Inverter;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Contracts\Support\Htmlable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class InverterAverageConsumptionChart extends ChartWidget
 {
-    protected int|string|array $columnSpan = 1;
-    protected static ?string $pollingInterval = '20s';
+    protected static ?string $pollingInterval = '120s';
 
     public int $count = 1;
 
     public function getHeading(): string|Htmlable|null
     {
-        return 'Average consumption (Inverter) from ' . now()->timezone('Europe/London')->subdays(10)
+        return 'Average consumption (Inverter) since ' . now()->timezone('Europe/London')->subdays(10)
                 ->startOfDay()
-                ->diffForHumans(parts: 2);
+                ->format('D jS M Y');
     }
 
     protected function getData(): array
@@ -37,11 +38,11 @@ class InverterAverageConsumptionChart extends ChartWidget
                 ],
 
             ],
-            'labels' => $data->map(fn($item): string => $item['time'])
+            'labels' => $data->map(fn($item): string => Str::take($item['time'], 5))
         ];
     }
 
-    private function getDatabaseData()
+    private function getDatabaseData(): Collection|array
     {
         return Inverter::query()
             ->select(DB::raw('time(period) as `time`, avg(`consumption`) as `value`'))

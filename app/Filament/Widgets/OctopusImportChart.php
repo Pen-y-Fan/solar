@@ -7,13 +7,15 @@ use App\Models\AgileImport;
 use App\Models\OctopusImport;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class OctopusImportChart extends ChartWidget
 {
     protected static ?string $heading = 'Electricity import';
-    protected static ?string $pollingInterval = '20s';
+
+    protected static ?string $pollingInterval = '120s';
 
     protected function getData(): array
     {
@@ -24,23 +26,19 @@ class OctopusImportChart extends ChartWidget
             return [];
         }
 
-        $label = sprintf('usage from %s to %s',
+        self::$heading = sprintf('Electric import from %s to %s',
             Carbon::parse($rawData->first()['interval_start'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('d M H:i'),
+                ->format('D jS M Y H:i'),
             Carbon::parse($rawData->last()['interval_end'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('d M Y H:i')
+                ->format('jS M H:i')
         );
-
-        self::$heading = 'Electric ' . $label;
-
-        $label = str($label)->ucfirst();
 
         return [
             'datasets' => [
                 [
-                    'label' => $label,
+                    'label' => 'Usage',
                     'data' => $rawData->map(fn($item) => -$item['consumption']),
                     'backgroundColor' => 'rgba(255, 205, 86, 0.2)',
                     'borderColor' => 'rgb(255, 205, 86)',
@@ -65,7 +63,7 @@ class OctopusImportChart extends ChartWidget
         return 'bar';
     }
 
-    private function getDatabaseData()
+    private function getDatabaseData(): Collection
     {
         $lastImport = OctopusImport::query()
             ->latest('interval_start')

@@ -8,6 +8,7 @@ use Filament\Widgets\ChartWidget;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 
 class SolcastActualChart extends ChartWidget
@@ -25,26 +26,22 @@ class SolcastActualChart extends ChartWidget
         }
         $lastRecord = $rawData->last();
 
-        $label = sprintf('actual from %s to %s (last updated %s)',
+        self::$heading = sprintf('Solcast actual from %s to %s (last updated %s)',
             Carbon::parse($rawData->first()['period_end'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('d M H:i'),
+                ->format('D jS M Y H:i'),
             Carbon::parse($lastRecord['period_end'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('d M Y H:i'),
+                ->format('jS M H:i'),
             Carbon::parse($lastRecord['updated_at'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('d M Y H:i')
+                ->format('D jS M H:i')
         );
-
-        self::$heading = 'Solcast ' . $label;
-
-        $label = str($label)->ucfirst();
 
         return [
             'datasets' => [
                 [
-                    'label' => $label,
+                    'label' => 'Solcast actual',
                     'data' => $rawData->map(function ($item) {
                         return $item['pv_estimate'];
                     }),
@@ -81,7 +78,7 @@ class SolcastActualChart extends ChartWidget
     {
         try {
             (new ActualForecastAction())->run();
-        } catch (\Throwable $th) {
+        } catch (Throwable $th) {
             Log::error('Error running actual forecast import action', ['error message' => $th->getMessage()]);
         }
     }
