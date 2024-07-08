@@ -19,10 +19,10 @@ class Forecast
         // check the last run (latest updated at), return if < 1 hour
         $lastForecast = \App\Models\Forecast::latest('updated_at')->first();
 
-        throw_if(!empty($lastForecast) && $lastForecast['updated_at'] >= now()->subHour(),
+        throw_if(!empty($lastForecast) && $lastForecast->updated_at >= now()->subHour(),
             sprintf(
                 'Last updated in the hour, try again in %s',
-                $lastForecast['updated_at']->addHour()->diffForHumans()
+                $lastForecast->updated_at->addHour()->diffForHumans()
             )
         );
 
@@ -41,7 +41,7 @@ class Forecast
     /**
      * @throws \Throwable
      */
-    private function getForecastData()
+    private function getForecastData(): array
     {
         $api = Config::get('solcast.api_key');
         $resourceId = Config::get('solcast.resource_id');

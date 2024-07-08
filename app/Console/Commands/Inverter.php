@@ -43,18 +43,24 @@ class Inverter extends Command
         $count = 0;
         foreach ($files as $file) {
 
-            if (! Str::contains($file, '.xls')) {
+            if (! Str::endsWith($file, '.xls')) {
                 $this->error('File not processed as it is not an excel .xls file:');
                 $this->error($file);
                 continue;
             }
 
-            Excel::import(
-                $inverterImport,
-                $file,
-                null,
-                ReaderType::XLS
-            );
+            try {
+                Excel::import(
+                    $inverterImport,
+                    $file,
+                    null,
+                    ReaderType::XLS
+                );
+            } catch ( \PhpOffice\PhpSpreadsheet\Reader\Exception $exception) {
+                $this->error('Failed to import inverter data for file:');
+                $this->error($file);
+                continue;
+            }
 
             $newLocation = Str::replaceFirst('uploads', 'uploads/processed', $file);
             Storage::move($file, $newLocation);
