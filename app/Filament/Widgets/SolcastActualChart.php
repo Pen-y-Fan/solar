@@ -16,11 +16,13 @@ class SolcastActualChart extends ChartWidget
     protected static ?string $heading = 'Solcast actual';
     protected static ?string $pollingInterval = '120s';
 
+    private const UPDATE_FREQUENCY_HOURS = 6;
+
     protected function getData(): array
     {
         $rawData = $this->getDatabaseData();
 
-        if($rawData->count() === 0) {
+        if ($rawData->count() === 0) {
             self::$heading = 'No data for Solis actual';
             return [];
         }
@@ -62,16 +64,18 @@ class SolcastActualChart extends ChartWidget
 
     private function getDatabaseData(): Collection
     {
-        $data = ActualForecast::query()
-        ->where('period_end', '>=', now()->startOfHour()->subDay())->orderBy('period_end')
-            ->limit(48)
-            ->get();
+        $lastUpdate = ActualForecast::query()
+            ->latest('period_end')
+            ->first();
 
-        if ($data->last()->updated_at < now()->subHours(6)) {
+        if (is_null($lastUpdate) || $lastUpdate->updated_at < now()->subHours(self::UPDATE_FREQUENCY_HOURS)) {
             $this->updateSolcast();
         }
 
-        return $data;
+        return ActualForecast::query()
+            ->where('period_end', '>=', now()->startOfHour()->subDay())->orderBy('period_end')
+            ->limit(48)
+            ->get();
     }
 
     private function updateSolcast(): void

@@ -97,6 +97,36 @@ class AgileChart extends ChartWidget
         $limit = 96;
         $start = now()->timezone('Europe/London')->startOfDay()->timezone('UTC');
 
+        $lastImport = AgileImport::query()
+            ->where(
+                'valid_from',
+                '>=',
+                $start
+            )
+            ->orderBy('valid_from', 'DESC')
+            ->first();
+
+        $lastExport = AgileExport::query()
+            ->where(
+                'valid_from',
+                '>=',
+                $start
+            )
+            ->orderBy('valid_from', 'DESC')
+            ->first();
+
+        if (is_null($lastImport) || now()->diffInUTCHours($lastImport?->valid_from ?? now()) < 7) {
+            // Don't download if we have more than 7 hours of data from now, data is normally available after 4 PM.
+            // We should have data up to 11 PM, 4 PM is 7 hours before 11pm.
+            $this->updateAgileImport();
+        }
+
+        if (is_null($lastExport) || now()->diffInUTCHours($lastExport?->valid_from ?? now()) < 7) {
+            // Don't download if we have more than 7 hours of data from now, data is normally available after 4 PM.
+            // We should have data up to 11 PM, 4 PM is 7 hours before 11pm.
+            $this->updateAgileExport();
+        }
+
         $importData = AgileImport::query()
             ->where(
                 'valid_from',
@@ -116,18 +146,6 @@ class AgileChart extends ChartWidget
             ->orderBy('valid_from')
             ->limit($limit)
             ->get();
-
-        if (now()->diffInUTCHours($importData->last()->valid_to) < 7) {
-            // Don't download if we have more than 7 hours of data from now, data is normally available after 4 PM.
-            // We should have data up to 11 PM, 4 PM is 7 hours before 11pm.
-            $this->updateAgileImport();
-        }
-
-        if (now()->diffInUTCHours($exportData->last()->valid_to) < 7) {
-            // Don't download if we have more than 7 hours of data from now, data is normally available after 4 PM.
-            // We should have data up to 11 PM, 4 PM is 7 hours before 11pm.
-            $this->updateAgileExport();
-        }
 
         // get min for value_inc_vat, including some space
         $min = floor($importData->min('value_inc_vat') ?? 1) - 1;

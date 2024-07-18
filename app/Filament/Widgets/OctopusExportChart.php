@@ -12,6 +12,8 @@ use Throwable;
 
 class OctopusExportChart extends ChartWidget
 {
+    private const UPDATE_FREQUENCY_HOURS = 4;
+
     protected static ?string $heading = 'Electricity export';
 
     protected static ?string $pollingInterval = '120s';
@@ -69,12 +71,23 @@ class OctopusExportChart extends ChartWidget
 
     private function getDatabaseData(): Collection
     {
-        $lastExport = OctopusExport::query()
-            ->latest('interval_start')
-            ->first() ?? now();
+        $lastExport = $this->getLastExport();
 
-        $start = $lastExport->interval_start->timezone('Europe/London')->subDay()
+
+        if (
+            is_null($lastExport)
+            || (
+                $lastExport->interval_start <= now()->subDay()
+                && $lastExport->updated_at <= now()->subHours(self::UPDATE_FREQUENCY_HOURS)
+            )
+        ) {
+            $this->updateOctopusExport();
+            $lastExport = $this->getLastExport();
+        }
+
+        $start = ($lastExport?->interval_start ?? now())->timezone('Europe/London')->subDay()
             ->startOfDay()->timezone('UTC');
+
         $limit = 48;
 
         $data = OctopusExport::query()
@@ -97,9 +110,9 @@ class OctopusExportChart extends ChartWidget
             ->limit($limit)
             ->get();
 
-        if ($lastExport['interval_start'] <= now()->subDay() && $lastExport['updated_at'] <= now()->subHours(4)) {
-            $this->updateOctopusExport();
-        }
+//        if ($lastExport['interval_start'] <= now()->subDay() && $lastExport['updated_at'] <= now()->subHours(self::UPDATE_FREQUENCY_HOURS)) {
+//            $this->updateOctopusExport();
+//        }
 
         $accumulativeCost = 0;
         $result = [];
@@ -156,6 +169,13 @@ class OctopusExportChart extends ChartWidget
                 ]
             ]
         ];
+    }
+
+    private function getLastExport()
+    {
+        return OctopusExport::query()
+            ->latest('interval_start')
+            ->first();
     }
 
 }

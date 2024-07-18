@@ -13,6 +13,8 @@ use Throwable;
 
 class OctopusImportChart extends ChartWidget
 {
+    private const UPDATE_FREQUENCY_HOURS = 4;
+
     protected static ?string $heading = 'Electricity import';
 
     protected static ?string $pollingInterval = '120s';
@@ -27,10 +29,10 @@ class OctopusImportChart extends ChartWidget
         }
 
         self::$heading = sprintf('Electric import from %s to %s',
-            Carbon::parse($rawData->first()['interval_start'], 'UTC')
+            $rawData->first()['interval_start']
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
-            Carbon::parse($rawData->last()['interval_end'], 'UTC')
+            $rawData->last()['interval_end']
                 ->timezone('Europe/London')
                 ->format('jS M H:i')
         );
@@ -65,11 +67,21 @@ class OctopusImportChart extends ChartWidget
 
     private function getDatabaseData(): Collection
     {
-        $lastImport = OctopusImport::query()
-            ->latest('interval_start')
-            ->first() ?? now();
+        $lastImport = $this->getLatestImport();
+
+        if (
+            is_null($lastImport)
+            || (
+                $lastImport->interval_start <= now()->subDay()
+                && $lastImport->updated_at <= now()->subHours(self::UPDATE_FREQUENCY_HOURS)
+            )
+        ) {
+            $this->updateOctopusImport();
+            $lastImport = $this->getLatestImport();
+        }
+
         $limit = 48;
-        $start = $lastImport->interval_start->timezone('Europe/London')->subDay()
+        $start = ($lastImport?->interval_start ?? now())->timezone('Europe/London')->subDay()
             ->startOfDay()->timezone('UTC');
 
         $importData = OctopusImport::query()
@@ -91,11 +103,6 @@ class OctopusImportChart extends ChartWidget
             ->orderBy('valid_from')
             ->limit($limit)
             ->get();
-
-
-        if ($lastImport->interval_start <= now()->subDay() && $lastImport->updated_at <= now()->subHours(4)) {
-            $this->updateOctopusImport();
-        }
 
         $accumulativeCost = 0;
         $result = [];
@@ -153,5 +160,12 @@ class OctopusImportChart extends ChartWidget
                 ]
             ]
         ];
+    }
+
+    private function getLatestImport()
+    {
+        return OctopusImport::query()
+            ->latest('interval_start')
+            ->first();
     }
 }

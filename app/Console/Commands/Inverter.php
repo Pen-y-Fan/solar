@@ -31,7 +31,7 @@ class Inverter extends Command
      *
      * @throws \Throwable
      */
-    public function handle(InverterImport $inverterImport)
+    public function handle(InverterImport $inverterImport): void
     {
         $this->info('Finding inverter data.');
         Log::info('Finding inverter data.');
@@ -43,7 +43,7 @@ class Inverter extends Command
         $count = 0;
         foreach ($files as $file) {
 
-            if (! Str::endsWith($file, '.xls')) {
+            if (!Str::endsWith($file, '.xls')) {
                 $this->error('File not processed as it is not an excel .xls file:');
                 $this->error($file);
                 continue;
@@ -56,7 +56,7 @@ class Inverter extends Command
                     null,
                     ReaderType::XLS
                 );
-            } catch ( \PhpOffice\PhpSpreadsheet\Reader\Exception $exception) {
+            } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $exception) {
                 $this->error('Failed to import inverter data for file:');
                 $this->error($file);
                 continue;
