@@ -20,10 +20,28 @@ class ForecastChart extends ChartWidget
 
     protected static ?string $heading = 'Forecast';
 
+    public ?string $filter = 'today';
+
     protected static ?string $pollingInterval = '120s';
 
     private const BATTERY_MIN = 0.4;
+
     private const BATTERY_MAX = 4.0;
+
+    protected function getFilters(): ?array
+    {
+        return [
+            'yesterday' => 'Yesterday',
+            'yesterday10' => 'Yesterday (10%)',
+            'yesterday90' => 'Yesterday (90%)',
+            'today' => 'Today',
+            'today10' => 'Today (10%)',
+            'today90' => 'Today (90%)',
+            'tomorrow' => 'Tomorrow',
+            'tomorrow10' => 'Tomorrow (10%)',
+            'tomorrow90' => 'Tomorrow (90%)',
+        ];
+    }
 
     protected function getData(): array
     {
@@ -53,9 +71,9 @@ class ForecastChart extends ChartWidget
                     'yAxisID' => 'y',
                 ],
                 [
-                    'label' => 'Accumulative cost',
+                    'label' => 'Battery (%)',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => $item['accumulative_cost']*25),
+                    'data' => $rawData->map(fn($item) => $item['accumulative_cost'] * 25),
                     'borderColor' => 'rgb(255, 99, 132)',
                     'yAxisID' => 'y1',
                 ],
@@ -73,6 +91,11 @@ class ForecastChart extends ChartWidget
 
     private function getDatabaseData(): Collection
     {
+        $startDate = match ($this->filter) {
+            'yesterday', 'yesterday10', 'yesterday90' => now('Europe/London')->subDay()->startOfDay()->timezone('UTC'),
+            'today', 'today10', 'today90' => now('Europe/London')->startOfDay()->timezone('UTC'),
+            'tomorrow', 'tomorrow10', 'tomorrow90' => now('Europe/London')->addDay()->startOfDay()->timezone('UTC'),
+        };
 
         $limit = 48;
 
@@ -81,7 +104,7 @@ class ForecastChart extends ChartWidget
             ->where(
                 'period_end',
                 '>=',
-                now('Europe/London')->startOfDay()->timezone('UTC')
+                $startDate
             )
             ->limit($limit)
             ->get();
@@ -132,7 +155,14 @@ class ForecastChart extends ChartWidget
              * otherwise usage and export = 0, as the battery was used.
              */
 
-            $battery += ($forecast->pv_estimate10) - $averageConsumption->value;
+            $estimate = match ($this->filter) {
+                'yesterday', 'today', 'tomorrow' => $forecast->pv_estimate / 2,
+                'yesterday10', 'today10', 'tomorrow10' => $forecast->pv_estimate10 / 2,
+                'yesterday90', 'today90', 'tomorrow90' => $forecast->pv_estimate90 / 2,
+            };
+
+
+            $battery += $estimate - $averageConsumption->value;
 
             $usage = 0;
             $export = 0;
