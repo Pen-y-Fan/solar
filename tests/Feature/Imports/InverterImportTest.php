@@ -16,8 +16,8 @@ class InverterImportTest extends TestCase
     {
         Excel::import(
             new InverterImport(),
-            'tests/Inverter History Report_20240625044020_1300386381676952160.xls'
-            , null,
+            'tests/Inverter Test History Report_20240625044020_1300386381676952160.xls',
+            null,
             \Maatwebsite\Excel\Excel::XLS
         );
         // Data from 2024-06-22, yield 17.6, to grid 8.4, imported 1.8, consumption 10.9
@@ -34,8 +34,8 @@ class InverterImportTest extends TestCase
     {
         Excel::import(
             new InverterImport(),
-            'tests/Inverter History Report_20240625044020_1300386381676952160.xls'
-            , null,
+               'tests/Inverter Test History Report_20240625044020_1300386381676952160.xls',
+            null,
             \Maatwebsite\Excel\Excel::XLS
         );
 
@@ -43,8 +43,8 @@ class InverterImportTest extends TestCase
 
         Excel::import(
             new InverterImport(),
-            'tests/Inverter History Report_20240625044020_1300386381676952160.xls'
-            , null,
+            'tests/Inverter Test History Report_20240625044020_1300386381676952160.xls',
+            null,
             \Maatwebsite\Excel\Excel::XLS
         );
 

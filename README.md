@@ -9,7 +9,7 @@ This is a **personal project** to experiment with Solar panel APIs.
 - Investigate downloadable data from Solis inverter
 - Calculate cost
 - Calculate rolling average usage per 30 min.
-- Try to forecast battery and solar usage with cost(s)
+- Forecast battery and solar usage with cost(s)
 
 ## Requirements
 
