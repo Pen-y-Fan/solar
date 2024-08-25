@@ -146,6 +146,9 @@ class ForecastChart extends ChartWidget
             $averageConsumption = $averageConsumptions->where('time', '=', $forecast->period_end->format('H:i:s'))
                 ->first() ?? 0;
 
+            if ($averageConsumption === 0) {
+                return collect([]);
+            }
             /*
              * The battery start off at self::BATTERY_MIN
              * if battery + pv_estimate - avg. consumption < self::BATTERY_MIN then usage is the difference
