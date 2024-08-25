@@ -51,7 +51,9 @@ class OctopusImport
         $importSerialNumber = Config::get('octopus.import_serial_number');
 
         $url = sprintf(
-            'https://api.octopus.energy/v1/electricity-meter-points/%s/meters/%s/consumption/',
+            // https://developer.octopus.energy/rest/guides/endpoints
+            // ?page_size=200&period_from=2023-03-29T00:00Z&period_to=2023-03-29T01:29Z&order_by=period
+            'https://api.octopus.energy/v1/electricity-meter-points/%s/meters/%s/consumption?page_size=200',
             $importMpan,
             $importSerialNumber,
         );

@@ -48,7 +48,7 @@ class ForecastChart extends ChartWidget
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
-            self::$heading = 'No electric usage data';
+            self::$heading = 'No forecast data';
             return [];
         }
 
@@ -106,8 +106,18 @@ class ForecastChart extends ChartWidget
                 '>=',
                 $startDate
             )
+            ->where(
+                'period_end',
+                '<=',
+                $startDate->copy()->timezone('Europe/London')->endOfDay()->timezone('UTC')
+            )
             ->limit($limit)
+            ->orderBy('period_end')
             ->get();
+
+        if ($forecastData->count() === 0) {
+            return collect();
+        }
 
         $firstForecast = $forecastData->first()->period_end;
 

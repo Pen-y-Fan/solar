@@ -52,7 +52,7 @@ class OctopusExport
         $exportSerialNumber = Config::get('octopus.export_serial_number');
 
         $url = sprintf(
-            'https://api.octopus.energy/v1/electricity-meter-points/%s/meters/%s/consumption/',
+            'https://api.octopus.energy/v1/electricity-meter-points/%s/meters/%s/consumption?page_size=200',
             $exportMan,
             $exportSerialNumber,
         );

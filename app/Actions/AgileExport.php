@@ -48,6 +48,7 @@ class AgileExport
      */
     private function getExportData()
     {
+        // default page size is 200 (~ 4 days) download additional using this query string (~ 20 days): /?page_size=1000
         $url = 'https://api.octopus.energy/v1/products/AGILE-OUTGOING-BB-23-02-28/electricity-tariffs/E-1R-AGILE-OUTGOING-BB-23-02-28-K/standard-unit-rates/?page_size=200';
 
         try {
