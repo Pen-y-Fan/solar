@@ -60,6 +60,13 @@ class InverterImport implements ToCollection, WithHeadingRow
 
                 $lastInPeriod = $row;
 
+                // Sometimes the last row of data for the day is reset to 0 prematurely in the export report.
+                // the difference for the day will be negative.
+                if (($lastInPeriod['Daily Consumption Energy(kWh)'] - $firstInPeriod['Daily Consumption Energy(kWh)']) < 0) {
+                    // use the previous row of data
+                    $lastInPeriod = $collection[$i -2];
+                }
+
                 $data[] = [
                     'period' => $currentPeriod->toDateTimeString(),
                     'yield' => $lastInPeriod['Today Yield(kWh)'] - $firstInPeriod['Today Yield(kWh)'],
