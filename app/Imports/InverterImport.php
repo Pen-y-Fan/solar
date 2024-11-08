@@ -11,10 +11,20 @@ use Maatwebsite\Excel\Imports\HeadingRowFormatter;
 
 /**
  * Row 8 is the heading
+ *
  * Time [Column B] -> Period - converted to 30 min time periods
+ *
  * Today Yield(kWh) -> yield - PV yield for the period
- * Daily Energy to Grid(kWh) -> to_grid - Excess energy send to the grid for the period
- * Daily Energy from Grid(kWh) = from_grid - Import energy imported from the grid
+ *
+ * Column 'Daily Energy to Grid(kWh)' has been removed from Excel sheet
+ * ~~Daily Energy to Grid(kWh) -> to_grid - Excess energy send to the grid for the period~~
+ * Total Energy to Grid(kWh) -> accumulated energy sent to the grid
+ *
+ * Column 'Daily Energy from Grid(kWh)' has been removed from Excel sheet
+ * ~~Daily Energy from Grid(kWh) = from_grid - Import energy imported from the grid~~
+ *
+ * Total Energy from Grid(kWh) -> accumulated energy imported from the grid
+ *
  * Daily Consumption Energy(kWh) = consumption - Energy consumed during the period
  *
  * (new InverterImport)->import('inverter.xls', null, \Maatwebsite\Excel\Excel::XLS);
@@ -70,8 +80,12 @@ class InverterImport implements ToCollection, WithHeadingRow
                 $data[] = [
                     'period' => $currentPeriod->toDateTimeString(),
                     'yield' => $lastInPeriod['Today Yield(kWh)'] - $firstInPeriod['Today Yield(kWh)'],
-                    'to_grid' => $lastInPeriod['Daily Energy to Grid(kWh)'] - $firstInPeriod['Daily Energy to Grid(kWh)'],
-                    'from_grid' => $lastInPeriod['Daily Energy from Grid(kWh)'] - $firstInPeriod['Daily Energy from Grid(kWh)'],
+                    // Column 'Daily Energy to Grid(kWh)' has been removed from Excel sheet
+//                    'to_grid' => $lastInPeriod['Daily Energy to Grid(kWh)'] - $firstInPeriod['Daily Energy to Grid(kWh)'],
+                    'to_grid' => $lastInPeriod['Total Energy to Grid(kWh)'] - $firstInPeriod['Total Energy to Grid(kWh)'],
+                    // Column 'Daily Energy from Grid(kWh)' has been removed from Excel sheet
+//                    'from_grid' => $lastInPeriod['Daily Energy from Grid(kWh)'] - $firstInPeriod['Daily Energy from Grid(kWh)'],
+                    'from_grid' => $lastInPeriod['Total Energy from Grid(kWh)'] - $firstInPeriod['Total Energy from Grid(kWh)'],
                     'consumption' => $lastInPeriod['Daily Consumption Energy(kWh)'] - $firstInPeriod['Daily Consumption Energy(kWh)'],
                 ];
                 // Log::info('First in period', ['index' => $i, 'Last in period' => $lastInPeriod['Daily Energy to Grid(kWh)'], 'First in period' => $firstInPeriod['Daily Energy to Grid(kWh)']]);
