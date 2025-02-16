@@ -27,7 +27,7 @@ class OctopusExportChart extends ChartWidget
             return [];
         }
 
-        self::$heading = sprintf('Electric export from %s to %s (last updated %s)',
+        self::$heading = sprintf('Electric export from %s to %s (last updated %s) (£%.2f)',
             Carbon::parse($rawData->first()['interval_start'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
@@ -36,7 +36,8 @@ class OctopusExportChart extends ChartWidget
                 ->format('jS M H:i'),
             Carbon::parse($rawData->last()['updated_at'], 'UTC')
                 ->timezone('Europe/London')
-                ->format('D jS M Y H:i')
+                ->format('D jS M Y H:i'),
+            $rawData->last()['accumulative_cost'] ?? 0
         );
 
         return [
@@ -91,34 +92,19 @@ class OctopusExportChart extends ChartWidget
         $limit = 48;
 
         $data = OctopusExport::query()
+            ->with('importCost')
             ->where(
                 'interval_start', '>=',
-                // possibly use a sub query to get the last interval and sub 1 day
                 $start
             )
             ->orderBy('interval_start')
             ->limit($limit)
             ->get();
 
-        $exportCost = AgileExport::query()
-            ->where(
-                'valid_from',
-                '>=',
-                $start
-            )
-            ->orderBy('valid_from')
-            ->limit($limit)
-            ->get();
-
-//        if ($lastExport['interval_start'] <= now()->subDay() && $lastExport['updated_at'] <= now()->subHours(self::UPDATE_FREQUENCY_HOURS)) {
-//            $this->updateOctopusExport();
-//        }
-
         $accumulativeCost = 0;
         $result = [];
         foreach ($data as $item) {
-            $exportValueIncVat = $exportCost->where('valid_from', '=', $item->interval_start)
-                ->first()?->value_inc_vat ?? 0;
+            $exportValueIncVat = $item->importCost?->value_inc_vat ?? 0;
 
             $cost = $exportValueIncVat * $item->consumption;
             $accumulativeCost += ($cost / 100);

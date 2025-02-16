@@ -107,13 +107,15 @@ class OctopusChart extends ChartWidget
     private function getDatabaseData(): Collection
     {
         if ($this->filter === '') {
-            $this->filter = now()->startOfDay()->subDay()->format('Y-m-d');
+            $offset = now('Europe/London')->hour < 17 ? 2 : 1;
+            $this->filter = now()->startOfDay()->subDay($offset)->format('Y-m-d');
         }
         $start = Carbon::parse($this->filter, 'Europe/London')->startOfDay()->timezone('UTC');
 
         $limit = 48;
 
         $data = OctopusExport::query()
+            ->with(['importCost','exportCost', 'octopusImport'])
             ->where(
                 'interval_start', '>=',
                 $start
@@ -127,61 +129,26 @@ class OctopusChart extends ChartWidget
             ->limit($limit)
             ->get();
 
-        $exportCosts = AgileExport::query()
-            ->where(
-                'valid_from',
-                '>=',
-                $start
-            )
-            ->orderBy('valid_from')
-            ->limit($limit)
-            ->get();
-
-        $importData = OctopusImport::query()
-            ->where(
-                'interval_start', '>=',
-                $start
-            )
-            ->orderBy('interval_start')
-            ->limit($limit)
-            ->get();
-
-        $importCosts = AgileImport::query()
-            ->where(
-                'valid_from',
-                '>=',
-                $start
-            )
-            ->orderBy('valid_from')
-            ->limit($limit)
-            ->get();
-
-
         $exportAccumulativeCost = 0;
         $importAccumulativeCost = 0;
 
         $result = [];
-        foreach ($data as $item) {
-            $exportValueIncVat = $exportCosts->where('valid_from', '=', $item->interval_start)
-                ->first()?->value_inc_vat ?? 0;
+        foreach ($data as $exportItem) {
+            $exportValueIncVat = $exportItem->exportCost?->value_inc_vat ?? 0;
+            $importValueIncVat = $exportItem->importCost?->value_inc_vat ?? 0;
+            $importConsumption = $exportItem->octopusImport?->consumption ?? 0;
 
-            $importConsumption = $importData->where('interval_start', '=', $item->interval_start)
-                ->first()?->consumption ?? 0;
-
-            $importValueIncVat = $importCosts->where('valid_from', '=', $item->interval_start)
-                ->first()?->value_inc_vat ?? 0;
-
-            $exportCost = $exportValueIncVat * $item->consumption;
+            $exportCost = $exportValueIncVat * $exportItem->consumption;
             $exportAccumulativeCost += ($exportCost / 100);
 
             $importCost = -$importValueIncVat * $importConsumption;
             $importAccumulativeCost += ($importCost / 100);
 
             $result[] = [
-                'interval_start' => $item->interval_start,
-                'interval_end' => $item->interval_end,
-                'updated_at' => $item->updated_at,
-                'export_consumption' => $item->consumption,
+                'interval_start' => $exportItem->interval_start,
+                'interval_end' => $exportItem->interval_end,
+                'updated_at' => $exportItem->updated_at,
+                'export_consumption' => $exportItem->consumption,
                 'import_consumption' => $importConsumption,
                 'export_value_inc_vat' => $exportValueIncVat,
                 'import_value_inc_vat' => $importValueIncVat,
@@ -218,19 +185,5 @@ class OctopusChart extends ChartWidget
                 ]
             ]
         ];
-    }
-
-    private function getLastExport()
-    {
-        return OctopusExport::query()
-            ->latest('interval_start')
-            ->first();
-    }
-
-    private function getLatestImport()
-    {
-        return OctopusImport::query()
-            ->latest('interval_start')
-            ->first();
     }
 }

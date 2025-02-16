@@ -52,13 +52,14 @@ class ForecastChart extends ChartWidget
             return [];
         }
 
-        self::$heading = sprintf('Forecast for %s to %s',
+        self::$heading = sprintf('Forecast for %s to %s cost £%0.2f (without charging battery)',
             $rawData->first()['period_end']
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
             $rawData->last()['period_end']
                 ->timezone('Europe/London')
-                ->format('jS M H:i')
+                ->format('jS M H:i'),
+            $rawData->sum('cost')
         );
 
         return [
@@ -71,9 +72,23 @@ class ForecastChart extends ChartWidget
                     'yAxisID' => 'y',
                 ],
                 [
+                    'label' => 'Cost',
+                    'type' => 'line',
+                    'data' => $rawData->map(fn($item) => $item['cost']),
+                    'borderColor' => 'rgb(54, 162, 235)',
+                    'yAxisID' => 'y2',
+                ],
+                [
+                    'label' => 'Cost',
+                    'type' => 'line',
+                    'data' => $rawData->map(fn($item) => $item['acc_cost']),
+                    'borderColor' => 'rgb(54, 162, 235)',
+                    'yAxisID' => 'y3',
+                ],
+                [
                     'label' => 'Battery (%)',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => $item['accumulative_cost'] * 25),
+                    'data' => $rawData->map(fn($item) => $item['battery_percent']),
                     'borderColor' => 'rgb(255, 99, 132)',
                     'yAxisID' => 'y1',
                 ],
@@ -100,17 +115,9 @@ class ForecastChart extends ChartWidget
         $limit = 48;
 
         $forecastData = Forecast::query()
+            ->with('importCost')
             ->orderBy('period_end')
-            ->where(
-                'period_end',
-                '>=',
-                $startDate
-            )
-            ->where(
-                'period_end',
-                '<=',
-                $startDate->copy()->timezone('Europe/London')->endOfDay()->timezone('UTC')
-            )
+            ->whereBetween('period_end', [$startDate, $startDate->copy()->timezone('Europe/London')->endOfDay()->timezone('UTC')])
             ->limit($limit)
             ->orderBy('period_end')
             ->get();
@@ -119,24 +126,12 @@ class ForecastChart extends ChartWidget
             return collect();
         }
 
-        $firstForecast = $forecastData->first()->period_end;
-
-        $importCosts = AgileImport::query()
-            ->where(
-                'valid_to',
-                '>=',
-                $firstForecast
-            )
-            ->orderBy('valid_from')
-            ->limit($limit)
-            ->get();
-
         $averageConsumptions = Inverter::query()
             ->select(DB::raw('time(period) as `time`, avg(`consumption`) as `value`'))
             ->where(
                 'period',
                 '>',
-                now()->timezone('Europe/London')->subdays(10)
+                now()->timezone('Europe/London')->subdays(21)
                     ->startOfDay()
                     ->timezone('UTC')
             )
@@ -146,12 +141,11 @@ class ForecastChart extends ChartWidget
         // start at 10% battery
         $battery = self::BATTERY_MIN;
         $accumulativeValue = 0;
+        $accumulativeCost = 0;
         $result = [];
 
         foreach ($forecastData as $forecast) {
-            $importCost = $importCosts->where('valid_to', '=', $forecast->period_end)
-                ->first();
-            $importValueIncVat = $importCost?->value_inc_vat ?? 0;
+            $importValueIncVat = $forecast->importCost?->value_inc_vat ?? 0;
 
             $averageConsumption = $averageConsumptions->where('time', '=', $forecast->period_end->format('H:i:s'))
                 ->first() ?? 0;
@@ -174,7 +168,6 @@ class ForecastChart extends ChartWidget
                 'yesterday90', 'today90', 'tomorrow90' => $forecast->pv_estimate90 / 2,
             };
 
-
             $battery += $estimate - $averageConsumption->value;
 
             $usage = 0;
@@ -191,6 +184,8 @@ class ForecastChart extends ChartWidget
             }
 
             $accumulativeValue += $export - $usage;
+            $accumulativeCost -= $importValueIncVat * ($export - $usage) / 100;
+            $cost = $usage * $importValueIncVat / 100;
 
             $result[] = [
                 'period_end' => $forecast->period_end,
@@ -198,11 +193,13 @@ class ForecastChart extends ChartWidget
                 'pv_estimate' => $forecast->pv_estimate,
                 'consumption' => $accumulativeValue,
                 'import_value_inc_vat' => $importValueIncVat,
-                'accumulative_cost' => $battery,
+                'cost' => $cost,
+                'acc_cost' => $accumulativeCost,
+                'battery_percent' => $battery * 0.25,
             ];
 
         }
-
+//Log::info('ForecastChart',[$result]);
         return collect($result);
     }
 
@@ -230,6 +227,28 @@ class ForecastChart extends ChartWidget
                     'type' => 'linear',
                     'display' => true,
                     'position' => 'right',
+
+                    // grid line settings
+                    'grid' => [
+                        // only want the grid lines for one axis to show up
+                        'drawOnChartArea' => false,
+                    ],
+                ],
+                'y2' => [
+                    'type' => 'linear',
+                    'display' => true,
+                    'position' => 'left',
+
+                    // grid line settings
+                    'grid' => [
+                        // only want the grid lines for one axis to show up
+                        'drawOnChartArea' => false,
+                    ],
+                    ],
+                'y3' => [
+                    'type' => 'linear',
+                    'display' => true,
+                    'position' => 'left',
 
                     // grid line settings
                     'grid' => [
