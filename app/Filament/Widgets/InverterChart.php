@@ -19,13 +19,14 @@ class InverterChart extends ChartWidget
     {
         $data = $this->getDatabaseData();
 
-        self::$heading = sprintf('Inverter consumption from %s to %s',
+        self::$heading = sprintf('Consumption from %s to %s was %0.2f kWh',
             Carbon::parse($data->first()['period'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
             Carbon::parse($data->last()['period'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('jS M H:i'),
+            $data->sum('consumption')
         );
 
         return [

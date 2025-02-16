@@ -28,13 +28,14 @@ class OctopusImportChart extends ChartWidget
             return [];
         }
 
-        self::$heading = sprintf('Electric import from %s to %s',
+        self::$heading = sprintf('Electric import from %s to %s (£%.2f)',
             $rawData->first()['interval_start']
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
             $rawData->last()['interval_end']
                 ->timezone('Europe/London')
-                ->format('jS M H:i')
+                ->format('jS M H:i'),
+            -$rawData->last()['accumulative_cost'] ?? 0
         );
 
         return [
@@ -85,6 +86,7 @@ class OctopusImportChart extends ChartWidget
             ->startOfDay()->timezone('UTC');
 
         $importData = OctopusImport::query()
+            ->with('importCost')
             ->where(
                 'interval_start', '>=',
                 // possibly use a sub query to get the last interval and sub 1 day
@@ -94,21 +96,10 @@ class OctopusImportChart extends ChartWidget
             ->limit($limit)
             ->get();
 
-        $importCost = AgileImport::query()
-            ->where(
-                'valid_from',
-                '>=',
-                $start
-            )
-            ->orderBy('valid_from')
-            ->limit($limit)
-            ->get();
-
         $accumulativeCost = 0;
         $result = [];
         foreach ($importData as $item) {
-            $importValueIncVat = $importCost->where('valid_from', '=', $item->interval_start)
-                ->first()?->value_inc_vat ?? 0;
+            $importValueIncVat = $item->importCost?->value_inc_vat ?? 0;
 
             $cost = -$importValueIncVat * $item->consumption;
             $accumulativeCost += ($cost / 100);

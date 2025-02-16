@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ForecastResource\Pages;
 
 use App\Filament\Resources\ForecastResource;
 use App\Filament\Resources\ForecastResource\Widgets\ForecastChartWidget;
+use App\Filament\Resources\ForecastResource\Widgets\ForecastCostChartWidget;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
@@ -22,6 +23,7 @@ class ListForecasts extends ListRecords
     {
         return [
             ForecastChartWidget::class,
+            ForecastCostChartWidget::class,
         ];
     }
 }

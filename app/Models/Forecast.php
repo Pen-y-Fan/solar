@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Forecast extends Model
 {
@@ -19,4 +20,14 @@ class Forecast extends Model
     protected $casts = [
         'period_end' => 'immutable_datetime',
     ];
+
+    public function importCost(): HasOne
+    {
+        return $this->hasOne(AgileImport::class, 'valid_from', 'period_end');
+    }
+
+    public function exportCost(): HasOne
+    {
+        return $this->hasOne(AgileExport::class, 'valid_from', 'period_end');
+    }
 }

@@ -10,7 +10,7 @@ use Illuminate\Support\Carbon;
 
 class SolcastWithActualAndRealChart extends ChartWidget
 {
-    protected static ?string $heading = 'Solis actual vs PV Yield Chart';
+    protected static ?string $heading = 'PV Yield vs Forecast solis actual Chart';
 
     protected static ?string $pollingInterval = '120s';
 
@@ -21,7 +21,7 @@ class SolcastWithActualAndRealChart extends ChartWidget
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
-            self::$heading = 'No data for Solis actual vs PV Yield Chart';
+            self::$heading = 'No data for PV Yield vs Forecast solis actual ';
             return [];
         }
         $this->setHeading($rawData);

@@ -41,6 +41,9 @@ class AgileChart extends ChartWidget
                 ->format('jS M H:i'),
         );
 
+        $averageExport = $data->sum('export_value_inc_vat') / $data->count();
+        $averageImport = $data->sum('import_value_inc_vat') / $data->count();
+
         return [
             'datasets' => [
                 [
@@ -59,6 +62,23 @@ class AgileChart extends ChartWidget
                     'borderColor' => 'rgb(255, 99, 132)',
                     'stepped' => 'middle',
                 ],
+                [
+                    'label' => sprintf('Average export value (%0.02f)', $averageExport),
+                    'data' => $data->map(fn($item): string => number_format($averageExport, 2)),
+                    'type' => 'line',
+                    'borderDash' => [5, 10],
+                    'pointRadius' => 0,
+                    'borderColor' => 'rgb(75, 192, 192)',
+                ],
+
+                [
+                    'label' => sprintf('Average import value (%0.02f)', $averageImport),
+                    'data' => $data->map(fn($item): string => number_format($averageImport, 2)),
+                    'borderDash' => [5, 10],
+                    'type' => 'line',
+                    'pointRadius' => 0,
+                    'borderColor' => 'rgb(255, 99, 132)',
+                ]
             ],
             'labels' => $data->map(function ($item): string {
                 $date = Carbon::parse($item['valid_from'], 'UTC')
@@ -128,16 +148,7 @@ class AgileChart extends ChartWidget
         }
 
         $importData = AgileImport::query()
-            ->where(
-                'valid_from',
-                '>=',
-                $start
-            )
-            ->orderBy('valid_from')
-            ->limit($limit)
-            ->get();
-
-        $exportData = AgileExport::query()
+            ->with('exportCost')
             ->where(
                 'valid_from',
                 '>=',
@@ -156,8 +167,7 @@ class AgileChart extends ChartWidget
         return $importData->map(fn($item) => [
             'valid_from' => $item->valid_from,
             'import_value_inc_vat' => $item->value_inc_vat,
-            'export_value_inc_vat' => $exportData->where('valid_from', '=', $item->valid_from)
-                    ->first()?->value_inc_vat ?? 0
+            'export_value_inc_vat' => $item->exportCost?->value_inc_vat ?? 0
         ]);
     }
 

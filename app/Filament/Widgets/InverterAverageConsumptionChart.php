@@ -4,7 +4,6 @@ namespace App\Filament\Widgets;
 
 use App\Models\Inverter;
 use Filament\Widgets\ChartWidget;
-use Illuminate\Contracts\Support\Htmlable;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -14,17 +13,22 @@ class InverterAverageConsumptionChart extends ChartWidget
     protected static ?string $pollingInterval = '120s';
 
     public int $count = 1;
+    private \Illuminate\Support\Carbon $startDate;
 
-    public function getHeading(): string|Htmlable|null
-    {
-        return 'Average consumption (Inverter) since ' . now()->timezone('Europe/London')->subdays(10)
-                ->startOfDay()
-                ->format('D jS M Y');
-    }
 
     protected function getData(): array
     {
         $data = $this->getDatabaseData();
+
+        if ($data->count() === 0) {
+            self::$heading = 'No average consumption data';
+            return [];
+        }
+
+        self::$heading = sprintf('Average consumption since %s is %0.2f kWh',
+            $this->startDate->format('D jS M Y'),
+            $data->sum('value')
+        );
 
         return [
             'datasets' => [
@@ -44,12 +48,13 @@ class InverterAverageConsumptionChart extends ChartWidget
 
     private function getDatabaseData(): Collection|array
     {
+        $this->startDate = now()->timezone('Europe/London')->startOfDay()->subDays(21)->timezone('UTC');
         return Inverter::query()
             ->select(DB::raw('time(period) as `time`, avg(`consumption`) as `value`'))
             ->where(
                 'period',
                 '>',
-                now()->timezone('Europe/London')->subdays(10)
+                $this->startDate
                 ->startOfDay()
                 ->timezone('UTC')
             )
