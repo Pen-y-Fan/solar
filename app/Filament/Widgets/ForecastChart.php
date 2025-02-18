@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Log;
 
 class ForecastChart extends ChartWidget
 {
-
     protected int|string|array $columnSpan = 2;
 
     protected static ?string $maxHeight = '400px';
@@ -27,7 +26,9 @@ class ForecastChart extends ChartWidget
     private const BATTERY_MAX = 4.0;
 
     private const BATTERY_MAX_strategy_PER_HALF_HOUR = 1.0;
+
     private float $chargeStrategy = 0.0;
+
     private bool $charge = false;
 
     protected function getFilters(): ?array
@@ -184,13 +185,16 @@ class ForecastChart extends ChartWidget
                 }
             });
 
-            $averageCost = array_sum($importCosts) / count($importCosts);
-            $minCost = min($importCosts);
+            if (count($importCosts) > 0) {
+                $averageCost = array_sum($importCosts) / count($importCosts);
 
-            if (str_contains($this->filter, '_strategy1')) {
-                $this->chargeStrategy = ($averageCost + $minCost + $minCost) / 3;
-            } else {
-                $this->chargeStrategy = ($averageCost + $minCost + $minCost + $minCost) / 4;
+                $minCost = min($importCosts);
+
+                if (str_contains($this->filter, '_strategy1')) {
+                    $this->chargeStrategy = ($averageCost + $minCost + $minCost) / 3;
+                } else {
+                    $this->chargeStrategy = ($averageCost + $minCost + $minCost + $minCost) / 4;
+                }
             }
         }
 
@@ -210,7 +214,6 @@ class ForecastChart extends ChartWidget
                 'yesterday90', 'today90', 'tomorrow90' => $forecast->pv_estimate90 / 2,
             };
 
-            //
             $estimatedBatteryRequired = $estimatePV - $averageConsumption->value;
 
             $import = 0;
