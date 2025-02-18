@@ -25,7 +25,7 @@ class ForecastChart extends ChartWidget
 
     private const BATTERY_MAX = 4.0;
 
-    private const BATTERY_MAX_strategy_PER_HALF_HOUR = 1.0;
+    private const BATTERY_MAX_STRATEGY_PER_HALF_HOUR = 1.0;
 
     private float $chargeStrategy = 0.0;
 
@@ -226,9 +226,9 @@ class ForecastChart extends ChartWidget
                 // we are charging so negative $estimatedBatteryRequired means we charge the battery
                 // the import cost is the chargeAmount + $estimatedBatteryRequired
                 // if the battery reaches MAX the export will cut in chargeAmount + PV generated over the max
-                $maxChargeAmount = min(self::BATTERY_MAX_strategy_PER_HALF_HOUR , self::BATTERY_MAX - $battery );
+                $maxChargeAmount = min(self::BATTERY_MAX_STRATEGY_PER_HALF_HOUR , self::BATTERY_MAX - $battery );
 
-                $battery += self::BATTERY_MAX_strategy_PER_HALF_HOUR;
+                $battery += self::BATTERY_MAX_STRATEGY_PER_HALF_HOUR;
 
                 // We need to charge the battery from grid
                 // The PV may be supplying some charge
