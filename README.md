@@ -1,19 +1,21 @@
 # Solar
 
-This is a **personal project** to experiment with Solar panel APIs.
+This is a **personal project** to experiment with Solar panel APIs for my home solar setup. This is a very specific
+project, it requires a **Solis inverter** and energy supplied by **Octopus energy**.
 
 - [Solcast](https://docs.solcast.com.au/) estimate forecast based on cloud cover
-- [Agile import and export tariff](https://www.guylipman.com/octopus/api_guide.html) also 
+- [Agile import and export tariff](https://www.guylipman.com/octopus/api_guide.html) also
   see [Agile costs](https://developer.octopus.energy/docs/api/)
 - [Historic usage](https://octopus.energy/dashboard/new/accounts/personal-details/api-access)
-- Investigate downloadable data from Solis inverter
-- Calculate cost
-- Calculate rolling average usage per 30 min.
+- Import downloadable data from Solis inverter Excel (xls) file
+- Calculate cost for the previous month
+- Calculate rolling average usage per 30 minutes
 - Forecast battery and solar usage with cost(s)
+- Investigate battery charging strategy
 
 ## Requirements
 
-This is a Laravel 11 project. The requirements are the same as a 
+This is a Laravel 11 project. The requirements are the same as a
 new [Laravel 11 project](https://laravel.com/docs/11.x/installation).
 
 - [PHP 8.2+](https://www.php.net/downloads.php)
@@ -55,32 +57,32 @@ cp .env.example .env
 
 Configure the Laravel **.env** as per you local setup. e.g.
 
-```text
-APP_NAME=Solar
+```ini
+APP_NAME = Solar
 
-APP_URL=https://solar.test
+APP_URL = https://solar.test
 
 # Sign up for Solcast API: https://docs.solcast.com.au/
-SOLCAST_API_KEY=
-SOLCAST_RESOURCE_ID=
+SOLCAST_API_KEY =
+SOLCAST_RESOURCE_ID =
+
+# Existing customers can generate a key: https://octopus.energy/dashboard/new/accounts/personal-details/api-access
+OCTOPUS_API_KEY =
+OCTOPUS_EXPORT_MPAN =
+OCTOPUS_IMPORT_MPAN =
+OCTOPUS_EXPORT_SERIAL_NUMBER =
+OCTOPUS_IMPORT_SERIAL_NUMBER =
 ```
 
-Laravel 11 can use many databases, by default the database is **sqlite**, update the .env file as required e.g. 
-for **MySQL**
+Laravel 11 can use many databases, by default the database is **sqlite**, update the **.env** file as required, for
+**MySQL** uncomment the keys and enter your settings
 
-### Solcast
-
-The app will display actual and forecast data based on your solar panel's location, 
-a [free account](https://toolkit.solcast.com.au/register) can be created for home user hobbyists.
-
-Once registered enter your **API key** and **resource id** in the **.env** file.
-
-## Generate APP_KEY
-
-Generate an APP_KEY using the artisan command:
-
-```shell script
-php artisan key:generate
+```ini
+DB_HOST = 127.0.0.1
+DB_PORT = 3306
+DB_DATABASE = solar
+DB_USERNAME = root
+DB_PASSWORD =
 ```
 
 ## Create the database
@@ -88,7 +90,36 @@ php artisan key:generate
 The **sqlite** database will need to be manually created e.g.
 
 ```shell
-@php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
+php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
+```
+
+Alternatively for MySQL, create an empty database **solar**, using your database user **root**:
+
+```shell
+mysql -u root
+CREATE DATABASE solar CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+exit
+```
+
+### Solcast
+
+The app will display actual and forecast data based on your solar panel's location,
+a [free account](https://toolkit.solcast.com.au/register) can be created for home user hobbyists.
+
+Once registered enter your **API key** and **resource id** in the **.env** file.
+
+### Octopus energy
+
+Existing customers can generate a key: https://octopus.energy/dashboard/new/accounts/personal-details/api-access
+
+Once generated update your API_KEY, MPANs and SERIAL_NUMBERs in the **.env** file.
+
+## Generate APP_KEY
+
+Generate an APP_KEY using the artisan command:
+
+```shell script
+php artisan key:generate
 ```
 
 ## Install Database
@@ -114,7 +145,8 @@ Login with the seeded user:
 
 The following packages have been used:
 
-- [Filament admin panel](https://filamentphp.com/docs/3.x/admin/installation) - Admin panel restricted to authenticated users.
+- [Filament admin panel](https://filamentphp.com/docs/3.x/admin/installation) - Admin panel restricted to authenticated
+  users.
 - [Laravel Livewire](https://laravel-livewire.com/) - Included with Filament.
 
 <!--
