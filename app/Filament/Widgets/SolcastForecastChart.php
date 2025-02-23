@@ -23,6 +23,11 @@ class SolcastForecastChart extends ChartWidget
     {
         $rawData = $this->getDatabaseData();
 
+        if ($rawData->count() === 0) {
+            self::$heading = 'No data for Solis forecast';
+            return [];
+        }
+
         self::$heading = sprintf('Solis forecast for %s to %s (last updated %s)',
             Carbon::parse($rawData->first()['period_end'], 'UTC')
                 ->timezone('Europe/London')
