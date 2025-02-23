@@ -14,6 +14,7 @@ class Inverter extends Model
         'yield',
         'to_grid',
         'from_grid',
+        'battery_soc',
         'consumption',
     ];
 

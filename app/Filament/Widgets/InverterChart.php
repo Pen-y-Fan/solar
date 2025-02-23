@@ -9,7 +9,7 @@ use Illuminate\Support\Carbon;
 
 class InverterChart extends ChartWidget
 {
-    protected static ?string $heading = 'Inverter yield';
+    protected static ?string $heading = 'Inverter consumption';
 
     protected static ?string $pollingInterval = '120s';
 
@@ -39,7 +39,6 @@ class InverterChart extends ChartWidget
                     'borderColor' => 'rgb(75, 192, 192)',
                     'stepped' => 'middle',
                 ],
-
             ],
             'labels' => $data->map(fn($item): string => Carbon::parse($item['period'], 'UTC')
                 ->timezone('Europe/London')
