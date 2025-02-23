@@ -105,7 +105,7 @@ class InverterImport implements ToCollection, WithHeadingRow
         Inverter::upsert(
             $data,
             uniqueBy: ['period'],
-            update: ['yield', 'to_grid', 'from_grid', 'consumption']
+            update: ['yield', 'to_grid', 'from_grid', 'consumption', 'battery_soc']
         );
     }
 
