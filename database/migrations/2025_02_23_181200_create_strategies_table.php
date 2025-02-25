@@ -26,21 +26,13 @@ return new class extends Migration {
                 ->nullable()
                 ->comment('Manual strategy');
 
-            $table->boolean('strategy_average1')
+            $table->boolean('strategy1')
                 ->nullable()
                 ->comment('Average strategy based on an low average cost');
 
-            $table->boolean('strategy_average2')
+            $table->boolean('strategy2')
                 ->nullable()
                 ->comment('Average strategy based on a lower average cost');
-
-            $table->boolean('strategy_last_week1')
-                ->nullable()
-                ->comment('Automatic strategy1 based on usage 1 week ago');
-
-            $table->boolean('strategy_last_week2')
-                ->nullable()
-                ->comment('Automatic strategy2 based on usage 1 week ago');
 
             $table->float('consumption_last_week')
                 ->nullable()
