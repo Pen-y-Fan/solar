@@ -12,7 +12,10 @@ class Strategy extends Model
 
     protected $fillable = [
         'period',
-        'battery_percentage',
+        'battery_charge_amount',
+        'import_amount',
+        'export_amount',
+        'battery_percentage_manual',
         'strategy_manual',
         'strategy1',
         'strategy2',
@@ -21,6 +24,8 @@ class Strategy extends Model
         'consumption_manual',
         'import_value_inc_vat',
         'export_value_inc_vat',
+        'consumption_average_cost',
+        'consumption_last_week_cost',
     ];
 
     protected $casts = [

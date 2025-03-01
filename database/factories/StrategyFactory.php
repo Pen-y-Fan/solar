@@ -18,7 +18,10 @@ class StrategyFactory extends Factory
     {
         return [
             'period' => now()->startOfHour(),
-            'battery_percentage' => fake()->numberBetween(0, 100),
+            'battery_charge_amount' => fake()->randomFloat(2, 0, 500),
+            'import_amount' => fake()->randomFloat(2, 0, 500),
+            'export_amount' => fake()->randomFloat(2, 0, 500),
+            'battery_percentage_manual' => fake()->numberBetween(0, 100),
             'strategy_manual' => fake()->boolean,
             'strategy1' => fake()->boolean,
             'strategy2' => fake()->boolean,

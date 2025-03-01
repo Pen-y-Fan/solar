@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
@@ -18,9 +19,25 @@ return new class extends Migration {
                 ->unique()
                 ->comment('30 min period');
 
-            $table->integer('battery_percentage')
+            $table->integer('battery_percentage1')
                 ->nullable()
-                ->comment('Battery state of charge in percentage (0-100)');
+                ->comment('Battery state of charge in percentage based on strategy1 (0-100)');
+
+            $table->float('battery_charge_amount')
+                ->nullable()
+                ->comment('Battery amount of energy charged');
+
+            $table->float('import_amount')
+                ->nullable()
+                ->comment('Import amount of energy');
+
+            $table->float('export_amount')
+                ->nullable()
+                ->comment('Export amount of energy');
+
+            $table->integer('battery_percentage_manual')
+                ->nullable()
+                ->comment('Battery state of charge in percentage based on manual strategy (0-100)');
 
             $table->boolean('strategy_manual')
                 ->nullable()
@@ -53,6 +70,14 @@ return new class extends Migration {
             $table->float('export_value_inc_vat')
                 ->nullable()
                 ->comment('Export value including VAT (copy)');
+
+            $table->float('consumption_average_cost')
+                ->nullable()
+                ->comment('Laravel will calculate this on insert or update');
+
+            $table->float('consumption_last_week_cost')
+                ->nullable()
+                ->comment('Laravel will calculate this on insert or update');
 
             $table->timestamps();
         });

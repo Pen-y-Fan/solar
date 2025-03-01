@@ -30,4 +30,9 @@ class Forecast extends Model
     {
         return $this->hasOne(AgileExport::class, 'valid_from', 'period_end');
     }
+
+    public function strategy(): HasOne
+    {
+        return $this->hasOne(Strategy::class, 'period', 'period_end');
+    }
 }

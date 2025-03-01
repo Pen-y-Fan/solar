@@ -18,7 +18,10 @@ class StrategyTest extends TestCase
     {
         $data = [
             'period' => now()->startOfHour(),
-            'battery_percentage' => fake()->numberBetween(0, 100),
+            'battery_charge_amount' => fake()->randomFloat(2, 0, 500),
+            'import_amount' => fake()->randomFloat(2, 0, 500),
+            'export_amount' => fake()->randomFloat(2, 0, 500),
+            'battery_percentage_manual' => fake()->numberBetween(0, 100),
             'strategy_manual' => fake()->boolean,
             'strategy1' => fake()->boolean,
             'strategy2' => fake()->boolean,
@@ -41,6 +44,13 @@ class StrategyTest extends TestCase
                 $this->assertSame($value, $strategy->{$key});
             }
         }
+
+        $strategy->refresh();
+        $this->assertInstanceOf(Strategy::class, $strategy);
+        $this->assertEqualsWithDelta($data['consumption_last_week'] * $data['import_value_inc_vat'],
+            $strategy->consumption_last_week_cost, 0.001);
+        $this->assertEqualsWithDelta($data['consumption_average'] * $data['import_value_inc_vat'],
+            $strategy->consumption_average_cost, 0.001);
     }
 
     public function test_a_strategy_can_not_be_created_with_non_unique_timestamp(): void
@@ -67,19 +77,19 @@ class StrategyTest extends TestCase
     {
         $strategy = Strategy::factory()->create([
             'period' => now()->startOfHour(),
-            'battery_percentage' => 50,
+            'battery_percentage_manual' => 50,
             'strategy_manual' => false,
         ]);
 
-        $this->assertSame(50, $strategy->battery_percentage);
+        $this->assertSame(50, $strategy->battery_percentage_manual);
         $this->assertFalse($strategy->strategy_manual);
 
         $strategy->update([
-            'battery_percentage' => 75,
+            'battery_percentage_manual' => 75,
             'strategy_manual' => true,
         ]);
 
-        $this->assertSame(75, $strategy->battery_percentage);
+        $this->assertSame(75, $strategy->battery_percentage_manual);
         $this->assertTrue($strategy->strategy_manual);
     }
 
