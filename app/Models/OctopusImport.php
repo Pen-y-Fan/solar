@@ -25,5 +25,4 @@ class OctopusImport extends Model
     {
         return $this->hasOne(AgileImport::class, 'valid_from', 'interval_start');
     }
-
 }

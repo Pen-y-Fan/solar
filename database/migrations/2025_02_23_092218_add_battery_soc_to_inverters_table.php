@@ -13,6 +13,7 @@ return new class extends Migration {
         Schema::table('inverters', function (Blueprint $table) {
             $table->unsignedTinyInteger('battery_soc')
                 ->nullable()
+                ->after('from_grid')
                 ->comment('Battery state of charge in percentage (0-100)');
         });
     }
