@@ -92,7 +92,7 @@ class OctopusExportChart extends ChartWidget
         $limit = 48;
 
         $data = OctopusExport::query()
-            ->with('importCost')
+            ->with('exportCost')
             ->where(
                 'interval_start', '>=',
                 $start
@@ -104,7 +104,7 @@ class OctopusExportChart extends ChartWidget
         $accumulativeCost = 0;
         $result = [];
         foreach ($data as $item) {
-            $exportValueIncVat = $item->importCost?->value_inc_vat ?? 0;
+            $exportValueIncVat = $item->exportCost?->value_inc_vat ?? 0;
 
             $cost = $exportValueIncVat * $item->consumption;
             $accumulativeCost += ($cost / 100);
