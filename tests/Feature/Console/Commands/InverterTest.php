@@ -2,7 +2,10 @@
 
 namespace Tests\Feature\Console\Commands;
 
+use App\Console\Commands\Inverter;
+use App\Models\Inverter as InverterModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -22,10 +25,11 @@ class InverterTest extends TestCase
 
     public function test_inverter_console_command(): void
     {
-        // Act
+        // Arrange
+        Log::shouldReceive('info')->atLeast()->once();
 
-        // App\Console\Commands\Inverter
-        $this->artisan('app:inverter')
+        // Act
+        $this->artisan((new Inverter())->getName())
             ->expectsOutputToContain('Finding inverter data.')
             ->expectsOutputToContain('File processed and moved to:')
             ->expectsOutputToContain('uploads/processed/' . self::FILE_NAME)
@@ -33,7 +37,7 @@ class InverterTest extends TestCase
             ->assertSuccessful();
 
         // Assert
-        $this->assertDatabaseCount('inverters', 48);
+        $this->assertDatabaseCount(InverterModel::class, 4);
 
         $deleted = Storage::delete(
             "uploads/processed/" . self::FILE_NAME,

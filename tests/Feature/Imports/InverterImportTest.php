@@ -30,25 +30,25 @@ class InverterImportTest extends TestCase
         // Assert
         $inverters = Inverter::all();
 
-        $this->assertEqualsWithDelta(0.7, $inverters->sum('yield'), 0.001);
+        $this->assertEqualsWithDelta(0.2, $inverters->sum('yield'), 0.001);
         $this->assertEqualsWithDelta(0, $inverters->sum('to_grid'), 0.001);
-        $this->assertEqualsWithDelta(12.2, $inverters->sum('consumption'), 0.001);
-        $this->assertEqualsWithDelta(12.84, $inverters->sum('from_grid'), 0.001);
+        $this->assertEqualsWithDelta(1.1, $inverters->sum('consumption'), 0.001);
+        $this->assertEqualsWithDelta(3.0, $inverters->sum('from_grid'), 0.001);
         $this->assertEquals(99, $inverters->max('battery_soc'));
-        $this->assertEquals(8, $inverters->min('battery_soc'));
+        $this->assertEquals(53, $inverters->min('battery_soc'));
     }
 
     public function test_a_inverter_can_be_upserted_for_the_same_period(): void
     {
         // Arrange
         $this->importInverterData();
-        $this->assertDatabaseCount('inverters', 48);
+        $this->assertDatabaseCount('inverters', 4);
 
         // Act
         $this->importInverterData();
 
         // Assert
-        $this->assertDatabaseCount('inverters', 48);
+        $this->assertDatabaseCount('inverters', 4);
     }
 
     public function setupFixture(): void
