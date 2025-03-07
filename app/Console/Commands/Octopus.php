@@ -37,6 +37,7 @@ class Octopus extends Command
             $this->info('Octopus import has been fetched!');
         } catch (\Throwable $th) {
             Log::error('Error running Octopus import action:', ['error message' => $th->getMessage()]);
+            $this->error('Error running Octopus import action:');
             $this->error($th->getMessage());
         }
 
@@ -45,6 +46,7 @@ class Octopus extends Command
             $this->info('Octopus export has been fetched!');
         } catch (\Throwable $th) {
             Log::error('Error running Octopus export action:', ['error message' => $th->getMessage()]);
+            $this->error('Error running Octopus export action:');
             $this->error($th->getMessage());
         }
 
@@ -53,6 +55,7 @@ class Octopus extends Command
             $this->info('Octopus Agile import has been fetched!');
         } catch (\Throwable $th) {
             Log::error('Error running Octopus Agile import action:', ['error message' => $th->getMessage()]);
+            $this->error('Error running Octopus Agile import action:');
             $this->error($th->getMessage());
         }
 
@@ -61,6 +64,7 @@ class Octopus extends Command
             $this->info('Octopus Agile export has been fetched!');
         } catch (\Throwable $th) {
             Log::error('Error running Octopus Agile export action:', ['error message' => $th->getMessage()]);
+            $this->error('Error running Octopus Agile export action:');
             $this->error($th->getMessage());
         }
     }
