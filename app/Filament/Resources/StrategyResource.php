@@ -8,8 +8,8 @@ use App\Filament\Resources\StrategyResource\Action\GenerateAction;
 use App\Filament\Resources\StrategyResource\Pages;
 use App\Filament\Resources\StrategyResource\Widgets\StrategyChart;
 use App\Filament\Resources\StrategyResource\Widgets\StrategyOverview;
-use App\Filament\Resources\StrategyResource\Widgets\StrategyWidget;
 use App\Models\Strategy;
+use Exception;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -48,6 +48,9 @@ class StrategyResource extends Resource
             ]);
     }
 
+    /**
+     * @throws Exception
+     */
     public static function table(Table $table): Table
     {
         return $table
@@ -103,7 +106,6 @@ class StrategyResource extends Resource
                     ->toggleable()
                     ->summarize(Sum::make()),
 
-
                 Tables\Columns\TextColumn::make('consumption_average')
                     ->label('Usage avg')
                     ->numeric()
@@ -152,6 +154,8 @@ class StrategyResource extends Resource
                     ->dateTime(format: 'd/m/y H:i', timezone: 'Europe/London')
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->paginationPageOptions([48])
+            ->defaultPaginationPageOption(48)
             ->defaultSort('period')
             ->filters([
 

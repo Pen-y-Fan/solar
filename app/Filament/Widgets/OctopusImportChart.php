@@ -3,9 +3,10 @@
 namespace App\Filament\Widgets;
 
 use App\Actions\OctopusImport as OctopusImportAction;
-use App\Models\AgileImport;
 use App\Models\OctopusImport;
 use Filament\Widgets\ChartWidget;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -42,9 +43,9 @@ class OctopusImportChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Usage',
-                    'data' => $rawData->map(fn($item) => -$item['consumption']),
-                    'backgroundColor' => 'rgba(255, 205, 86, 0.2)',
-                    'borderColor' => 'rgb(255, 205, 86)',
+                    'data' => $rawData->map(fn($item) => $item['consumption']),
+                    'backgroundColor' => 'rgba(255, 159, 64, 0.2)',
+                    'borderColor' => 'rgb(255, 159, 64)',
                     'yAxisID' => 'y',
                 ],
                 [
@@ -101,7 +102,7 @@ class OctopusImportChart extends ChartWidget
         foreach ($importData as $item) {
             $importValueIncVat = $item->importCost?->value_inc_vat ?? 0;
 
-            $cost = -$importValueIncVat * $item->consumption;
+            $cost = $importValueIncVat * $item->consumption;
             $accumulativeCost += ($cost / 100);
 
             $result[] = [
@@ -113,7 +114,6 @@ class OctopusImportChart extends ChartWidget
                 'cost' => $cost,
                 'accumulative_cost' => $accumulativeCost,
             ];
-
         }
 
         return collect($result);
@@ -153,7 +153,7 @@ class OctopusImportChart extends ChartWidget
         ];
     }
 
-    private function getLatestImport()
+    private function getLatestImport(): Model|Builder|null
     {
         return OctopusImport::query()
             ->latest('interval_start')
