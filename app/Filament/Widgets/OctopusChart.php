@@ -2,10 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\AgileExport;
-use App\Models\AgileImport;
 use App\Models\OctopusExport;
-use App\Models\OctopusImport;
 use Carbon\CarbonPeriod;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
@@ -46,8 +43,7 @@ class OctopusChart extends ChartWidget
                 [
                     'label' => 'Export',
                     'type' => 'bar',
-                    'data' => $rawData->map(fn($item) => $item['export_consumption']),
-                    // 54, 162, 235, 0.2
+                    'data' => $rawData->map(fn($item) => -$item['export_consumption']),
                     'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
                     'borderColor' => 'rgb(54, 162, 235)',
                     'yAxisID' => 'y',
@@ -55,13 +51,13 @@ class OctopusChart extends ChartWidget
                 [
                     'label' => 'Export accumulative cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => $item['export_accumulative_cost']),
+                    'data' => $rawData->map(fn($item) => -$item['export_accumulative_cost']),
                     'borderColor' => 'rgb(75, 192, 192)',
                     'yAxisID' => 'y1',
                 ],
                 [
                     'label' => 'Import',
-                    'data' => $rawData->map(fn($item) => -$item['import_consumption']),
+                    'data' => $rawData->map(fn($item) => $item['import_consumption']),
                     'backgroundColor' => 'rgba(255, 159, 64, 0.2)',
                     'borderColor' => 'rgb(255, 159, 64)',
                     'yAxisID' => 'y',
@@ -69,14 +65,14 @@ class OctopusChart extends ChartWidget
                 [
                     'label' => 'Import accumulative cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => $item['import_accumulative_cost']),
+                    'data' => $rawData->map(fn($item) => -$item['import_accumulative_cost']),
                     'borderColor' => 'rgb(255, 99, 132)',
                     'yAxisID' => 'y1',
                 ],
                 [
                     'label' => 'Net accumulative cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => $item['net_accumulative_cost']),
+                    'data' => $rawData->map(fn($item) => -$item['net_accumulative_cost']),
                     'borderColor' => 'rgb(54, 162, 235)',
                     'yAxisID' => 'y1',
                 ],
@@ -108,7 +104,7 @@ class OctopusChart extends ChartWidget
     {
         if ($this->filter === '') {
             $offset = now('Europe/London')->hour < 17 ? 2 : 1;
-            $this->filter = now()->startOfDay()->subDay($offset)->format('Y-m-d');
+            $this->filter = now('Europe/London')->startOfDay()->subDays($offset)->format('Y-m-d');
         }
         $start = Carbon::parse($this->filter, 'Europe/London')->startOfDay()->timezone('UTC');
 

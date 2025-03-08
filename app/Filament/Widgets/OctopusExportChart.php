@@ -2,9 +2,10 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\AgileExport;
 use App\Models\OctopusExport;
 use Filament\Widgets\ChartWidget;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -45,15 +46,15 @@ class OctopusExportChart extends ChartWidget
                 [
                     'label' => 'Export',
                     'type' => 'bar',
-                    'data' => $rawData->map(fn($item) => $item['consumption']),
-                    'backgroundColor' => 'rgba(255, 159, 64, 0.2)',
-                    'borderColor' => 'rgb(255, 159, 64)',
+                    'data' => $rawData->map(fn($item) => -$item['consumption']),
+                    'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
+                    'borderColor' => 'rgb(54, 162, 235)',
                     'yAxisID' => 'y',
                 ],
                 [
                     'label' => 'Accumulative cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => $item['accumulative_cost']),
+                    'data' => $rawData->map(fn($item) => -$item['accumulative_cost']),
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
                     'borderColor' => 'rgb(75, 192, 192)',
                     'yAxisID' => 'y1',
@@ -73,7 +74,6 @@ class OctopusExportChart extends ChartWidget
     private function getDatabaseData(): Collection
     {
         $lastExport = $this->getLastExport();
-
 
         if (
             is_null($lastExport)
@@ -118,7 +118,6 @@ class OctopusExportChart extends ChartWidget
                 'cost' => $cost,
                 'accumulative_cost' => $accumulativeCost,
             ];
-
         }
 
         return collect($result);
@@ -157,7 +156,7 @@ class OctopusExportChart extends ChartWidget
         ];
     }
 
-    private function getLastExport()
+    private function getLastExport(): Model|Builder|null
     {
         return OctopusExport::query()
             ->latest('interval_start')
