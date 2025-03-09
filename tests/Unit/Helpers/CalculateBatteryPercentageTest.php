@@ -1,19 +1,12 @@
 <?php
 
-namespace Tests\Helpers;
+namespace Tests\Unit\Helpers;
 
 use App\Helpers\CalculateBatteryPercentage;
-use Illuminate\Support\Facades\Log;
 use PHPUnit\Framework\TestCase;
 
 class CalculateBatteryPercentageTest extends TestCase
 {
-    protected function setUp(): void
-    {
-        parent::setUp();
-        Log::spy();
-    }
-
     public function testCalculateWhenChargingAndWithinBatteryLimits()
     {
         $calculator = (new CalculateBatteryPercentage())
@@ -22,7 +15,7 @@ class CalculateBatteryPercentageTest extends TestCase
             ->estimatePVkWh(2.0)
             ->isCharging(true);
 
-        $result = $calculator->calculate();
+        [$result] = $calculator->calculate();
 
         $this->assertEquals(75, $result);
     }
@@ -35,7 +28,7 @@ class CalculateBatteryPercentageTest extends TestCase
             ->estimatePVkWh(2.0)
             ->isCharging(true);
 
-        $result = $calculator->calculate();
+        [$result] = $calculator->calculate();
 
         $this->assertEquals(100, $result);
     }
@@ -48,7 +41,7 @@ class CalculateBatteryPercentageTest extends TestCase
             ->estimatePVkWh(1.0)
             ->isCharging(false);
 
-        $result = $calculator->calculate();
+        [$result] = $calculator->calculate();
 
         $this->assertEquals(50, $result);
     }
@@ -61,7 +54,7 @@ class CalculateBatteryPercentageTest extends TestCase
             ->estimatePVkWh(0.0)
             ->isCharging(false);
 
-        $result = $calculator->calculate();
+        [$result] = $calculator->calculate();
 
         $this->assertEquals(10, $result);
     }
@@ -74,7 +67,7 @@ class CalculateBatteryPercentageTest extends TestCase
             ->estimatePVkWh(4.0)
             ->isCharging(false);
 
-        $result = $calculator->calculate();
+        [$result] = $calculator->calculate();
 
         $this->assertEquals(100, $result);
     }

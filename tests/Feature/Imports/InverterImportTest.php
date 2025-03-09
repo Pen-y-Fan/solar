@@ -6,6 +6,7 @@ use App\Imports\InverterImport;
 use App\Models\Inverter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Excel as ExcelReader;
 use Maatwebsite\Excel\Facades\Excel;
 use Tests\TestCase;
 
@@ -15,15 +16,15 @@ class InverterImportTest extends TestCase
 
     private const FILE_NAME = 'Inverter Test History Report_20250221.xls';
 
-    protected function setUp(): void
-    {
-        parent::setUp();
+    private const UPLOADS_TESTS_DIRECTORY = 'uploads/tests/';
 
-        // Arrange
-        $this->setupFixture();
-    }
+    private const TESTS_FIXTURES_DIRECTORY = 'tests/Fixtures/';
+
     public function test_an_inverter_import_can_create_inverter_data(): void
     {
+        // Arrange
+        $this->setupFixture();
+
         // Act
         $this->importInverterData();
 
@@ -41,6 +42,7 @@ class InverterImportTest extends TestCase
     public function test_a_inverter_can_be_upserted_for_the_same_period(): void
     {
         // Arrange
+        $this->setupFixture();
         $this->importInverterData();
         $this->assertDatabaseCount('inverters', 4);
 
@@ -53,21 +55,25 @@ class InverterImportTest extends TestCase
 
     public function setupFixture(): void
     {
-        $source = base_path('tests/Fixtures/' . self::FILE_NAME);
-        $this->assertTrue(file_exists($source), 'Fixture file not found at: '. $source);
+        if (Storage::exists(self::UPLOADS_TESTS_DIRECTORY . self::FILE_NAME)) {
+            return;
+        }
 
-        $destination = 'tests/' . self::FILE_NAME;
+        $source = base_path(self::TESTS_FIXTURES_DIRECTORY . self::FILE_NAME);
+        $this->assertTrue(file_exists($source), "Fixture file not found at: $source");
+
+        $destination = self::UPLOADS_TESTS_DIRECTORY . self::FILE_NAME;
         $copy = Storage::put($destination, file_get_contents($source));
-        $this->assertTrue($copy);
+        $this->assertTrue($copy, "Failed to copy fixture file to storage: $destination");;
     }
 
     private function importInverterData(): void
     {
         Excel::import(
             new InverterImport(),
-            'tests/' . self::FILE_NAME,
+            self::UPLOADS_TESTS_DIRECTORY . self::FILE_NAME,
             null,
-            \Maatwebsite\Excel\Excel::XLS
+            ExcelReader::XLS
         );
     }
 }
