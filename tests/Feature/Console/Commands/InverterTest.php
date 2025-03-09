@@ -43,7 +43,7 @@ class InverterTest extends TestCase
             "uploads/processed/" . self::FILE_NAME,
         );
 
-        $this->assertTrue($deleted);
+        $this->assertTrue($deleted, 'Failed to delete test fixture file from storage.');
     }
 
     public function setupFixture(): void

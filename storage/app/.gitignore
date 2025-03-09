@@ -1,5 +1,7 @@
 *
 !public/
+!uploads/
+!uploads/processed
+!uploads/tests
 !.gitignore
 !tests/
-!tests/Inverter History Report_20240625044020_1300386381676952160.xls

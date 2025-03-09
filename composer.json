@@ -7,9 +7,9 @@
     "require": {
         "php": "^8.2",
         "eightynine/filament-excel-import": "^3.0",
-        "filament/filament": "^3.2",
-        "laravel/framework": "^11.10",
-        "laravel/tinker": "^2.9"
+        "filament/filament": "^3.3",
+        "laravel/framework": "^11.44",
+        "laravel/tinker": "^2.10"
     },
     "require-dev": {
         "barryvdh/laravel-ide-helper": "^3.1",
