@@ -11,7 +11,7 @@ project, it requires a **Solis inverter** and energy supplied by **Octopus energ
 - Calculate cost for the previous month
 - Calculate rolling average usage per 30 minutes
 - Forecast battery and solar usage with cost(s)
-- Investigate battery charging strategy
+- Battery charging strategy
 
 ## Requirements
 
@@ -149,16 +149,17 @@ The following packages have been used:
   users.
 - [Laravel Livewire](https://laravel-livewire.com/) - Included with Filament.
 
-<!--
 ### Dev Tooling
 
+- [IDE helper](https://github.com/barryvdh/laravel-ide-helper) - helper for IDE auto-completion
+
+<!--
 - [Easy Coding Standard (ECS)](https://github.com/symplify/easy-coding-standard) - Preferred coding standard for this
   project, set to PSR-12 plus other standards.
 - [Larastan](https://github.com/nunomaduro/larastan) - Static analysis for Laravel using PhpStan.
 - [Rector](https://github.com/rectorphp/rector) - Automatic code update - set to Laravel 10 and PHPUnit 10.
 - [Parallel-Lint](https://github.com/php-parallel-lint/PHP-Parallel-Lint) - This application checks syntax of PHP files
   in parallel
-- [IDE helper](https://github.com/barryvdh/laravel-ide-helper) - helper for IDE auto-completion
 - [Laravel debug bar](https://github.com/barryvdh/laravel-debugbar) - debug bar for views, shows models, db calls etc.
 - [GrumPHP](https://github.com/phpro/grumphp) - pre-commit hook to run the above tools before committing code
 -->
