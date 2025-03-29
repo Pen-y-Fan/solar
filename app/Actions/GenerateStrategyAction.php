@@ -130,7 +130,6 @@ class GenerateStrategyAction
            $strategies[$key]['import_value_inc_vat'] = $item['import_value_inc_vat'];
            $strategies[$key]['strategy1'] = $item['charging'];
            $strategies[$key]['consumption_average'] = $item['consumption'];
-//           $strategies[$key]['battery_percentage1'] = $item['battery_percentage'];
         });
 
         $secondPassStrategy1->each(function ($item, $key) use (&$strategies) {
@@ -139,7 +138,6 @@ class GenerateStrategyAction
 
         $thirdPassStrategy2->each(function ($item, $key) use (&$strategies) {
             $strategies[$key]['strategy2'] = $item['charging'];
-//            $strategies[$key]['battery_percentage2'] = $item['battery_percentage'];
 
         });
 
@@ -184,11 +182,11 @@ class GenerateStrategyAction
             $consumption = $consumptions->where(
                 'time',
                 $forecast->period_end->format('H:i:s')
-            )->first() ?? 0;
+            )->first()?->value ?? 0;
 
             $estimatePV = $forecast->pv_estimate / 2;
 
-            $estimatedBatteryRequired = $estimatePV - $consumption->value;
+            $estimatedBatteryRequired = $estimatePV - $consumption;
 
             $charging = false;
 
@@ -217,7 +215,7 @@ class GenerateStrategyAction
                 'period' => $forecast->period_end,
                 'import_value_inc_vat' => $importValueIncVat,
                 'charging' => $charging,
-                'consumption' => $consumption->value,
+                'consumption' => $consumption,
                 'battery_percentage' => $battery * 25,
             ];
         }
