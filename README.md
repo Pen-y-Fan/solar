@@ -45,6 +45,8 @@ cd solar
 composer install
 ```
 
+If `composer` is not installed locally see **Docker (optional)** below.
+
 ## Create .env
 
 Create an `.env` file from `.env.example`
@@ -152,6 +154,26 @@ The following packages have been used:
 ### Dev Tooling
 
 - [IDE helper](https://github.com/barryvdh/laravel-ide-helper) - helper for IDE auto-completion
+
+### Docker (optional)
+
+Laravel Sail has been installed as a composer package, if composer is not installed locally it can be installed using:
+
+```shell
+docker run --rm \
+    -u "$(id -u):$(id -g)" \
+    -v "$(pwd):/var/www/html" \
+    -w /var/www/html \
+    laravelsail/php83-composer:latest \
+    composer install --ignore-platform-reqs
+```
+
+Once the **.env** file and database have already been configured, the project can be run:
+
+```shell
+sail up -d
+```
+
 
 <!--
 - [Easy Coding Standard (ECS)](https://github.com/symplify/easy-coding-standard) - Preferred coding standard for this
