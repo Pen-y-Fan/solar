@@ -58,7 +58,7 @@ class StrategyResource extends Resource
                 Tables\Columns\TextColumn::make('period')
                     ->label('Date time')
                     ->dateTime(format: 'd M H:i', timezone: 'Europe/London')
-                    ->description(fn($record) => $record->period->clone()->setTimezone('Europe/London')->format('P') === $record->period->clone()->setTimezone('UTC')->format('P')
+                    ->description(fn($record) => $record->period->clone()->setTimezone('Europe/London')->format('P') !== $record->period->clone()->setTimezone('UTC')->format('P')
                         ? sprintf('(%s UTC)', $record->period->clone()->setTimezone('UTC')->format('d M H:i'))
                         : null)
                     ->sortable(),
