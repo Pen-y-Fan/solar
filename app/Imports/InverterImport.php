@@ -25,7 +25,7 @@ use Maatwebsite\Excel\Imports\HeadingRowFormatter;
  *
  * Total Energy from Grid(kWh) -> accumulated energy imported from the grid
  *
- * Daily Consumption Energy(kWh) = consumption - Energy consumed during the period
+ * Today Total Load Consumption(kWh) = consumption - Energy consumed during the period
  *
  * (new InverterImport)->import('inverter.xls', null, \Maatwebsite\Excel\Excel::XLS);
  * $collection = (new InverterImport)->toCollection('inverter.xlsx');
@@ -72,7 +72,7 @@ class InverterImport implements ToCollection, WithHeadingRow
 
                 // Sometimes the last row of data for the day is reset to 0 prematurely in the export report.
                 // the difference for the day will be negative.
-                if (($lastInPeriod['Daily Consumption Energy(kWh)'] - $firstInPeriod['Daily Consumption Energy(kWh)']) < 0) {
+                if (($lastInPeriod['Today Total Load Consumption(kWh)'] - $firstInPeriod['Today Total Load Consumption(kWh)']) < 0) {
                     // use the previous row of data
                     $lastInPeriod = $collection[$i - 2];
                 }
@@ -87,7 +87,7 @@ class InverterImport implements ToCollection, WithHeadingRow
                     // 'from_grid' => $lastInPeriod['Daily Energy from Grid(kWh)'] - $firstInPeriod['Daily Energy from Grid(kWh)'],
                     'from_grid' => $lastInPeriod['Total Energy from Grid(kWh)'] - $firstInPeriod['Total Energy from Grid(kWh)'],
                     'battery_soc' => $firstInPeriod['Battery SOC(%)'],
-                    'consumption' => $lastInPeriod['Daily Consumption Energy(kWh)'] - $firstInPeriod['Daily Consumption Energy(kWh)'],
+                    'consumption' => $lastInPeriod['Today Total Load Consumption(kWh)'] - $firstInPeriod['Today Total Load Consumption(kWh)'],
                 ];
                 // Log::info('First in period', ['index' => $i, 'Last in period' => $lastInPeriod['Daily Energy to Grid(kWh)'], 'First in period' => $firstInPeriod['Daily Energy to Grid(kWh)']]);
 
