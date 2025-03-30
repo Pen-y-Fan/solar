@@ -56,7 +56,11 @@ class StrategyResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('period')
-                    ->dateTime(format: 'd/m/y H:i', timezone: 'Europe/London')
+                    ->label('Date time')
+                    ->dateTime(format: 'd M H:i', timezone: 'Europe/London')
+                    ->description(fn($record) => $record->period->clone()->setTimezone('Europe/London')->format('P') === $record->period->clone()->setTimezone('UTC')->format('P')
+                        ? sprintf('(%s UTC)', $record->period->clone()->setTimezone('UTC')->format('d M H:i'))
+                        : null)
                     ->sortable(),
 
                 // TODO: validation
