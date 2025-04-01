@@ -14,7 +14,7 @@ class AgileImport
     /**
      * @throws \Throwable
      */
-    public function run()
+    public function run(): void
     {
         Log::info('Start running Agile import action');
 
@@ -32,7 +32,7 @@ class AgileImport
         );
 
         // fetch the latest import data
-        $data = $this->getImportData();
+        $data = $this->getImportData($lastImport);
 
         // save it to the database
         \App\Models\AgileImport::upsert(
@@ -45,10 +45,15 @@ class AgileImport
     /**
      * @throws \Throwable
      */
-    private function getImportData()
+    private function getImportData($lastImport): array
     {
-        // ?page_size=1000
-        $url = 'https://api.octopus.energy/v1/products/AGILE-23-12-06/electricity-tariffs/E-1R-AGILE-23-12-06-K/standard-unit-rates/?page_size=200';
+        // https://developer.octopus.energy/rest/guides/endpoints
+        // https://agile.octopushome.net/dashboard (watch network traffic and copy)
+        $url = sprintf(
+            'https://api.octopus.energy/v1/products/AGILE-24-10-01/electricity-tariffs/E-1R-AGILE-24-10-01-K/standard-unit-rates/?page_size=200&&period_from=%s&period_to=%s',
+            $lastImport->clone()->timezone('Europe/London')->startOfDay()->timezone('UTC')->format('Y-m-d\TH:i\Z'),
+            now('Europe/London')->addDay()->endOfDay()->timezone('UTC')->format('Y-m-d\TH:i\Z'),
+        );
 
         try {
             $response = Http::get($url);
