@@ -15,7 +15,7 @@ class AgileExport
     /**
      * @throws \Throwable
      */
-    public function run()
+    public function run(): void
     {
         Log::info('Start running Agile export action');
 
@@ -33,7 +33,7 @@ class AgileExport
         );
 
         // fetch the latest export data
-        $data = $this->getExportData();
+        $data = $this->getExportData($lastExport);
 
         // save it to the database
         \App\Models\AgileExport::upsert(
@@ -46,10 +46,15 @@ class AgileExport
     /**
      * @throws \Throwable
      */
-    private function getExportData()
+    private function getExportData($lastExport): array
     {
-        // default page size is 200 (~ 4 days) download additional using this query string (~ 20 days): /?page_size=1000
-        $url = 'https://api.octopus.energy/v1/products/AGILE-OUTGOING-BB-23-02-28/electricity-tariffs/E-1R-AGILE-OUTGOING-BB-23-02-28-K/standard-unit-rates/?page_size=200';
+        // https://developer.octopus.energy/rest/guides/endpoints
+        // https://agile.octopushome.net/dashboard (watch network traffic and copy)
+        $url = sprintf(
+            'https://api.octopus.energy/v1/products/AGILE-OUTGOING-19-05-13/electricity-tariffs/E-1R-AGILE-OUTGOING-19-05-13-K/standard-unit-rates/?page_size=200&&period_from=%s&period_to=%s',
+            $lastExport->clone()->timezone('Europe/London')->startOfDay()->timezone('UTC')->format('Y-m-d\TH:i\Z'),
+            now('Europe/London')->addDay()->endOfDay()->timezone('UTC')->format('Y-m-d\TH:i\Z'),
+        );
 
         try {
             $response = Http::get($url);
