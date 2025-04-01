@@ -59,7 +59,8 @@ class GenerateStrategyAction
             ->where(
                 'period',
                 '>',
-                now()->timezone('Europe/London')->subdays(21)
+                now()->timezone('Europe/London')
+                    ->subdays(21)
                     ->startOfDay()
                     ->timezone('UTC')
             )
@@ -72,8 +73,8 @@ class GenerateStrategyAction
 
         $weekAgpConsumptions = Inverter::query()
             ->whereBetween('period', [
-                $startDate->clone()->subWeek()->timezone('UTC'),
-                $startDate->clone()->subWeek()->timezone('Europe/London')->endOfDay()->timezone('UTC')
+                $startDate->clone()->timezone('Europe/London')->subWeek()->timezone('UTC'),
+                $startDate->clone()->timezone('Europe/London')->subWeek()->endOfDay()->timezone('UTC')
             ])
             ->get();
 
