@@ -19,14 +19,15 @@ class OctopusExport
     {
         Log::info('Start running Octopus export action');
 
-        $lastExport = \App\Models\OctopusExport::query()
+        $lastExportStart = \App\Models\OctopusExport::query()
             ->latest('interval_start')
-            ->first('interval_start') ?? ['interval_start' => now()->subDays(2)];
+            ->first('interval_start')
+            ?->interval_start ?? now()->subDays(2);
 
-        throw_if(!empty($lastExport) && $lastExport['interval_start'] >= now()->subDay(),
+        throw_if(!empty($lastExportStart) && $lastExportStart >= now()->subDay(),
             sprintf(
                 'Last updated in the day, try again in %s',
-                $lastExport['interval_start']->addDay()->diffForHumans()
+                $lastExportStart->addDay()->diffForHumans()
             )
         );
 

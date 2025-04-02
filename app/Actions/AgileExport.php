@@ -20,20 +20,21 @@ class AgileExport
         Log::info('Start running Agile export action');
 
         // normally released after 4PM and will have data up to 23:00 the next day!
-        $lastExport = \App\Models\AgileExport::query()
+        $lastExportValidTo = \App\Models\AgileExport::query()
             ->latest('valid_to')
-            ->first('valid_to') ?? ['valid_to' => now()->subDay()];
+            ->first('valid_to')
+            ?->valid_to ?? now()->subDay();
 
-        throw_if(now()->diffInUTCHours($lastExport['valid_to']) > 7,
+        throw_if(now()->diffInUTCHours($lastExportValidTo) > 7,
             sprintf(
                 'Already have data until %s, try again after 4 PM %s',
-                $lastExport['valid_to']->timezone('Europe/London')->format('j F Y H:i'),
-                $lastExport['valid_to']->timezone('Europe/London')->format('D')
+                $lastExportValidTo->timezone('Europe/London')->format('j F Y H:i'),
+                $lastExportValidTo->timezone('Europe/London')->format('D')
             )
         );
 
         // fetch the latest export data
-        $data = $this->getExportData($lastExport);
+        $data = $this->getExportData($lastExportValidTo);
 
         // save it to the database
         \App\Models\AgileExport::upsert(
@@ -46,13 +47,13 @@ class AgileExport
     /**
      * @throws \Throwable
      */
-    private function getExportData($lastExport): array
+    private function getExportData($lastExportValidTo): array
     {
         // https://developer.octopus.energy/rest/guides/endpoints
         // https://agile.octopushome.net/dashboard (watch network traffic and copy)
         $url = sprintf(
             'https://api.octopus.energy/v1/products/AGILE-OUTGOING-19-05-13/electricity-tariffs/E-1R-AGILE-OUTGOING-19-05-13-K/standard-unit-rates/?page_size=200&&period_from=%s&period_to=%s',
-            $lastExport->clone()->timezone('Europe/London')->startOfDay()->timezone('UTC')->format('Y-m-d\TH:i\Z'),
+            $lastExportValidTo->clone()->timezone('Europe/London')->startOfDay()->timezone('UTC')->format('Y-m-d\TH:i\Z'),
             now('Europe/London')->addDay()->endOfDay()->timezone('UTC')->format('Y-m-d\TH:i\Z'),
         );
 

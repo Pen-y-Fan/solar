@@ -19,14 +19,15 @@ class OctopusImport
     {
         Log::info('Start running Octopus import action');
 
-        $lastImport = \App\Models\OctopusImport::query()
+        $lastImportStart = \App\Models\OctopusImport::query()
             ->latest('interval_start')
-            ->first('interval_start') ?? ['interval_start' => now()->subDays(2)];
+            ->first('interval_start')
+            ?->interval_start ?? now()->subDays(2);
 
-        throw_if(!empty($lastImport) && $lastImport['interval_start'] >= now()->subDay(),
+        throw_if($lastImportStart >= now()->subDay(),
             sprintf(
                 'Last updated in the day, try again in %s',
-                $lastImport['interval_start']->addDay()->diffForHumans()
+                $lastImportStart->addDay()->diffForHumans()
             )
         );
 
