@@ -6,6 +6,7 @@ use App\Filament\Resources\StrategyResource\Action\CalculateBatteryAction;
 use App\Filament\Resources\StrategyResource\Action\CopyConsumptionWeekAgoAction;
 use App\Filament\Resources\StrategyResource\Action\GenerateAction;
 use App\Filament\Resources\StrategyResource\Pages;
+use App\Filament\Resources\StrategyResource\Widgets\CostChart;
 use App\Filament\Resources\StrategyResource\Widgets\StrategyChart;
 use App\Filament\Resources\StrategyResource\Widgets\StrategyOverview;
 use App\Models\Strategy;
@@ -211,6 +212,7 @@ class StrategyResource extends Resource
         return [
             StrategyOverview::class,
             StrategyChart::class,
+            CostChart::class,
         ];
     }
 
