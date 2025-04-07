@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\StrategyResource\Pages;
 
 use App\Filament\Resources\StrategyResource;
+use App\Filament\Resources\StrategyResource\Widgets\CostChart;
 use App\Filament\Resources\StrategyResource\Widgets\StrategyChart;
 use App\Filament\Resources\StrategyResource\Widgets\StrategyOverview;
-use App\Filament\Resources\StrategyResource\Widgets\StrategyWidget;
 use Filament\Actions;
 use Filament\Pages\Concerns\ExposesTableToWidgets;
 use Filament\Resources\Pages\ListRecords;
@@ -28,6 +28,7 @@ class ListStrategies extends ListRecords
         return [
             StrategyOverview::class,
             StrategyChart::class,
+            CostChart::class,
         ];
     }
 }
