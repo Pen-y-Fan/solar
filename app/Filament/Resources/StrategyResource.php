@@ -173,17 +173,16 @@ class StrategyResource extends Resource
                     ->query(function (Builder $query, array $data) {
 
                         if ($data['value'] === 'today') {
-                            $startOfDay = now()->setTimezone('GMT')->startOfDay();
-                            $endOfDay = now()->setTimezone('GMT')->endOfDay();
+                            $startOfDay = now()->timezone('GMT')->startOfDay();
+                            $endOfDay = now()->timezone('GMT')->endOfDay();
                             $query->whereBetween('period', [$startOfDay, $endOfDay]);
                         } elseif ($data['value'] === 'tomorrow') {
-                            $startOfTomorrow = now()->setTimezone('GMT')->addDay()->startOfDay();
-                            $endOfTomorrow = now()->setTimezone('GMT')->addDay()->endOfDay();
+                            $startOfTomorrow = now()->timezone('GMT')->addDay()->startOfDay();
+                            $endOfTomorrow = now()->timezone('GMT')->addDay()->endOfDay();
                             $query->whereBetween('period', [$startOfTomorrow, $endOfTomorrow]);
                         }
                     })
                     ->default('today'),
-                //
             ], layout: FiltersLayout::AboveContent)
             ->headerActions([
                 GenerateAction::make(),
@@ -220,7 +219,6 @@ class StrategyResource extends Resource
     {
         return [
             'index' => Pages\ListStrategies::route('/'),
-            'create' => Pages\CreateStrategy::route('/create'),
             'edit' => Pages\EditStrategy::route('/{record}/edit'),
         ];
     }
