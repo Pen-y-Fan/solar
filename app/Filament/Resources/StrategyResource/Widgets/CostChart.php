@@ -6,6 +6,7 @@ use App\Filament\Resources\StrategyResource\Pages\ListStrategies;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class CostChart extends ChartWidget
 {
@@ -27,6 +28,11 @@ class CostChart extends ChartWidget
     protected function getData(): array
     {
         $data = $this->getDatabaseData();
+
+        if ($data->count() === 0) {
+            self::$heading = 'No forecast data';
+            return [];
+        }
 
         self::$heading = sprintf('Agile costs from %s to %s',
             Carbon::parse($data->first()['valid_from'], 'UTC')
@@ -92,9 +98,8 @@ class CostChart extends ChartWidget
         return 'line';
     }
 
-    private function getDatabaseData()
+    private function getDatabaseData(): Collection
     {
-
         $tableData = $this->getPageTableRecords();
         $data = [];
 
