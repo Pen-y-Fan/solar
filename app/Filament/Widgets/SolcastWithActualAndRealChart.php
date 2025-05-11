@@ -73,7 +73,7 @@ class SolcastWithActualAndRealChart extends ChartWidget
     private function getDatabaseData(): \Illuminate\Support\Collection
     {
 
-        $start = Carbon::parse($this->filter, 'Europe/London')->startOfDay()->timezone('UTC');
+        $start = Carbon::parse($this->filter, 'Europe/London')->startOfDay();
 
         $limit = 48;
 

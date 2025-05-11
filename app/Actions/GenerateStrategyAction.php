@@ -7,6 +7,7 @@ namespace App\Actions;
 use App\Models\Forecast;
 use App\Models\Inverter;
 use App\Models\Strategy;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -31,11 +32,10 @@ class GenerateStrategyAction
     {
         Log::info('Start generation of strategy');
 
-        $startDate = match ($this->filter) {
-            'yesterday' => now('Europe/London')->subDay()->startOfDay()->timezone('UTC'),
-            'today' => now('Europe/London')->startOfDay()->timezone('UTC'),
-            'tomorrow' => now('Europe/London')->addDay()->startOfDay()->timezone('UTC'),
-        };
+        $startDate = Carbon::parse($this->filter, 'Europe/London')
+            ->timezone('Europe/London')
+            ->startOfDay()
+            ->timezone('UTC');
 
         $limit = 48;
 

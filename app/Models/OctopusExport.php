@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * 
- *
  * @property int $id
  * @property float|null $consumption
  * @property \Carbon\CarbonImmutable|null $interval_start
@@ -53,8 +51,14 @@ class OctopusExport extends Model
     {
         return $this->hasOne(AgileExport::class, 'valid_from', 'interval_start');
     }
+
     public function octopusImport(): HasOne
     {
         return $this->hasOne(OctopusImport::class, 'interval_start', 'interval_start');
+    }
+
+    public function inverter(): HasOne
+    {
+        return $this->hasOne(Inverter::class, 'period', 'interval_start');
     }
 }
