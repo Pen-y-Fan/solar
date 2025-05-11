@@ -174,9 +174,9 @@ class StrategyResource extends Resource
 
                         if (isset($data['value'])) {
                             $start = Carbon::parse($data['value'], 'Europe/London')
-                                ->startOfDay();
+                                ->startOfDay()->timezone('UTC');
                             $end = Carbon::parse($data['value'], 'Europe/London')
-                                ->endOfDay();
+                                ->endOfDay()->timezone('UTC');
                             $query->whereBetween('period', [$start, $end]);
                         }
                     })
