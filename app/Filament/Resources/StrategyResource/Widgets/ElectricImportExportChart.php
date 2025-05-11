@@ -33,11 +33,11 @@ class ElectricImportExportChart extends ChartWidget
         }
 
         self::$heading = sprintf('Actual electric export and import from %s to %s cost £%0.2f',
-            Carbon::parse($rawData->first()['interval_start'], 'UTC')
-                ->timezone('Europe/London')
+            Carbon::parse($rawData->first()['interval_start'], 'London/Europe')
+                ->timezone('UTC')
                 ->format('D jS M Y H:i'),
-            Carbon::parse($rawData->last()['interval_end'], 'UTC')
-                ->timezone('Europe/London')
+            Carbon::parse($rawData->last()['interval_end'], 'London/Europe')
+                ->timezone('UTC')
                 ->format('jS M H:i'),
             -$rawData->last()['net_accumulative_cost']
         );
@@ -102,7 +102,7 @@ class ElectricImportExportChart extends ChartWidget
     private function getDatabaseData(): Collection
     {
         $date = $this->tableFilters['period']['value'] ?? now('Europe/London')->format('Y-m-d');
-        $start = Carbon::parse($date, 'Europe/London')->startOfDay();
+        $start = Carbon::parse($date, 'Europe/London')->startOfDay()->timezone('UTC');
 
         $limit = 48;
 
@@ -115,7 +115,7 @@ class ElectricImportExportChart extends ChartWidget
             ->where(
                 'interval_start',
                 '<=',
-                $start->copy()->timezone('Europe/London')->endOfDay()
+                $start->copy()->timezone('Europe/London')->endOfDay()->timezone('UTC')
             )
             ->orderBy('interval_start')
             ->limit($limit)
