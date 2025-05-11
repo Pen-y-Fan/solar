@@ -4,6 +4,7 @@ namespace App\Filament\Resources\StrategyResource\Pages;
 
 use App\Filament\Resources\StrategyResource;
 use App\Filament\Resources\StrategyResource\Widgets\CostChart;
+use App\Filament\Resources\StrategyResource\Widgets\ElectricImportExportChart;
 use App\Filament\Resources\StrategyResource\Widgets\StrategyChart;
 use App\Filament\Resources\StrategyResource\Widgets\StrategyOverview;
 use Filament\Actions;
@@ -25,10 +26,21 @@ class ListStrategies extends ListRecords
 
     public function getHeaderWidgets(): array
     {
-        return [
+        $date = now()->format('Y-m-d');
+        if (isset($this->tableFilters['period']['value'])) {
+            $date = $this->tableFilters['period']['value'];
+        }
+
+        $widgets = [
             StrategyOverview::class,
-            StrategyChart::class,
             CostChart::class,
+            StrategyChart::class,
         ];
+
+        if (!($date === now()->format('Y-m-d') || $date === now()->addDay()->format('Y-m-d'))) {
+            $widgets[] = ElectricImportExportChart::class;
+        }
+
+        return $widgets;
     }
 }

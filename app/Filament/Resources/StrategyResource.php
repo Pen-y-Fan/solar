@@ -7,9 +7,11 @@ use App\Filament\Resources\StrategyResource\Action\CopyConsumptionWeekAgoAction;
 use App\Filament\Resources\StrategyResource\Action\GenerateAction;
 use App\Filament\Resources\StrategyResource\Pages;
 use App\Filament\Resources\StrategyResource\Widgets\CostChart;
+use App\Filament\Resources\StrategyResource\Widgets\ElectricImportExportChart;
 use App\Filament\Resources\StrategyResource\Widgets\StrategyChart;
 use App\Filament\Resources\StrategyResource\Widgets\StrategyOverview;
 use App\Models\Strategy;
+use Carbon\CarbonPeriod;
 use Exception;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -21,6 +23,7 @@ use Filament\Tables\Columns\Summarizers\Sum;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 
 class StrategyResource extends Resource
 {
@@ -106,7 +109,7 @@ class StrategyResource extends Resource
                     ->type('number'),
 
                 Tables\Columns\TextColumn::make('consumption_last_week')
-                    ->label('Usage -1wk')
+                    ->label('Usage')
                     ->numeric(2)
                     ->toggleable()
                     ->summarize(Sum::make()),
@@ -114,19 +117,19 @@ class StrategyResource extends Resource
                 Tables\Columns\TextColumn::make('consumption_average')
                     ->label('Usage avg')
                     ->numeric()
-                    ->toggleable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->summarize(Sum::make()),
 
                 Tables\Columns\TextColumn::make('consumption_last_week_cost')
-                    ->label('p -1wk')
+                    ->label('p')
                     ->numeric(2)
                     ->toggleable()
-                    ->summarize([Sum::make(), Range::make()]),
+                    ->summarize(Sum::make()),
 
                 Tables\Columns\TextColumn::make('consumption_average_cost')
                     ->label('p avg')
                     ->numeric(2)
-                    ->toggleable()
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->summarize([Sum::make(), Range::make()]),
 
                 Tables\Columns\TextColumn::make('forecast.pv_estimate')
@@ -165,24 +168,19 @@ class StrategyResource extends Resource
             ->filters([
 
                 Tables\Filters\SelectFilter::make('period')
-                    ->label('Date Range')
-                    ->options([
-                        'today' => 'Today',
-                        'tomorrow' => 'Tomorrow',
-                    ])
+                    ->label('Date')
+                    ->options(self::getPeriod())
                     ->query(function (Builder $query, array $data) {
 
-                        if ($data['value'] === 'today') {
-                            $startOfDay = now()->timezone('GMT')->startOfDay();
-                            $endOfDay = now()->timezone('GMT')->endOfDay();
-                            $query->whereBetween('period', [$startOfDay, $endOfDay]);
-                        } elseif ($data['value'] === 'tomorrow') {
-                            $startOfTomorrow = now()->timezone('GMT')->addDay()->startOfDay();
-                            $endOfTomorrow = now()->timezone('GMT')->addDay()->endOfDay();
-                            $query->whereBetween('period', [$startOfTomorrow, $endOfTomorrow]);
+                        if (isset($data['value'])) {
+                            $start = Carbon::parse($data['value'], 'Europe/London')
+                                ->startOfDay();
+                            $end = Carbon::parse($data['value'], 'Europe/London')
+                                ->endOfDay();
+                            $query->whereBetween('period', [$start, $end]);
                         }
                     })
-                    ->default('today'),
+                    ->default(now()->format('Y-m-d')),
             ], layout: FiltersLayout::AboveContent)
             ->headerActions([
                 GenerateAction::make(),
@@ -212,6 +210,7 @@ class StrategyResource extends Resource
             StrategyOverview::class,
             StrategyChart::class,
             CostChart::class,
+            ElectricImportExportChart::class,
         ];
     }
 
@@ -226,5 +225,17 @@ class StrategyResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery();
+    }
+
+    protected static function getPeriod(): array
+    {
+        $periods = CarbonPeriod::create('now +1 day', '-1 day', 35);
+
+        $options = [];
+        foreach ($periods as $period) {
+            $options[$period->format('Y-m-d')] = $period->format('D jS M');
+        }
+
+        return $options;
     }
 }

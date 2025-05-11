@@ -5,11 +5,11 @@ namespace App\Filament\Resources\StrategyResource\Widgets;
 use App\Filament\Resources\StrategyResource\Pages\ListStrategies;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
+use Illuminate\Support\Collection;
 
 class StrategyChart extends ChartWidget
 {
     use InteractsWithPageTable;
-
     protected int|string|array $columnSpan = 2;
 
     protected static ?string $maxHeight = '400px';
@@ -32,7 +32,7 @@ class StrategyChart extends ChartWidget
             $rawData->last()['period_end']
                 ->timezone('Europe/London')
                 ->format('jS M H:i'),
-            $rawData->sum('cost'),
+            $rawData->last()['acc_cost']
         );
 
         return [
@@ -56,21 +56,21 @@ class StrategyChart extends ChartWidget
                     'type' => 'line',
                     'data' => $rawData->map(fn($item) => $item['acc_cost']),
                     'borderColor' => 'rgb(54, 162, 235)',
-                    'yAxisID' => 'y3',
+                    'yAxisID' => 'y2',
                 ],
                 [
                     'label' => 'Acc. import cost',
                     'type' => 'line',
                     'data' => $rawData->map(fn($item) => $item['import_accumulative_cost']),
                     'borderColor' => 'rgb(255, 99, 132)',
-                    'yAxisID' => 'y3',
+                    'yAxisID' => 'y2',
                 ],
                 [
                     'label' => 'Acc. export cost',
                     'type' => 'line',
                     'data' => $rawData->map(fn($item) => -$item['export_accumulative_cost']),
                     'borderColor' => 'rgb(75, 192, 192)',
-                    'yAxisID' => 'y3',
+                    'yAxisID' => 'y2',
                 ],
                 [
                     'label' => 'Battery (%)',
@@ -93,7 +93,7 @@ class StrategyChart extends ChartWidget
         return 'bar';
     }
 
-    private function getDatabaseData()
+    private function getDatabaseData(): Collection
     {
 
         $tableData = $this->getPageTableRecords();
@@ -104,16 +104,17 @@ class StrategyChart extends ChartWidget
         $data = [];
 
         foreach ($tableData as $strategy) {
-            $import = $strategy->import_amount;
+            $import = $strategy->import_amount + $strategy->battery_charge_amount;
             $export = $strategy->export_amount;
 
-            $exportCost = $strategy->export_amount * $strategy->export_value_inc_vat / 100;
-            $importCost = ($strategy->import_amount + $strategy->battery_charge_amount) * $strategy->import_value_inc_vat / 100;
+            $importCost = $import * $strategy->import_value_inc_vat / 100;
+            $exportCost = $export * $strategy->export_value_inc_vat / 100;
+
             $cost = ($importCost - $exportCost);
             $accumulativeCost += $cost;
 
-            $exportAccumulativeCost += $exportCost;
             $importAccumulativeCost += $importCost;
+            $exportAccumulativeCost += $exportCost;
 
             $data[] = [
                 'period_end' => $strategy->period,
@@ -123,8 +124,9 @@ class StrategyChart extends ChartWidget
                 'acc_cost' => $accumulativeCost,
                 'charging' => $strategy->strategy_manual,
                 'battery_percent' => $strategy->battery_percentage_manual,
-                'export_accumulative_cost' => $exportAccumulativeCost,
                 'import_accumulative_cost' => $importAccumulativeCost,
+                'export_accumulative_cost' => $exportAccumulativeCost,
+
             ];
         }
 
@@ -157,17 +159,6 @@ class StrategyChart extends ChartWidget
                     ],
                 ],
                 'y2' => [
-                    'type' => 'linear',
-                    'display' => true,
-                    'position' => 'left',
-
-                    // grid line settings
-                    'grid' => [
-                        // only want the grid lines for one axis to show up
-                        'drawOnChartArea' => false,
-                    ],
-                ],
-                'y3' => [
                     'type' => 'linear',
                     'display' => true,
                     'position' => 'right',
