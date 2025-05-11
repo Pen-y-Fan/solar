@@ -38,37 +38,51 @@ class StrategyChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Acc. grid import',
-                    'data' => $rawData->map(fn($item) => $item['consumption']),
+                    'label' => 'Import',
+                    'data' => $rawData->map(fn($item) => $item['import']),
                     'backgroundColor' => 'rgba(255, 205, 86, 0.2)',
                     'borderColor' => 'rgb(255, 205, 86)',
                     'yAxisID' => 'y',
                 ],
                 [
-                    'label' => 'Cost',
-                    'type' => 'line',
-                    'data' => $rawData->map(fn($item) => $item['cost']),
+                    'label' => 'Export',
+                    'data' => $rawData->map(fn($item) => -$item['export']),
+                    'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
                     'borderColor' => 'rgb(54, 162, 235)',
-                    'yAxisID' => 'y2',
+                    'yAxisID' => 'y',
                 ],
                 [
                     'label' => 'Acc. Cost',
                     'type' => 'line',
                     'data' => $rawData->map(fn($item) => $item['acc_cost']),
+                    'borderColor' => 'rgb(54, 162, 235)',
+                    'yAxisID' => 'y3',
+                ],
+                [
+                    'label' => 'Acc. import cost',
+                    'type' => 'line',
+                    'data' => $rawData->map(fn($item) => $item['import_accumulative_cost']),
                     'borderColor' => 'rgb(255, 99, 132)',
+                    'yAxisID' => 'y3',
+                ],
+                [
+                    'label' => 'Acc. export cost',
+                    'type' => 'line',
+                    'data' => $rawData->map(fn($item) => -$item['export_accumulative_cost']),
+                    'borderColor' => 'rgb(75, 192, 192)',
                     'yAxisID' => 'y3',
                 ],
                 [
                     'label' => 'Battery (%)',
                     'type' => 'line',
                     'data' => $rawData->map(fn($item) => $item['battery_percent']),
-                    'borderColor' => 'rgb(75, 192, 192)',
+                    'borderColor' => 'rgb(255, 159, 64)',
                     'yAxisID' => 'y1',
                 ],
             ],
             'labels' => $rawData->map(fn($item) => sprintf(
                 '%s%s',
-                $item['charging'] ? '* ': '',
+                $item['charging'] ? '* ' : '',
                 $item['period_end']->timezone('Europe/London')->format('H:i'))
             )
         ];
@@ -84,22 +98,33 @@ class StrategyChart extends ChartWidget
 
         $tableData = $this->getPageTableRecords();
 
-        $accumulativeConsumption = 0;
         $accumulativeCost = 0;
+        $exportAccumulativeCost = 0;
+        $importAccumulativeCost = 0;
         $data = [];
 
         foreach ($tableData as $strategy) {
-            $accumulativeConsumption += $strategy->consumption_manual;
-            $cost = (($strategy->import_amount + $strategy->battery_charge_amount) * $strategy->import_value_inc_vat - $strategy->export_amount * $strategy->export_value_inc_vat)/100;
+            $import = $strategy->import_amount;
+            $export = $strategy->export_amount;
+
+            $exportCost = $strategy->export_amount * $strategy->export_value_inc_vat / 100;
+            $importCost = ($strategy->import_amount + $strategy->battery_charge_amount) * $strategy->import_value_inc_vat / 100;
+            $cost = ($importCost - $exportCost);
             $accumulativeCost += $cost;
+
+            $exportAccumulativeCost += $exportCost;
+            $importAccumulativeCost += $importCost;
 
             $data[] = [
                 'period_end' => $strategy->period,
-                'consumption' => $accumulativeConsumption,
+                'import' => $import,
+                'export' => $export,
                 'cost' => $cost,
                 'acc_cost' => $accumulativeCost,
                 'charging' => $strategy->strategy_manual,
                 'battery_percent' => $strategy->battery_percentage_manual,
+                'export_accumulative_cost' => $exportAccumulativeCost,
+                'import_accumulative_cost' => $importAccumulativeCost,
             ];
         }
 
@@ -110,6 +135,7 @@ class StrategyChart extends ChartWidget
     {
         return ListStrategies::class;
     }
+
     protected function getOptions(): array
     {
         return [
@@ -144,7 +170,7 @@ class StrategyChart extends ChartWidget
                 'y3' => [
                     'type' => 'linear',
                     'display' => true,
-                    'position' => 'left',
+                    'position' => 'right',
 
                     // grid line settings
                     'grid' => [
