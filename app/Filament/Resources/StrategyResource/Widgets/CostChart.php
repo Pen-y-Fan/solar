@@ -19,9 +19,6 @@ class CostChart extends ChartWidget
     protected static ?string $heading = 'Agile forecast cost';
     protected static ?string $pollingInterval = '120s';
 
-    /**
-     * @var int|mixed
-     */
     public float $minValue = 0.0;
 
     protected function getData(): array
@@ -141,6 +138,4 @@ class CostChart extends ChartWidget
 
         $this->minValue = $min >= 0 ? 0 : floor($min / 5) * 5;
     }
-
-
 }
