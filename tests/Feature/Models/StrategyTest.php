@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Models;
 
-use App\Models\ActualForecast;
+use App\Domain\Forecasting\Models\ActualForecast;
 use App\Models\AgileExport;
 use App\Models\AgileImport;
 use App\Models\Forecast;

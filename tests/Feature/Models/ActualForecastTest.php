@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Models;
 
-use App\Models\ActualForecast;
+use App\Domain\Forecasting\Models\ActualForecast;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
