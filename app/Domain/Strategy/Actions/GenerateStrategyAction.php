@@ -2,11 +2,11 @@
 
 declare(strict_types=1);
 
-namespace App\Actions;
+namespace App\Domain\Strategy\Actions;
 
 use App\Models\Forecast;
 use App\Models\Inverter;
-use App\Models\Strategy;
+use App\Domain\Strategy\Models\Strategy;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;

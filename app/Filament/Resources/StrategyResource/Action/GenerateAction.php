@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\StrategyResource\Action;
 
-use App\Actions\GenerateStrategyAction;
+use App\Domain\Strategy\Actions\GenerateStrategyAction;
 use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
@@ -31,6 +31,8 @@ class GenerateAction extends Action
 
         $this->successNotificationTitle('Generated');
 
+        $this->failureNotificationTitle('Failed');
+
         $this->icon('heroicon-m-plus-circle');
 
         $this->action(function (): void {
@@ -39,6 +41,7 @@ class GenerateAction extends Action
                 $periodValue = $periodFilter['value'] ?? null;
 
                 if ($periodValue === null) {
+                    $this->failure();
                     return;
                 }
 

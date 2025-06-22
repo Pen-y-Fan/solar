@@ -6,7 +6,7 @@ use App\Domain\Forecasting\Models\ActualForecast;
 use App\Models\AgileExport;
 use App\Models\AgileImport;
 use App\Models\Forecast;
-use App\Models\Strategy;
+use App\Domain\Strategy\Models\Strategy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

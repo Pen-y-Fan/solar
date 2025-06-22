@@ -5,10 +5,16 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Strategy>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Domain\Strategy\Models\Strategy>
  */
 class StrategyFactory extends Factory
 {
+    /**
+     * The name of the factory's corresponding model.
+     *
+     * @var string
+     */
+    protected $model = \App\Domain\Strategy\Models\Strategy::class;
     /**
      * Define the model's default state.
      *

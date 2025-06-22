@@ -1,8 +1,12 @@
 <?php
 
-namespace App\Models;
+namespace App\Domain\Strategy\Models;
 
 use App\Domain\Forecasting\Models\ActualForecast;
+use App\Models\AgileExport;
+use App\Models\AgileImport;
+use App\Models\Forecast;
+use Database\Factories\StrategyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -27,12 +31,12 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property float|null $consumption_last_week_cost
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Domain\Forecasting\Models\ActualForecast|null $actualForecast
+ * @property-read ActualForecast|null $actualForecast
  * @property-read \App\Models\AgileExport|null $exportCost
  * @property-read \App\Models\Forecast|null $forecast
  * @property-read \App\Models\AgileImport|null $importCost
  *
- * @method static \Database\Factories\StrategyFactory factory($count = null, $state = [])
+ * @method static StrategyFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Strategy newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Strategy newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Strategy query()
@@ -61,6 +65,16 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Strategy extends Model
 {
     use HasFactory;
+
+    /**
+     * Create a new factory instance for the model.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    protected static function newFactory()
+    {
+        return StrategyFactory::new();
+    }
 
     protected $fillable = [
         'period',

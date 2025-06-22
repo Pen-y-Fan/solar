@@ -2,15 +2,15 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\StrategyResource\Action\CalculateBatteryAction;
-use App\Filament\Resources\StrategyResource\Action\CopyConsumptionWeekAgoAction;
+use App\Domain\Strategy\Actions\CalculateBatteryAction;
+use App\Domain\Strategy\Actions\CopyConsumptionWeekAgoAction;
 use App\Filament\Resources\StrategyResource\Action\GenerateAction;
 use App\Filament\Resources\StrategyResource\Pages;
 use App\Filament\Resources\StrategyResource\Widgets\CostChart;
 use App\Filament\Resources\StrategyResource\Widgets\ElectricImportExportChart;
 use App\Filament\Resources\StrategyResource\Widgets\StrategyChart;
 use App\Filament\Resources\StrategyResource\Widgets\StrategyOverview;
-use App\Models\Strategy;
+use App\Domain\Strategy\Models\Strategy;
 use Carbon\CarbonPeriod;
 use Exception;
 use Filament\Forms;

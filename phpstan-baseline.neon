@@ -1,29 +1,29 @@
 parameters:
 	ignoreErrors:
 		-
+			message: "#^Parameter \\#1 \\$callback of method Illuminate\\\\Support\\\\Collection\\<int,Illuminate\\\\Database\\\\Eloquent\\\\Model\\>\\:\\:each\\(\\) expects callable\\(Illuminate\\\\Database\\\\Eloquent\\\\Model, int\\)\\: mixed, Closure\\(App\\\\Domain\\\\Strategy\\\\Models\\\\Strategy\\)\\: void given\\.$#"
+			count: 1
+			path: app/Domain/Strategy/Actions/CalculateBatteryAction.php
+
+		-
+			message: "#^Parameter \\#1 \\$callback of method Illuminate\\\\Database\\\\Eloquent\\\\Collection\\<int,Illuminate\\\\Database\\\\Eloquent\\\\Model\\>\\:\\:map\\(\\) expects callable\\(Illuminate\\\\Database\\\\Eloquent\\\\Model, int\\)\\: int, Closure\\(App\\\\Domain\\\\Strategy\\\\Models\\\\Strategy\\)\\: int given\\.$#"
+			count: 1
+			path: app/Domain/Strategy/Actions/CopyConsumptionWeekAgoAction.php
+
+		-
 			message: "#^Access to an undefined property App\\\\Models\\\\Inverter\\:\\:\\$time\\.$#"
 			count: 1
-			path: app/Actions/GenerateStrategyAction.php
+			path: app/Domain/Strategy/Actions/GenerateStrategyAction.php
 
 		-
 			message: "#^Access to an undefined property App\\\\Models\\\\Inverter\\:\\:\\$value\\.$#"
 			count: 1
-			path: app/Actions/GenerateStrategyAction.php
+			path: app/Domain/Strategy/Actions/GenerateStrategyAction.php
 
 		-
 			message: "#^Call to an undefined method Illuminate\\\\Support\\\\Carbon\\:\\:subdays\\(\\)\\.$#"
 			count: 1
-			path: app/Actions/GenerateStrategyAction.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of method Illuminate\\\\Support\\\\Collection\\<int,Illuminate\\\\Database\\\\Eloquent\\\\Model\\>\\:\\:each\\(\\) expects callable\\(Illuminate\\\\Database\\\\Eloquent\\\\Model, int\\)\\: mixed, Closure\\(App\\\\Models\\\\Strategy\\)\\: void given\\.$#"
-			count: 1
-			path: app/Filament/Resources/StrategyResource/Action/CalculateBatteryAction.php
-
-		-
-			message: "#^Parameter \\#1 \\$callback of method Illuminate\\\\Database\\\\Eloquent\\\\Collection\\<int,Illuminate\\\\Database\\\\Eloquent\\\\Model\\>\\:\\:map\\(\\) expects callable\\(Illuminate\\\\Database\\\\Eloquent\\\\Model, int\\)\\: int, Closure\\(App\\\\Models\\\\Strategy\\)\\: int given\\.$#"
-			count: 1
-			path: app/Filament/Resources/StrategyResource/Action/CopyConsumptionWeekAgoAction.php
+			path: app/Domain/Strategy/Actions/GenerateStrategyAction.php
 
 		-
 			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$period\\.$#"
