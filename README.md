@@ -13,6 +13,10 @@ project, it requires a **Solis inverter** and energy supplied by **Octopus energ
 - Forecast battery and solar usage with cost(s)
 - Battery charging strategy
 
+## Bug fix
+
+The strategy chart currently has a hard coded minimum of 0, if any costs are below 0 the minimum should be to the nearest -5 see Agile cost chart on the dashboard for an example 
+
 ## Requirements
 
 This is a Laravel 11 project. The requirements are the same as a
