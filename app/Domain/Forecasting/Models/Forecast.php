@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Models;
+namespace App\Domain\Forecasting\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use App\Domain\Strategy\Models\Strategy;
+use App\Domain\Energy\Models\AgileExport;
+use App\Domain\Energy\Models\AgileImport;
 
 /**
  * @property int $id
@@ -15,8 +17,8 @@ use App\Domain\Strategy\Models\Strategy;
  * @property float|null $pv_estimate90
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\AgileExport|null $exportCost
- * @property-read \App\Models\AgileImport|null $importCost
+ * @property-read \App\Domain\Energy\Models\AgileExport|null $exportCost
+ * @property-read \App\Domain\Energy\Models\AgileImport|null $importCost
  * @property-read \App\Domain\Strategy\Models\Strategy|null $strategy
  *
  * @method static \Illuminate\Database\Eloquent\Builder|Forecast newModelQuery()

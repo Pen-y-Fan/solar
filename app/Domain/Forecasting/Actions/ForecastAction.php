@@ -2,21 +2,22 @@
 
 declare(strict_types=1);
 
-namespace App\Actions;
+namespace App\Domain\Forecasting\Actions;
 
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Domain\Forecasting\Models\Forecast;
 
-class Forecast
+class ForecastAction
 {
     public function run()
     {
         Log::info('Start running Solcast forecast action');
         // check the last run (latest updated at), return if < 1 hour
-        $lastForecast = \App\Models\Forecast::latest('updated_at')->first();
+        $lastForecast = Forecast::latest('updated_at')->first();
 
         throw_if(
             ! empty($lastForecast) && $lastForecast->updated_at >= now()->subHour(),
@@ -31,7 +32,7 @@ class Forecast
         // $data = $this->getPreviousData();
 
         // save it to the database
-        \App\Models\Forecast::upsert(
+        Forecast::upsert(
             $data,
             uniqueBy: ['period_end'],
             update: ['pv_estimate', 'pv_estimate10', 'pv_estimate90']
