@@ -24,7 +24,8 @@ class AgileExport
             ->first('valid_to')
             ?->valid_to ?? now()->subDay();
 
-        throw_if(now()->diffInUTCHours($lastExportValidTo) > 7,
+        throw_if(
+            now()->diffInUTCHours($lastExportValidTo) > 7,
             sprintf(
                 'Already have data until %s, try again after 4 PM %s',
                 $lastExportValidTo->timezone('Europe/London')->format('j F Y H:i'),
@@ -51,24 +52,36 @@ class AgileExport
         // https://developer.octopus.energy/rest/guides/endpoints
         // https://agile.octopushome.net/dashboard (watch network traffic and copy)
         $url = sprintf(
-            'https://api.octopus.energy/v1/products/AGILE-OUTGOING-19-05-13/electricity-tariffs/E-1R-AGILE-OUTGOING-19-05-13-K/standard-unit-rates/?page_size=200&&period_from=%s&period_to=%s',
-            $lastExportValidTo->clone()->timezone('Europe/London')->startOfDay()->timezone('UTC')->format('Y-m-d\TH:i\Z'),
-            now('Europe/London')->addDay()->endOfDay()->timezone('UTC')->format('Y-m-d\TH:i\Z'),
+            'https://api.octopus.energy/v1/products/AGILE-OUTGOING-19-05-13/electricity-tariffs/'
+            . 'E-1R-AGILE-OUTGOING-19-05-13-K/standard-unit-rates/?page_size=200&&period_from=%s&period_to=%s',
+            $lastExportValidTo->clone()
+                ->timezone('Europe/London')
+                ->startOfDay()
+                ->timezone('UTC')
+                ->format('Y-m-d\TH:i\Z'),
+            now('Europe/London')
+                ->addDay()
+                ->endOfDay()
+                ->timezone('UTC')
+                ->format('Y-m-d\TH:i\Z'),
         );
 
         try {
             $response = Http::get($url);
         } catch (ConnectionException $e) {
-            Log::error('There was a connection error trying to get Agile export data:'.$e->getMessage());
-            throw new \RuntimeException('There was a connection error trying to get Agile export data:'.$e->getMessage());
+            Log::error('There was a connection error trying to get Agile export data:' . $e->getMessage());
+            throw new \RuntimeException('There was a connection error trying to get Agile export data:'
+                . $e->getMessage());
         }
 
         $data = $response->json();
-        Log::info('Agile export action',
+        Log::info(
+            'Agile export action',
             [
                 'successful' => $response->successful(),
                 'json' => $data,
-            ]);
+            ]
+        );
 
         throw_if($response->failed(), 'Unsuccessful Agile export, check the log file for more details.');
 

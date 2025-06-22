@@ -46,7 +46,6 @@ class CopyConsumptionWeekAgoAction extends Action
                     ->update([
                         'consumption_manual' => DB::raw('consumption_last_week'),
                     ]);
-
             });
 
             if ($this->result) {

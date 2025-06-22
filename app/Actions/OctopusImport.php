@@ -24,7 +24,8 @@ class OctopusImport
             ->first('interval_start')
             ?->interval_start ?? now()->subDays(2);
 
-        throw_if($lastImportStart >= now()->subDay(),
+        throw_if(
+            $lastImportStart >= now()->subDay(),
             sprintf(
                 'Last updated in the day, try again in %s',
                 $lastImportStart->addDay()->diffForHumans()
@@ -62,16 +63,19 @@ class OctopusImport
         try {
             $response = Http::withBasicAuth($api, '')->get($url);
         } catch (ConnectionException $e) {
-            Log::error('There was a connection error trying to get Octopus import data:'.$e->getMessage());
-            throw new \RuntimeException('There was a connection error trying to get Octopus import data:'.$e->getMessage());
+            Log::error('There was a connection error trying to get Octopus import data:' . $e->getMessage());
+            throw new \RuntimeException('There was a connection error trying to get Octopus import data:'
+                . $e->getMessage());
         }
 
         $data = $response->json();
-        Log::info('Octopus import action',
+        Log::info(
+            'Octopus import action',
             [
                 'successful' => $response->successful(),
                 'json' => $data,
-            ]);
+            ]
+        );
 
         throw_if($response->failed(), 'Unsuccessful Octopus import, check the log file for more details.');
 

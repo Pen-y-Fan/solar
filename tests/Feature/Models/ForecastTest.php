@@ -1,6 +1,6 @@
 <?php
 
-namespace Models;
+namespace Tests\Feature\Models;
 
 use App\Models\Forecast;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -10,7 +10,7 @@ class ForecastTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_a_forecast_can_be_created(): void
+    public function testAForecastCanBeCreated(): void
     {
         $estimate = fake()->randomFloat(4);
         $data = [
@@ -29,7 +29,7 @@ class ForecastTest extends TestCase
         $this->assertSame($data['pv_estimate90'], $forecast->pv_estimate90);
     }
 
-    public function test_a_forecast_can_be_created_with_utc_iso_8601_date_string(): void
+    public function testAForecastCanBeCreatedWithUtcIso8601DateString(): void
     {
         $estimate = fake()->randomFloat(4);
         $data = [
@@ -42,13 +42,16 @@ class ForecastTest extends TestCase
 
         $this->assertInstanceOf(Forecast::class, $forecast);
         $this->assertDatabaseCount(Forecast::class, 1);
-        $this->assertSame(now()->parse($data['period_end'])->toDateTimeString(), $forecast->period_end->toDateTimeString());
+        $this->assertSame(
+            now()->parse($data['period_end'])->toDateTimeString(),
+            $forecast->period_end->toDateTimeString()
+        );
         $this->assertSame($data['pv_estimate'], $forecast->pv_estimate);
         $this->assertSame($data['pv_estimate10'], $forecast->pv_estimate10);
         $this->assertSame($data['pv_estimate90'], $forecast->pv_estimate90);
     }
 
-    public function test_a_forecast_can_not_be_created_for_the_same_period(): void
+    public function testAForecastCanNotBeCreatedForTheSamePeriod(): void
     {
         $this->expectException(\Illuminate\Database\UniqueConstraintViolationException::class);
         $data = [
@@ -68,7 +71,7 @@ class ForecastTest extends TestCase
         Forecast::create($newData);
     }
 
-    public function test_a_forecast_can_be_upserted_for_the_same_period(): void
+    public function testAForecastCanBeUpsertedForTheSamePeriod(): void
     {
         $estimate = fake()->randomFloat(4);
         $data = [

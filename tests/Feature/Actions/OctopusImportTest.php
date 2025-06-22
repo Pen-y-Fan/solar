@@ -13,7 +13,7 @@ class OctopusImportTest extends TestCase
 {
     use DatabaseMigrations;
 
-    public function test_octopus_import_run_success()
+    public function testOctopusImportRunSuccess()
     {
         // Arrange
         $start = Carbon::parse('2024-06-15 00:00:00')->timezone('UTC');
@@ -31,7 +31,7 @@ class OctopusImportTest extends TestCase
         ]);
 
         Log::shouldReceive('info')->atLeast()->once();
-        $octopusImport = new OctopusImport;
+        $octopusImport = new OctopusImport();
 
         // Act
         $octopusImport->run();

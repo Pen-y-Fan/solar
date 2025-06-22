@@ -29,7 +29,8 @@ class SolcastActualChart extends ChartWidget
         }
         $lastRecord = $rawData->last();
 
-        self::$heading = sprintf('Solcast actual from %s to %s (last updated %s)',
+        self::$heading = sprintf(
+            'Solcast actual from %s to %s (last updated %s)',
             Carbon::parse($rawData->first()['period_end'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
@@ -82,7 +83,7 @@ class SolcastActualChart extends ChartWidget
     private function updateSolcast(): void
     {
         try {
-            (new ActualForecastAction)->run();
+            (new ActualForecastAction())->run();
         } catch (Throwable $th) {
             Log::error('Error running actual forecast import action', ['error message' => $th->getMessage()]);
         }

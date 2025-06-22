@@ -14,7 +14,7 @@ class ForecastTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_forecast_console_command(): void
+    public function testForecastConsoleCommand(): void
     {
         // Arrange
         Http::fake([
@@ -42,7 +42,7 @@ class ForecastTest extends TestCase
         Log::spy();
 
         $estimate = fake()->randomFloat(4);
-        $forecast = new Forecast;
+        $forecast = new Forecast();
         $forecast->period_end = now()->subHours(3)->startOfHour();
         $forecast->pv_estimate = $estimate;
         $forecast->pv_estimate10 = $estimate * 0.1;
@@ -50,14 +50,14 @@ class ForecastTest extends TestCase
         $forecast->updated_at = now()->subHours(3)->startOfHour();
         $forecast->save();
 
-        $actualForecast = new ActualForecast;
+        $actualForecast = new ActualForecast();
         $actualForecast->period_end = now()->subHours(3)->startOfHour();
         $actualForecast->pv_estimate = $estimate;
         $actualForecast->updated_at = now()->subHours(3)->startOfHour();
         $actualForecast->save();
 
         // Act & Assert
-        $this->artisan((new ForecastCommand)->getName())
+        $this->artisan((new ForecastCommand())->getName())
             ->expectsOutputToContain('Forecast has been fetched!')
             ->expectsOutputToContain('Actual forecast has been fetched!')
             ->assertSuccessful();
@@ -71,6 +71,5 @@ class ForecastTest extends TestCase
         $this->assertDatabaseHas('actual_forecasts', [
             'pv_estimate' => 0.9,
         ]);
-
     }
 }

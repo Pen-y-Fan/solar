@@ -30,7 +30,8 @@ class OctopusImportChart extends ChartWidget
             return [];
         }
 
-        self::$heading = sprintf('Electric import from %s to %s (£%.2f)',
+        self::$heading = sprintf(
+            'Electric import from %s to %s (£%.2f)',
             $rawData->first()['interval_start']
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
@@ -90,7 +91,8 @@ class OctopusImportChart extends ChartWidget
         $importData = OctopusImport::query()
             ->with('importCost')
             ->where(
-                'interval_start', '>=',
+                'interval_start',
+                '>=',
                 // possibly use a sub query to get the last interval and sub 1 day
                 $start
             )
@@ -123,12 +125,11 @@ class OctopusImportChart extends ChartWidget
     private function updateOctopusImport(): void
     {
         try {
-            (new OctopusImportAction)->run();
+            (new OctopusImportAction())->run();
             Log::info('Successfully updated octopus import cost data');
         } catch (Throwable $th) {
             Log::error('Error running Octopus import cost action:', ['error message' => $th->getMessage()]);
         }
-
     }
 
     protected function getOptions(): array

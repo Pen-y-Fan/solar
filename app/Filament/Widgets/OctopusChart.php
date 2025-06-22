@@ -30,7 +30,8 @@ class OctopusChart extends ChartWidget
             return [];
         }
 
-        self::$heading = sprintf('Electric export and import from %s to %s',
+        self::$heading = sprintf(
+            'Electric export and import from %s to %s',
             Carbon::parse($rawData->first()['interval_start'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
@@ -114,7 +115,8 @@ class OctopusChart extends ChartWidget
         $data = OctopusExport::query()
             ->with(['importCost', 'exportCost', 'octopusImport'])
             ->where(
-                'interval_start', '>=',
+                'interval_start',
+                '>=',
                 $start
             )
             ->where(
@@ -155,7 +157,6 @@ class OctopusChart extends ChartWidget
                 'import_accumulative_cost' => $importAccumulativeCost,
                 'net_accumulative_cost' => $exportAccumulativeCost + $importAccumulativeCost,
             ];
-
         }
 
         return collect($result);

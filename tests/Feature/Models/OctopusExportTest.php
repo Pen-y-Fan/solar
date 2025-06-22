@@ -10,7 +10,7 @@ class OctopusExportTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_an_octopus_export_can_be_created(): void
+    public function testAnOctopusExportCanBeCreated(): void
     {
         $estimate = fake()->randomFloat(4);
         $data = [
@@ -22,12 +22,18 @@ class OctopusExportTest extends TestCase
 
         $this->assertInstanceOf(OctopusExport::class, $octopusExport);
         $this->assertDatabaseCount(OctopusExport::class, 1);
-        $this->assertSame($data['interval_start']->toDateTimeString(), $octopusExport->interval_start->toDateTimeString());
-        $this->assertSame($data['interval_end']->toDateTimeString(), $octopusExport->interval_end->toDateTimeString());
+        $this->assertSame(
+            $data['interval_start']->toDateTimeString(),
+            $octopusExport->interval_start->toDateTimeString()
+        );
+        $this->assertSame(
+            $data['interval_end']->toDateTimeString(),
+            $octopusExport->interval_end->toDateTimeString()
+        );
         $this->assertSame($data['consumption'], $octopusExport->consumption);
     }
 
-    public function test_a_octopus_export_can_be_created_with_utc_iso_8601_date_string(): void
+    public function testAnOctopusExportCanBeCreatedWithUtcIso8601DateString(): void
     {
         $estimate = fake()->randomFloat(4);
         $data = [
@@ -39,12 +45,18 @@ class OctopusExportTest extends TestCase
 
         $this->assertInstanceOf(OctopusExport::class, $octopusExport);
         $this->assertDatabaseCount(OctopusExport::class, 1);
-        $this->assertSame(now()->parse($data['interval_start'])->toDateTimeString(), $octopusExport->interval_start->toDateTimeString());
-        $this->assertSame(now()->parse($data['interval_end'])->toDateTimeString(), $octopusExport->interval_end->toDateTimeString());
+        $this->assertSame(
+            now()->parse($data['interval_start'])->toDateTimeString(),
+            $octopusExport->interval_start->toDateTimeString()
+        );
+        $this->assertSame(
+            now()->parse($data['interval_end'])->toDateTimeString(),
+            $octopusExport->interval_end->toDateTimeString()
+        );
         $this->assertSame($data['consumption'], $octopusExport->consumption);
     }
 
-    public function test_an_octopus_export_can_not_be_created_for_the_same_period(): void
+    public function testAnOctopusExportCanNotBeCreatedForTheSamePeriod(): void
     {
         $this->expectException(\Illuminate\Database\UniqueConstraintViolationException::class);
         $data = [
@@ -66,7 +78,7 @@ class OctopusExportTest extends TestCase
         OctopusExport::create($newData);
     }
 
-    public function test_an_octopus_export_can_be_upserted_for_the_same_period(): void
+    public function testAnOctopusExportCanBeUpsertedForTheSamePeriod(): void
     {
         $estimate = fake()->randomFloat(4);
         $data = [
@@ -90,8 +102,10 @@ class OctopusExportTest extends TestCase
                 'consumption' => $estimate1,
             ],
             [
-                'interval_start' => $data['interval_start']->clone()->addMinutes(30)->timezone('UTC')->toDateTimeString(),
-                'interval_end' => $data['interval_end']->clone()->addMinutes(30)->timezone('UTC')->toDateTimeString(),
+                'interval_start' => $data['interval_start']->clone()->addMinutes(30)
+                    ->timezone('UTC')->toDateTimeString(),
+                'interval_end' => $data['interval_end']->clone()->addMinutes(30)
+                    ->timezone('UTC')->toDateTimeString(),
                 'consumption' => $estimate2,
             ],
         ];

@@ -23,11 +23,14 @@ class StrategyOverview extends BaseWidget
         $totalImport = $tableData->sum('import_amount');
         $importCost = $tableData->reduce(
             fn ($carry, $strategy) => $carry + ($strategy->import_amount ?? 0) * ($strategy->import_value_inc_vat ?? 0),
-            0);
+            0
+        );
         $totalBattery = $tableData->sum('battery_charge_amount');
         $batteryCost = $tableData->reduce(
-            fn ($carry, $strategy) => $carry + ($strategy->battery_charge_amount ?? 0) * ($strategy->import_value_inc_vat ?? 0),
-            0);
+            fn ($carry, $strategy) => $carry
+                + ($strategy->battery_charge_amount ?? 0) * ($strategy->import_value_inc_vat ?? 0),
+            0
+        );
 
         return [
             Stat::make('Total strategies', $total),

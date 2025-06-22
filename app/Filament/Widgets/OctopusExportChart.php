@@ -29,7 +29,8 @@ class OctopusExportChart extends ChartWidget
             return [];
         }
 
-        self::$heading = sprintf('Electric export from %s to %s (last updated %s) (£%.2f)',
+        self::$heading = sprintf(
+            'Electric export from %s to %s (last updated %s) (£%.2f)',
             Carbon::parse($rawData->first()['interval_start'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
@@ -95,7 +96,8 @@ class OctopusExportChart extends ChartWidget
         $data = OctopusExport::query()
             ->with('exportCost')
             ->where(
-                'interval_start', '>=',
+                'interval_start',
+                '>=',
                 $start
             )
             ->orderBy('interval_start')
@@ -127,7 +129,7 @@ class OctopusExportChart extends ChartWidget
     private function updateOctopusExport(): void
     {
         try {
-            (new \App\Actions\OctopusExport)->run();
+            (new \App\Actions\OctopusExport())->run();
             Log::info('Successfully updated octopus export data');
         } catch (Throwable $th) {
             Log::error('Error running Octopus export action:', ['error message' => $th->getMessage()]);

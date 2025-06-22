@@ -26,7 +26,8 @@ class InverterAverageConsumptionChart extends ChartWidget
             return [];
         }
 
-        self::$heading = sprintf('Average consumption since %s is %0.2f kWh',
+        self::$heading = sprintf(
+            'Average consumption since %s is %0.2f kWh',
             $this->startDate->format('D jS M Y'),
             $data->sum('value')
         );

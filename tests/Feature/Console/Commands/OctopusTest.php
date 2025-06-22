@@ -12,7 +12,7 @@ class OctopusTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_octopus_console_command(): void
+    public function testOctopusConsoleCommand(): void
     {
         // Arrange
         Http::fake([
@@ -43,7 +43,7 @@ class OctopusTest extends TestCase
         Log::shouldReceive('info')->atLeast()->once();
 
         // Act and Assert
-        $this->artisan((new Octopus)->getName())
+        $this->artisan((new Octopus())->getName())
             ->expectsOutputToContain('Running Octopus action!')
             ->expectsOutputToContain('Octopus import has been fetched!')
             ->expectsOutputToContain('Octopus export has been fetched!')

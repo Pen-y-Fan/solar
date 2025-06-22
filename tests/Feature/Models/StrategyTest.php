@@ -14,7 +14,7 @@ class StrategyTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_a_strategy_can_be_created(): void
+    public function testAStrategyCanBeCreated(): void
     {
         $data = [
             'period' => now()->startOfHour(),
@@ -47,13 +47,19 @@ class StrategyTest extends TestCase
 
         $strategy->refresh();
         $this->assertInstanceOf(Strategy::class, $strategy);
-        $this->assertEqualsWithDelta($data['consumption_last_week'] * $data['import_value_inc_vat'],
-            $strategy->consumption_last_week_cost, 0.001);
-        $this->assertEqualsWithDelta($data['consumption_average'] * $data['import_value_inc_vat'],
-            $strategy->consumption_average_cost, 0.001);
+        $this->assertEqualsWithDelta(
+            $data['consumption_last_week'] * $data['import_value_inc_vat'],
+            $strategy->consumption_last_week_cost,
+            0.001
+        );
+        $this->assertEqualsWithDelta(
+            $data['consumption_average'] * $data['import_value_inc_vat'],
+            $strategy->consumption_average_cost,
+            0.001
+        );
     }
 
-    public function test_a_strategy_can_not_be_created_with_non_unique_timestamp(): void
+    public function testAStrategyCanNotBeCreatedWithNonUniqueTimestamp(): void
     {
         $this->expectException(\Illuminate\Database\QueryException::class);
 
@@ -73,7 +79,7 @@ class StrategyTest extends TestCase
         Strategy::create($data2); // This should throw an exception due to unique constraint
     }
 
-    public function test_a_strategy_can_be_updated(): void
+    public function testAStrategyCanBeUpdated(): void
     {
         $strategy = Strategy::factory()->create([
             'period' => now()->startOfHour(),
@@ -93,7 +99,7 @@ class StrategyTest extends TestCase
         $this->assertTrue($strategy->strategy_manual);
     }
 
-    public function test_a_strategy_can_have_one_related_agile_import()
+    public function testAStrategyCanHaveOneRelatedAgileImport()
     {
         $agileImport = AgileImport::create([
             'valid_from' => now()->startOfHour(),
@@ -113,7 +119,7 @@ class StrategyTest extends TestCase
         $this->assertSame($strategy->importCost->value_inc_vat, $agileImport->value_inc_vat);
     }
 
-    public function test_a_strategy_can_have_one_related_agile_export()
+    public function testAStrategyCanHaveOneRelatedAgileExport()
     {
         $agileExport = AgileExport::create([
             'valid_from' => now()->startOfHour(),
@@ -133,7 +139,7 @@ class StrategyTest extends TestCase
         $this->assertSame($strategy->exportCost->value_inc_vat, $agileExport->value_inc_vat);
     }
 
-    public function test_a_strategy_can_have_one_related_forecast()
+    public function testAStrategyCanHaveOneRelatedForecast()
     {
         $estimate = fake()->randomFloat(4);
         $forecast = Forecast::create([
@@ -155,7 +161,7 @@ class StrategyTest extends TestCase
         $this->assertEqualsWithDelta($strategy->forecast->pv_estimate90, $forecast->pv_estimate90, 0.001);
     }
 
-    public function test_a_strategy_can_have_one_related_actual_forecast()
+    public function testAStrategyCanHaveOneRelatedActualForecast()
     {
         $estimate = fake()->randomFloat(4);
         $actualForecast = ActualForecast::create([

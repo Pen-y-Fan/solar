@@ -68,7 +68,8 @@ class ForecastChart extends ChartWidget
             $strategy = '(without charging battery)';
         }
 
-        self::$heading = sprintf('Forecast for %s to %s cost £%0.2f %s',
+        self::$heading = sprintf(
+            'Forecast for %s to %s cost £%0.2f %s',
             $rawData->first()['period_end']
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
@@ -113,8 +114,8 @@ class ForecastChart extends ChartWidget
             'labels' => $rawData->map(fn ($item) => sprintf(
                 '%s%s',
                 $item['import_value_inc_vat'] < $this->chargeStrategy ? '* ' : '',
-                $item['period_end']->timezone('Europe/London')->format('H:i'))
-            ),
+                $item['period_end']->timezone('Europe/London')->format('H:i')
+            )),
         ];
     }
 
@@ -126,9 +127,18 @@ class ForecastChart extends ChartWidget
     private function getDatabaseData(): Collection
     {
         $startDate = match ($this->filter) {
-            'yesterday', 'yesterday10', 'yesterday90', 'yesterday_strategy1', 'yesterday_strategy2' => now('Europe/London')->subDay()->startOfDay()->timezone('UTC'),
-            'today', 'today10', 'today90', 'today_strategy1', 'today_strategy2' => now('Europe/London')->startOfDay()->timezone('UTC'),
-            'tomorrow', 'tomorrow10', 'tomorrow90', 'tomorrow_strategy1', 'tomorrow_strategy2' => now('Europe/London')->addDay()->startOfDay()->timezone('UTC'),
+            'yesterday', 'yesterday10', 'yesterday90', 'yesterday_strategy1', 'yesterday_strategy2' =>
+            now('Europe/London')
+                ->subDay()
+                ->startOfDay()
+                ->timezone('UTC'),
+            'today', 'today10', 'today90', 'today_strategy1', 'today_strategy2' => now('Europe/London')
+                ->startOfDay()
+                ->timezone('UTC'),
+            'tomorrow', 'tomorrow10', 'tomorrow90', 'tomorrow_strategy1', 'tomorrow_strategy2' => now('Europe/London')
+                ->addDay()
+                ->startOfDay()
+                ->timezone('UTC'),
         };
 
         $this->charge = str_contains($this->filter, '_strategy');
@@ -219,7 +229,7 @@ class ForecastChart extends ChartWidget
 
             if ($this->charge && $importValueIncVat < $this->chargeStrategy) {
                 // Let's charge using cheap rate electricity
-                Log::info('Charge at: '.$forecast->period_end->format('H:i:s (UTC)'));
+                Log::info('Charge at: ' . $forecast->period_end->format('H:i:s (UTC)'));
 
                 // we are charging so negative $estimatedBatteryRequired means we charge the battery
                 // the import cost is the chargeAmount + $estimatedBatteryRequired

@@ -34,7 +34,8 @@ class ElectricImportExportChart extends ChartWidget
             return [];
         }
 
-        self::$heading = sprintf('Actual electric export and import from %s to %s cost £%0.2f',
+        self::$heading = sprintf(
+            'Actual electric export and import from %s to %s cost £%0.2f',
             Carbon::parse($rawData->first()['interval_start'], 'London/Europe')
                 ->timezone('UTC')
                 ->format('D jS M Y H:i'),
@@ -111,7 +112,8 @@ class ElectricImportExportChart extends ChartWidget
         $data = OctopusExport::query()
             ->with(['importCost', 'exportCost', 'octopusImport', 'inverter'])
             ->where(
-                'interval_start', '>=',
+                'interval_start',
+                '>=',
                 $start
             )
             ->where(
@@ -154,7 +156,6 @@ class ElectricImportExportChart extends ChartWidget
                 'net_accumulative_cost' => $exportAccumulativeCost + $importAccumulativeCost,
                 'battery_percent' => $battery,
             ];
-
         }
 
         return collect($result);

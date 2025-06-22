@@ -30,7 +30,8 @@ class SolcastForecastChart extends ChartWidget
             return [];
         }
 
-        self::$heading = sprintf('Solis forecast for %s to %s (last updated %s)',
+        self::$heading = sprintf(
+            'Solis forecast for %s to %s (last updated %s)',
             Carbon::parse($rawData->first()['period_end'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
@@ -121,10 +122,9 @@ class SolcastForecastChart extends ChartWidget
     private function updateSolcast(): void
     {
         try {
-            (new ForecastAction)->run();
+            (new ForecastAction())->run();
         } catch (Throwable $th) {
             Log::error('Error running forecast import action', ['error message' => $th->getMessage()]);
         }
-
     }
 }

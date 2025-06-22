@@ -42,7 +42,6 @@ class Inverter extends Command
 
         $count = 0;
         foreach ($files as $file) {
-
             if (! Str::endsWith($file, '.xls')) {
                 $this->error('File not processed as it is not an excel .xls file:');
                 $this->error($file);

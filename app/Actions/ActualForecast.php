@@ -18,7 +18,8 @@ class ActualForecast
         // check the last run (latest updated at), return if < 1 hour
         $lastForecast = \App\Models\ActualForecast::latest('updated_at')->first();
 
-        throw_if(! empty($lastForecast) && $lastForecast['updated_at'] >= now()->subHour(),
+        throw_if(
+            ! empty($lastForecast) && $lastForecast['updated_at'] >= now()->subHour(),
             sprintf(
                 'Last updated in the hour, try again in %s',
                 $lastForecast['updated_at']->addHour()->diffForHumans()
@@ -51,7 +52,7 @@ class ActualForecast
         );
 
         $headers = [
-            'Authorization' => 'Bearer '.$api,
+            'Authorization' => 'Bearer ' . $api,
         ];
 
         try {
@@ -59,15 +60,18 @@ class ActualForecast
                 ->withHeaders($headers)
                 ->get($url);
         } catch (ConnectionException $e) {
-            throw new \RuntimeException('There was a connection error trying to get Solcast forecast data:'.$e->getMessage());
+            throw new \RuntimeException('There was a connection error trying to get Solcast forecast data:'
+                . $e->getMessage());
         }
 
         $data = $response->json();
-        Log::info('Solcast Actual Forecast Action',
+        Log::info(
+            'Solcast Actual Forecast Action',
             [
                 'successful' => $response->successful(),
                 'json' => $data,
-            ]);
+            ]
+        );
 
         throw_if($response->failed(), 'Unsuccessful actual forecast, check the log file for more details.');
 

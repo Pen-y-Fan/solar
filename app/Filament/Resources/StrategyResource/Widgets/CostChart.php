@@ -32,7 +32,8 @@ class CostChart extends ChartWidget
             return [];
         }
 
-        self::$heading = sprintf('Agile costs from %s to %s',
+        self::$heading = sprintf(
+            'Agile costs from %s to %s',
             Carbon::parse($data->first()['valid_from'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
@@ -99,7 +100,7 @@ class CostChart extends ChartWidget
     private function getDatabaseData(): Collection
     {
         $strategies = $this->getPageTableRecords();
-        $collection = new Collection;
+        $collection = new Collection();
 
         foreach ($strategies as $strategy) {
             $collection[] = [

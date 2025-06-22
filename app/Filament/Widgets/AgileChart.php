@@ -33,7 +33,8 @@ class AgileChart extends ChartWidget
     {
         $data = $this->getDatabaseData();
 
-        self::$heading = sprintf('Agile costs from %s to %s',
+        self::$heading = sprintf(
+            'Agile costs from %s to %s',
             Carbon::parse($data->first()['valid_from'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
@@ -198,13 +199,13 @@ class AgileChart extends ChartWidget
         Log::info('Updating agile import chart data from API.');
 
         try {
-            (new AgileImportAction)->run();
+            (new AgileImportAction())->run();
         } catch (Throwable $th) {
             Log::error('Error running Octopus Agile import action:', ['error message' => $th->getMessage()]);
         }
 
         try {
-            (new OctopusImport)->run();
+            (new OctopusImport())->run();
             Log::info('Octopus import has been fetched!');
         } catch (Throwable $th) {
             Log::error('Error running Octopus import action:', ['error message' => $th->getMessage()]);
@@ -216,13 +217,13 @@ class AgileChart extends ChartWidget
         Log::info('Updating agile export chart data from API.');
 
         try {
-            (new AgileExportAction)->run();
+            (new AgileExportAction())->run();
         } catch (Throwable $th) {
             Log::error('Error running Octopus Agile export action:', ['error message' => $th->getMessage()]);
         }
 
         try {
-            (new OctopusExport)->run();
+            (new OctopusExport())->run();
         } catch (Throwable $th) {
             Log::error('Error running Octopus export action:', ['error message' => $th->getMessage()]);
         }

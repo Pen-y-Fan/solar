@@ -14,7 +14,7 @@ class AgileImportTest extends TestCase
 {
     use DatabaseMigrations;
 
-    public function test_agile_import_run_success(): void
+    public function testAgileImportRunSuccess(): void
     {
         // Arrange
         $start = Carbon::parse('2024-06-15 00:00:00')->timezone('UTC');
@@ -36,7 +36,7 @@ class AgileImportTest extends TestCase
         ]);
 
         Log::shouldReceive('info')->atLeast()->once();
-        $agileImport = new AgileImport;
+        $agileImport = new AgileImport();
 
         // Act
         $agileImport->run();

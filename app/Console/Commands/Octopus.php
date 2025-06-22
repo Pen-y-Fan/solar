@@ -28,8 +28,12 @@ class Octopus extends Command
     /**
      * Execute the console command.
      */
-    public function handle(OctopusImport $octopusImport, OctopusExport $octopusExport, AgileImport $agileImport, AgileExport $agileExport)
-    {
+    public function handle(
+        OctopusImport $octopusImport,
+        OctopusExport $octopusExport,
+        AgileImport $agileImport,
+        AgileExport $agileExport
+    ) {
         $this->info('Running Octopus action!');
 
         try {

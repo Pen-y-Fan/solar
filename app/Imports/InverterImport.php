@@ -45,7 +45,6 @@ class InverterImport implements ToCollection, WithHeadingRow
             return;
         }
 
-        // 0 index
         $collectionCount = $collection->count() - 1;
 
         $firstInPeriod = $collection[0];
@@ -58,47 +57,38 @@ class InverterImport implements ToCollection, WithHeadingRow
 
         $data = [];
         foreach ($collection as $i => $row) {
-
             $dateTimeWithoutTZ = substr($row['Time'], 0, 19); // '23/06/2024 00:00:10'
             $carbonInstance = Carbon::createFromFormat('d/m/Y H:i:s', $dateTimeWithoutTZ, 'UTC');
             assert($carbonInstance instanceof Carbon);
 
             if ($carbonInstance > $nextPeriod || $i === $collectionCount) {
-
                 $lastInPeriod = $row;
 
-                // Sometimes the last row of data for the day is reset to 0 prematurely in the export report.
-                // the difference for the day will be negative.
-                if (($lastInPeriod['Today Total Load Consumption(kWh)'] - $firstInPeriod['Today Total Load Consumption(kWh)']) < 0) {
-                    // use the previous row of data
+                if (
+                    ($lastInPeriod['Today Total Load Consumption(kWh)']
+                        - $firstInPeriod['Today Total Load Consumption(kWh)']) < 0
+                ) {
                     $lastInPeriod = $collection[$i - 2];
                 }
 
                 $data[] = [
                     'period' => $currentPeriod->toDateTimeString(),
                     'yield' => $lastInPeriod['Today Yield(kWh)'] - $firstInPeriod['Today Yield(kWh)'],
-                    // Column 'Daily Energy to Grid(kWh)' has been removed from Excel sheet
-                    // 'to_grid' => $lastInPeriod['Daily Energy to Grid(kWh)'] - $firstInPeriod['Daily Energy to Grid(kWh)'],
-                    'to_grid' => $lastInPeriod['Total Energy to Grid(kWh)'] - $firstInPeriod['Total Energy to Grid(kWh)'],
-                    // Column 'Daily Energy from Grid(kWh)' has been removed from Excel sheet
-                    // 'from_grid' => $lastInPeriod['Daily Energy from Grid(kWh)'] - $firstInPeriod['Daily Energy from Grid(kWh)'],
-                    'from_grid' => $lastInPeriod['Total Energy from Grid(kWh)'] - $firstInPeriod['Total Energy from Grid(kWh)'],
+                    'to_grid' => $lastInPeriod['Total Energy to Grid(kWh)']
+                        - $firstInPeriod['Total Energy to Grid(kWh)'],
+                    'from_grid' => $lastInPeriod['Total Energy from Grid(kWh)']
+                        - $firstInPeriod['Total Energy from Grid(kWh)'],
                     'battery_soc' => $firstInPeriod['Battery SOC(%)'],
-                    'consumption' => $lastInPeriod['Today Total Load Consumption(kWh)'] - $firstInPeriod['Today Total Load Consumption(kWh)'],
+                    'consumption' => $lastInPeriod['Today Total Load Consumption(kWh)']
+                        - $firstInPeriod['Today Total Load Consumption(kWh)'],
                 ];
-                // Log::info('First in period', ['index' => $i, 'Last in period' => $lastInPeriod['Daily Energy to Grid(kWh)'], 'First in period' => $firstInPeriod['Daily Energy to Grid(kWh)']]);
 
                 $currentPeriod->addMinutes(30);
                 $nextPeriod->addMinutes(30);
 
                 $firstInPeriod = $row;
             }
-
-            // this is a test implementation, the final one would aggregate the usage for the 30 min and add it to the
-            // start time for that period
-
         }
-        // Log::info('Saving excel', ['data' => $data]);
         Inverter::upsert(
             $data,
             uniqueBy: ['period'],

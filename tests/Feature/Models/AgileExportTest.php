@@ -10,7 +10,7 @@ class AgileExportTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_an_agile_export_can_be_created(): void
+    public function testAnAgileExportCanBeCreated(): void
     {
         $valueExcVat = fake()->randomFloat(4);
         $valueIncVat = fake()->randomFloat(4);
@@ -31,7 +31,7 @@ class AgileExportTest extends TestCase
         $this->assertSame($data['value_inc_vat'], $agileExport->value_inc_vat);
     }
 
-    public function test_an_agile_export_can_be_created_with_utc_iso_8601_date_string(): void
+    public function testAnAgileExportCanBeCreatedWithUtcIso8601DateString(): void
     {
         $valueIncVat = fake()->randomFloat(4);
         $valueExcVat = fake()->randomFloat(4);
@@ -46,13 +46,19 @@ class AgileExportTest extends TestCase
 
         $this->assertInstanceOf(AgileExport::class, $agileExport);
         $this->assertDatabaseCount(AgileExport::class, 1);
-        $this->assertSame(now()->parse($data['valid_from'])->toDateTimeString(), $agileExport->valid_from->toDateTimeString());
-        $this->assertSame(now()->parse($data['valid_to'])->toDateTimeString(), $agileExport->valid_to->toDateTimeString());
+        $this->assertSame(
+            now()->parse($data['valid_from'])->toDateTimeString(),
+            $agileExport->valid_from->toDateTimeString()
+        );
+        $this->assertSame(
+            now()->parse($data['valid_to'])->toDateTimeString(),
+            $agileExport->valid_to->toDateTimeString()
+        );
         $this->assertSame($data['value_exc_vat'], $agileExport->value_exc_vat);
         $this->assertSame($data['value_inc_vat'], $agileExport->value_inc_vat);
     }
 
-    public function test_an_agile_export_can_not_be_created_for_the_same_period(): void
+    public function testAnAgileExportCanNotBeCreatedForTheSamePeriod(): void
     {
         $this->expectException(\Illuminate\Database\UniqueConstraintViolationException::class);
         $data = [
@@ -76,7 +82,7 @@ class AgileExportTest extends TestCase
         AgileExport::create($newData);
     }
 
-    public function test_an_agile_export_can_be_upserted_for_the_same_period(): void
+    public function testAnAgileExportCanBeUpsertedForTheSamePeriod(): void
     {
         $data = [
             'valid_from' => now()->addHours(2)->startOfHour(),

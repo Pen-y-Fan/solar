@@ -138,11 +138,11 @@ class GenerateStrategyAction
 
         $thirdPassStrategy2->each(function ($item, $key) use (&$strategies) {
             $strategies[$key]['strategy2'] = $item['charging'];
-
         });
 
         $forecastData->each(function ($forecast) use (&$strategies) {
-            $strategies[$forecast->period_end->format('Hi')]['export_value_inc_vat'] = $forecast->exportCost?->value_inc_vat ?? 0;
+            $strategies[$forecast->period_end->format('Hi')]['export_value_inc_vat'] =
+                $forecast->exportCost?->value_inc_vat ?? 0;
             $strategies[$forecast->period_end->format('Hi')]['period'] = $forecast->period_end;
         });
 
@@ -172,7 +172,8 @@ class GenerateStrategyAction
         foreach ($forecastData as $forecast) {
             $importValueIncVat = $forecast->importCost?->value_inc_vat ?? 0;
 
-            Log::info('Charge at: '.$forecast->period_end->format('H:i:s').' import cost '.$importValueIncVat.' battery '.$battery);
+            Log::info('Charge at: ' . $forecast->period_end->format('H:i:s') . ' import cost '
+                . $importValueIncVat . ' battery ' . $battery);
             $consumption = $consumptions->where(
                 'time',
                 $forecast->period_end->format('H:i:s')

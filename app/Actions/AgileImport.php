@@ -24,7 +24,8 @@ class AgileImport
             ->first('valid_to')
             ?->valid_to ?? now()->subDay();
 
-        throw_if(now()->diffInUTCHours($lastImportValidTo) > 7,
+        throw_if(
+            now()->diffInUTCHours($lastImportValidTo) > 7,
             sprintf(
                 'Already have data until %s, try again after 4 PM %s',
                 $lastImportValidTo->timezone('Europe/London')->format('j F Y H:i'),
@@ -51,24 +52,36 @@ class AgileImport
         // https://developer.octopus.energy/rest/guides/endpoints
         // https://agile.octopushome.net/dashboard (watch network traffic and copy)
         $url = sprintf(
-            'https://api.octopus.energy/v1/products/AGILE-24-10-01/electricity-tariffs/E-1R-AGILE-24-10-01-K/standard-unit-rates/?page_size=200&&period_from=%s&period_to=%s',
-            $lastImportValidTo->clone()->timezone('Europe/London')->startOfDay()->timezone('UTC')->format('Y-m-d\TH:i\Z'),
-            now('Europe/London')->addDay()->endOfDay()->timezone('UTC')->format('Y-m-d\TH:i\Z'),
+            'https://api.octopus.energy/v1/products/AGILE-24-10-01/electricity-tariffs/E-1R-AGILE-24-10-01-K/'
+            . 'standard-unit-rates/?page_size=200&&period_from=%s&period_to=%s',
+            $lastImportValidTo->clone()
+                ->timezone('Europe/London')
+                ->startOfDay()
+                ->timezone('UTC')
+                ->format('Y-m-d\TH:i\Z'),
+            now('Europe/London')
+                ->addDay()
+                ->endOfDay()
+                ->timezone('UTC')
+                ->format('Y-m-d\TH:i\Z'),
         );
 
         try {
             $response = Http::get($url);
         } catch (ConnectionException $e) {
-            Log::error('There was a connection error trying to get Agile import data:'.$e->getMessage());
-            throw new \RuntimeException('There was a connection error trying to get Agile import data:'.$e->getMessage());
+            Log::error('There was a connection error trying to get Agile import data:' . $e->getMessage());
+            throw new \RuntimeException('There was a connection error trying to get Agile import data:'
+                . $e->getMessage());
         }
 
         $data = $response->json();
-        Log::info('Agile import action',
+        Log::info(
+            'Agile import action',
             [
                 'successful' => $response->successful(),
                 'json' => $data,
-            ]);
+            ]
+        );
 
         throw_if($response->failed(), 'Unsuccessful Agile import, check the log file for more details.');
 

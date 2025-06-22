@@ -39,7 +39,7 @@ class CalculateBatteryAction extends Action
 
                 $strategies = $table->getQuery()->get();
 
-                $batteryCalculator = new CalculateBatteryPercentage;
+                $batteryCalculator = new CalculateBatteryPercentage();
 
                 $currentBattery = 10;
 

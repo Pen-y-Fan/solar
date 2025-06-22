@@ -107,7 +107,8 @@ class SolcastWithActualAndRealChart extends ChartWidget
 
     private function setHeading(\Illuminate\Support\Collection $rawData): void
     {
-        self::$heading = sprintf('Solis actual (%01.2f) vs PV Yield (%01.2f) Chart from %s to %s',
+        self::$heading = sprintf(
+            'Solis actual (%01.2f) vs PV Yield (%01.2f) Chart from %s to %s',
             $rawData->sum('pv_estimate'),
             $rawData->sum('inverter_yield'),
             Carbon::parse($rawData->first()['period_end'], 'UTC')

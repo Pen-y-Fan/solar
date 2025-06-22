@@ -42,8 +42,8 @@ class GenerateAction extends Action
                     return;
                 }
 
-                Log::debug('Generating strategy for: '.$periodValue);
-                $action = new GenerateStrategyAction;
+                Log::debug('Generating strategy for: ' . $periodValue);
+                $action = new GenerateStrategyAction();
                 $action->filter = $periodValue;
                 $this->result = $action->run();
             });

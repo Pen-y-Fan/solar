@@ -27,7 +27,8 @@ class StrategyChart extends ChartWidget
             return [];
         }
 
-        self::$heading = sprintf('Forecast for %s to %s cost £%0.2f',
+        self::$heading = sprintf(
+            'Forecast for %s to %s cost £%0.2f',
             $rawData->first()['period_end']
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
@@ -85,8 +86,8 @@ class StrategyChart extends ChartWidget
             'labels' => $rawData->map(fn ($item) => sprintf(
                 '%s%s',
                 $item['charging'] ? '* ' : '',
-                $item['period_end']->timezone('Europe/London')->format('H:i'))
-            ),
+                $item['period_end']->timezone('Europe/London')->format('H:i')
+            )),
         ];
     }
 
