@@ -38,7 +38,7 @@ class OctopusImportChart extends ChartWidget
             $rawData->last()['interval_end']
                 ->timezone('Europe/London')
                 ->format('jS M H:i'),
-            -$rawData->last()['accumulative_cost'] ?? 0
+            -$rawData->last()['accumulative_cost']
         );
 
         return [
@@ -155,7 +155,7 @@ class OctopusImportChart extends ChartWidget
         ];
     }
 
-    private function getLatestImport(): Model|Builder|null
+    private function getLatestImport(): OctopusImport|null
     {
         return OctopusImport::query()
             ->latest('interval_start')

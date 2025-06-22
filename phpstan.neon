@@ -1,4 +1,5 @@
 includes:
+    - phpstan-baseline.neon
     - ./vendor/nunomaduro/larastan/extension.neon
 
 parameters:
@@ -11,8 +12,6 @@ parameters:
         - storage
         - bootstrap/cache
         - node_modules
-    checkMissingIterableValueType: false
-    checkGenericClassInNonGenericObjectType: false
 
     # Laravel specific configuration
     noUnnecessaryCollectionCall: true
@@ -21,6 +20,6 @@ parameters:
 
     # Ignore errors from Laravel magic methods
     ignoreErrors:
-        - '#Call to an undefined method [a-zA-Z0-9\\_]+::newQuery\(\)#'
-        - '#Call to an undefined method [a-zA-Z0-9\\_]+::query\(\)#'
-        - '#Access to an undefined property [a-zA-Z0-9\\_]+::\$[a-zA-Z0-9_]+#'
+#        - '#Call to an undefined method [a-zA-Z0-9\\_]+::newQuery\(\)#'
+#        - '#Call to an undefined method [a-zA-Z0-9\\_]+::query\(\)#'
+#        - '#Access to an undefined property [a-zA-Z0-9\\_]+\\:\\:\$[a-zA-Z0-9_]+\\.$#'

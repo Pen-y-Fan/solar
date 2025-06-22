@@ -25,7 +25,7 @@ class OctopusExport
             ?->interval_start ?? now()->subDays(2);
 
         throw_if(
-            ! empty($lastExportStart) && $lastExportStart >= now()->subDay(),
+            $lastExportStart >= now()->subDay(),
             sprintf(
                 'Last updated in the day, try again in %s',
                 $lastExportStart->addDay()->diffForHumans()

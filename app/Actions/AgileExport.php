@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Actions;
 
-use Illuminate\Http\Client\ConnectionException;
+use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -68,7 +68,7 @@ class AgileExport
 
         try {
             $response = Http::get($url);
-        } catch (ConnectionException $e) {
+        } catch (Exception $e) {
             Log::error('There was a connection error trying to get Agile export data:' . $e->getMessage());
             throw new \RuntimeException('There was a connection error trying to get Agile export data:'
                 . $e->getMessage());

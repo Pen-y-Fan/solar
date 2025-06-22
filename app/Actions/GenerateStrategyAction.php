@@ -98,9 +98,9 @@ class GenerateStrategyAction
         $importCosts = [];
 
         $forecastData->each(function ($forecast) use (&$importCosts) {
-            $importCost = $forecast->importCost?->value_inc_vat ?? 0;
+            $importCost = $forecast->importCost?->value_inc_vat;
 
-            if ($importCost > 0) {
+            if ($importCost !== null) {
                 $importCosts[] = $importCost;
             }
         });

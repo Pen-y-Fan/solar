@@ -91,7 +91,7 @@ class SolcastForecastChart extends ChartWidget
         ],
      */
 
-    private function getDatabaseData(): Collection|array
+    private function getDatabaseData(): Collection
     {
         $lastUpdateData = Forecast::query()
             ->latest('updated_at')

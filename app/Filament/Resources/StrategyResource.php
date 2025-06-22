@@ -102,7 +102,7 @@ class StrategyResource extends Resource
                 Tables\Columns\IconColumn::make('strategy2')
                     ->label('stat2')
                     ->toggleable()
-                    ->boolean(2),
+                    ->boolean(),
 
                 // TODO: validation
                 Tables\Columns\TextInputColumn::make('consumption_manual')

@@ -85,7 +85,7 @@ class CalculateBatteryPercentage
 
     private function convertFromKhhToBatteryPercentage(float $battery): int
     {
-        return $battery * 100 / self::BATTERY_MAX;
+        return (int) ($battery * 100 / self::BATTERY_MAX);
     }
 
     public function consumption(float $consumption): CalculateBatteryPercentage

@@ -132,11 +132,11 @@ class ForecastChart extends ChartWidget
                 ->subDay()
                 ->startOfDay()
                 ->timezone('UTC'),
-            'today', 'today10', 'today90', 'today_strategy1', 'today_strategy2' => now('Europe/London')
-                ->startOfDay()
-                ->timezone('UTC'),
             'tomorrow', 'tomorrow10', 'tomorrow90', 'tomorrow_strategy1', 'tomorrow_strategy2' => now('Europe/London')
                 ->addDay()
+                ->startOfDay()
+                ->timezone('UTC'),
+            default => now('Europe/London')
                 ->startOfDay()
                 ->timezone('UTC'),
         };
@@ -185,10 +185,10 @@ class ForecastChart extends ChartWidget
         if ($this->charge) {
             $importCosts = [];
 
-            $forecastData->each(function ($forecast) use (&$accumulativeConsumption, &$importCosts) {
-                $importCost = $forecast->importCost?->value_inc_vat ?? 0;
+            $forecastData->each(function ($forecast) use (&$importCosts) {
+                $importCost = $forecast->importCost?->value_inc_vat;
 
-                if ($importCost > 0) {
+                if ($importCost !== null) {
                     $importCosts[] = $importCost;
                 }
             });
@@ -213,16 +213,15 @@ class ForecastChart extends ChartWidget
             $averageConsumption = $averageConsumptions->where(
                 'time',
                 $forecast->period_end->format('H:i:s')
-            )->first() ?? 0;
+            )->first()?->value ?? 0;
 
             $estimatePV = match ($this->filter) {
-                'yesterday', 'today', 'tomorrow', 'yesterday_strategy1', 'today_strategy1', 'tomorrow_strategy1',
-                'yesterday_strategy2', 'today_strategy2', 'tomorrow_strategy2' => $forecast->pv_estimate / 2,
                 'yesterday10', 'today10', 'tomorrow10', => $forecast->pv_estimate10 / 2,
                 'yesterday90', 'today90', 'tomorrow90' => $forecast->pv_estimate90 / 2,
+                 default => $forecast->pv_estimate / 2,
             };
 
-            $estimatedBatteryRequired = $estimatePV - $averageConsumption->value;
+            $estimatedBatteryRequired = $estimatePV - $averageConsumption;
 
             $import = 0;
             $export = 0;

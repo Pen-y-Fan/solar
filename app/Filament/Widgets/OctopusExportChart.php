@@ -159,7 +159,7 @@ class OctopusExportChart extends ChartWidget
         ];
     }
 
-    private function getLastExport(): Model|Builder|null
+    private function getLastExport(): OctopusExport|null
     {
         return OctopusExport::query()
             ->latest('interval_start')

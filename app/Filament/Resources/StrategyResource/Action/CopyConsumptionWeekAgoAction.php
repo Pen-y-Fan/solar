@@ -12,7 +12,7 @@ class CopyConsumptionWeekAgoAction extends Action
 {
     use CanCustomizeProcess;
 
-    private bool $result;
+    private int $result;
 
     public static function getDefaultName(): ?string
     {
@@ -48,7 +48,7 @@ class CopyConsumptionWeekAgoAction extends Action
                     ]);
             });
 
-            if ($this->result) {
+            if ($this->result > 0) {
                 $this->success();
             }
         });

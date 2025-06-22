@@ -48,7 +48,7 @@ class InverterAverageConsumptionChart extends ChartWidget
         ];
     }
 
-    private function getDatabaseData(): Collection|array
+    private function getDatabaseData(): Collection
     {
         $this->startDate = now()->timezone('Europe/London')->startOfDay()->subDays(21)->timezone('UTC');
 

@@ -47,7 +47,7 @@ class InverterChart extends ChartWidget
         ];
     }
 
-    private function getDatabaseData(): Collection|array
+    private function getDatabaseData(): Collection
     {
         $lastExport = Inverter::query()
             ->latest('period')
