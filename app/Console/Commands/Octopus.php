@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\AgileExport;
-use App\Actions\AgileImport;
-use App\Actions\OctopusExport;
-use App\Actions\OctopusImport;
+use App\Domain\Energy\Actions\AgileExport;
+use App\Domain\Energy\Actions\AgileImport;
+use App\Domain\Energy\Actions\OctopusExport;
+use App\Domain\Energy\Actions\OctopusImport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 

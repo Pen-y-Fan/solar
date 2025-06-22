@@ -2,8 +2,8 @@
 
 namespace App\Filament\Widgets;
 
-use App\Actions\Forecast as ForecastAction;
-use App\Models\Forecast;
+use App\Domain\Forecasting\Actions\ForecastAction;
+use App\Domain\Forecasting\Models\Forecast;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;

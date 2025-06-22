@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Inverter;
+use App\Domain\Energy\Models\Inverter;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;

@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Models;
 
-use App\Models\Inverter;
+use App\Domain\Energy\Models\Inverter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

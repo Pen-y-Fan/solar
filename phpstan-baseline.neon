@@ -11,12 +11,12 @@ parameters:
 			path: app/Domain/Strategy/Actions/CopyConsumptionWeekAgoAction.php
 
 		-
-			message: "#^Access to an undefined property App\\\\Models\\\\Inverter\\:\\:\\$time\\.$#"
+			message: "#^Access to an undefined property App\\\\Domain\\\\Energy\\\\Models\\\\Inverter\\:\\:\\$time\\.$#"
 			count: 1
 			path: app/Domain/Strategy/Actions/GenerateStrategyAction.php
 
 		-
-			message: "#^Access to an undefined property App\\\\Models\\\\Inverter\\:\\:\\$value\\.$#"
+			message: "#^Access to an undefined property App\\\\Domain\\\\Energy\\\\Models\\\\Inverter\\:\\:\\$value\\.$#"
 			count: 1
 			path: app/Domain/Strategy/Actions/GenerateStrategyAction.php
 
@@ -81,7 +81,7 @@ parameters:
 			path: tests/Feature/Console/Commands/ForecastTest.php
 
 		-
-			message: "#^Property App\\\\Models\\\\Forecast\\:\\:\\$period_end \\(Carbon\\\\CarbonImmutable\\|null\\) does not accept Illuminate\\\\Support\\\\Carbon\\.$#"
+			message: "#^Property App\\\\Domain\\\\Forecasting\\\\Models\\\\Forecast\\:\\:\\$period_end \\(Carbon\\\\CarbonImmutable\\|null\\) does not accept Illuminate\\\\Support\\\\Carbon\\.$#"
 			count: 1
 			path: tests/Feature/Console/Commands/ForecastTest.php
 

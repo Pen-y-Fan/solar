@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\OctopusExport;
+use App\Domain\Energy\Models\OctopusExport;
 use Carbon\CarbonPeriod;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
@@ -176,9 +176,8 @@ class OctopusChart extends ChartWidget
                     'display' => true,
                     'position' => 'right',
 
-                    // grid line settings
                     'grid' => [
-                        'drawOnChartArea' => false, // only want the grid lines for one axis to show up
+                        'drawOnChartArea' => false,
                     ],
                 ],
             ],

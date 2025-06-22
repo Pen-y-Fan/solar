@@ -155,9 +155,8 @@ class StrategyChart extends ChartWidget
                     'display' => true,
                     'position' => 'right',
 
-                    // grid line settings
                     'grid' => [
-                        // only want the grid lines for one axis to show up
+
                         'drawOnChartArea' => false,
                     ],
                 ],
@@ -166,9 +165,8 @@ class StrategyChart extends ChartWidget
                     'display' => true,
                     'position' => 'right',
 
-                    // grid line settings
                     'grid' => [
-                        // only want the grid lines for one axis to show up
+
                         'drawOnChartArea' => false,
                     ],
                 ],

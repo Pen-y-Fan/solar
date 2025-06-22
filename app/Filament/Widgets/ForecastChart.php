@@ -2,8 +2,8 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Forecast;
-use App\Models\Inverter;
+use App\Domain\Forecasting\Models\Forecast;
+use App\Domain\Energy\Models\Inverter;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -176,7 +176,6 @@ class ForecastChart extends ChartWidget
             return collect([]);
         }
 
-        // start at 10% battery (0.4 kWh)
         $battery = self::BATTERY_MIN;
         $accumulativeConsumption = 0;
         $accumulativeCost = 0;
@@ -227,40 +226,24 @@ class ForecastChart extends ChartWidget
             $export = 0;
 
             if ($this->charge && $importValueIncVat < $this->chargeStrategy) {
-                // Let's charge using cheap rate electricity
                 Log::info('Charge at: ' . $forecast->period_end->format('H:i:s (UTC)'));
 
-                // we are charging so negative $estimatedBatteryRequired means we charge the battery
-                // the import cost is the chargeAmount + $estimatedBatteryRequired
-                // if the battery reaches MAX the export will cut in chargeAmount + PV generated over the max
                 $maxChargeAmount = min(self::BATTERY_MAX_STRATEGY_PER_HALF_HOUR, self::BATTERY_MAX - $battery);
 
                 $battery += self::BATTERY_MAX_STRATEGY_PER_HALF_HOUR;
 
-                // We need to charge the battery from grid
-                // The PV may be supplying some charge
-                // if the battery is over the battery max and PV is more than demand ($estimatedBatteryRequired > 0)
-                // we may be exporting, but only if the $estimatedBatteryRequired > $maxChargeAmount, otherwise we are
-                // importing the difference
                 if ($battery > self::BATTERY_MAX) {
                     if ($estimatedBatteryRequired > 0 && $estimatedBatteryRequired > $maxChargeAmount) {
-                        // battery has reached max, we are exporting excess PV
-                        // e.g. battery was 4.3 we charged to 4.4 and PC is 0.5, consumption is 0.3
-                        // the charge amount is 0.7 we used 0.2 from excess PV
                         $export = $estimatedBatteryRequired - $maxChargeAmount;
                     } else {
-                        // battery has just reached max, but we are not exporting, we can take excess PV off the import
                         $import = $maxChargeAmount - $estimatedBatteryRequired;
                     }
 
-                    // reset the battery to max
                     $battery = self::BATTERY_MAX;
                 } else {
-                    // The battery is charging, so we are importing the charge amount +/- the required
                     $import = $maxChargeAmount - $estimatedBatteryRequired;
                 }
             } else {
-                // We are not charging so use the battery then sort out the import or export
                 $battery += $estimatedBatteryRequired;
 
                 if ($battery < self::BATTERY_MIN) {
@@ -307,9 +290,8 @@ class ForecastChart extends ChartWidget
                     'display' => true,
                     'position' => 'right',
 
-                    // grid line settings
                     'grid' => [
-                        // only want the grid lines for one axis to show up
+
                         'drawOnChartArea' => false,
                     ],
                 ],
@@ -318,9 +300,8 @@ class ForecastChart extends ChartWidget
                     'display' => true,
                     'position' => 'left',
 
-                    // grid line settings
                     'grid' => [
-                        // only want the grid lines for one axis to show up
+
                         'drawOnChartArea' => false,
                     ],
                 ],
@@ -329,9 +310,8 @@ class ForecastChart extends ChartWidget
                     'display' => true,
                     'position' => 'left',
 
-                    // grid line settings
                     'grid' => [
-                        // only want the grid lines for one axis to show up
+
                         'drawOnChartArea' => false,
                     ],
                 ],

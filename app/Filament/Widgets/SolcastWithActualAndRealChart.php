@@ -3,7 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Domain\Forecasting\Models\ActualForecast;
-use App\Models\Inverter;
+use App\Domain\Energy\Models\Inverter;
 use Carbon\CarbonPeriod;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;

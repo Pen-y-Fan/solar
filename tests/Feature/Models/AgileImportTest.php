@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Models;
 
-use App\Models\AgileImport;
+use App\Domain\Energy\Models\AgileImport;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

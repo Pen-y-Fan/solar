@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Domain\Forecasting\Actions\ActualForecastAction;
-use App\Actions\Forecast as ForecastAction;
+use App\Domain\Forecasting\Actions\ForecastAction;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 

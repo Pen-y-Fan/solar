@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\StrategyResource\Widgets;
 
-use App\Models\OctopusExport;
+use App\Domain\Energy\Models\OctopusExport;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -175,9 +175,8 @@ class ElectricImportExportChart extends ChartWidget
                     'display' => true,
                     'position' => 'right',
 
-                    // grid line settings
                     'grid' => [
-                        'drawOnChartArea' => false, // only want the grid lines for one axis to show up
+                        'drawOnChartArea' => false,
                     ],
                 ],
                 'y2' => [
@@ -185,9 +184,8 @@ class ElectricImportExportChart extends ChartWidget
                     'display' => true,
                     'position' => 'right',
 
-                    // grid line settings
                     'grid' => [
-                        'drawOnChartArea' => false, // only want the grid lines for one axis to show up
+                        'drawOnChartArea' => false,
                     ],
                 ],
             ],

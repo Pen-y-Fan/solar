@@ -2,7 +2,8 @@
 
 namespace Tests\Feature\Actions;
 
-use App\Actions\OctopusExport;
+use App\Domain\Energy\Actions\OctopusExport;
+use App\Domain\Energy\Models\OctopusExport as OctopusExportModel;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -37,8 +38,8 @@ class OctopusExportTest extends TestCase
         $octopusExport->run();
 
         // Assertions
-        $this->assertDatabaseCount(\App\Models\OctopusExport::class, 1);
-        $result = \App\Models\OctopusExport::first();
+        $this->assertDatabaseCount(OctopusExportModel::class, 1);
+        $result = OctopusExportModel::first();
 
         $this->assertSame(0.001, $result->consumption);
         $this->assertSame($start->toDateTimeString(), $result->interval_start->toDateTimeString());

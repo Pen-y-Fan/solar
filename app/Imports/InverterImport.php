@@ -2,7 +2,7 @@
 
 namespace App\Imports;
 
-use App\Models\Inverter;
+use App\Domain\Energy\Models\Inverter;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;

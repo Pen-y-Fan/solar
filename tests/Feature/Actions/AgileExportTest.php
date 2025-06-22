@@ -2,7 +2,8 @@
 
 namespace Tests\Feature\Actions;
 
-use App\Actions\AgileExport;
+use App\Domain\Energy\Actions\AgileExport;
+use App\Domain\Energy\Models\AgileExport as AgileExportModel;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -42,9 +43,9 @@ class AgileExportTest extends TestCase
         $agileExport->run();
 
         // Assertions
-        $this->assertDatabaseCount(\App\Models\AgileExport::class, 1);
+        $this->assertDatabaseCount(AgileExportModel::class, 1);
 
-        $result = \App\Models\AgileExport::first();
+        $result = AgileExportModel::first();
         $this->assertSame($valueExcVat, $result->value_exc_vat);
         $this->assertSame($valueIncVat, $result->value_inc_vat);
         $this->assertSame($start->toDateTimeString(), $result->valid_from->toDateTimeString());
