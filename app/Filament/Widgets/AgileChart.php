@@ -24,7 +24,7 @@ class AgileChart extends ChartWidget
     protected static ?string $pollingInterval = '120s';
 
     /**
-     * @var int|mixed
+     * @var float The minimum value for the chart's y-axis
      */
     public float $minValue = 0.0;
 
@@ -158,10 +158,14 @@ class AgileChart extends ChartWidget
             ->limit($limit)
             ->get();
 
-        // get min for value_inc_vat, including some space
         $min = floor($importData->min('value_inc_vat') ?? 1) - 1;
-        // use a negative value or set to 0
-        $this->minValue = min($min, 0);
+
+        if ($min < 0) {
+            $this->minValue = floor($min / 5) * 5;
+        } else {
+            // If there are no negative values, use 0 as the minimum
+            $this->minValue = 0;
+        }
 
         // combine the data for the chart
         return $importData->map(fn($item) => [
