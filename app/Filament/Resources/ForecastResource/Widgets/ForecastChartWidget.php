@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\ForecastResource\Widgets;
 
-use App\Models\Forecast;
+use App\Domain\Forecasting\Models\Forecast;
 use Carbon\Carbon;
 use Filament\Widgets\ChartWidget;
 

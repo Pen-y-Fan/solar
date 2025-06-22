@@ -2,12 +2,12 @@
 
 namespace App\Filament\Widgets;
 
-use App\Actions\AgileExport as AgileExportAction;
-use App\Actions\AgileImport as AgileImportAction;
-use App\Actions\OctopusExport;
-use App\Actions\OctopusImport;
-use App\Models\AgileExport;
-use App\Models\AgileImport;
+use App\Domain\Energy\Actions\AgileExport as AgileExportAction;
+use App\Domain\Energy\Actions\AgileImport as AgileImportAction;
+use App\Domain\Energy\Actions\OctopusExport;
+use App\Domain\Energy\Actions\OctopusImport;
+use App\Domain\Energy\Models\AgileExport;
+use App\Domain\Energy\Models\AgileImport;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -92,27 +92,6 @@ class AgileChart extends ChartWidget
             }),
         ];
     }
-
-    /*
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.2)',
-          'rgba(255, 159, 64, 0.2)',
-          'rgba(255, 205, 86, 0.2)',
-          'rgba(75, 192, 192, 0.2)', // green
-          'rgba(54, 162, 235, 0.2)', // blue
-          'rgba(153, 102, 255, 0.2)',
-          'rgba(201, 203, 207, 0.2)'
-        ],
-        borderColor: [
-          'rgb(255, 99, 132)', // red
-          'rgb(255, 159, 64)', // orange
-          'rgb(255, 205, 86)', // yellow
-          'rgb(75, 192, 192)', // green
-          'rgb(54, 162, 235)', // blue
-          'rgb(153, 102, 255)', // purple
-          'rgb(201, 203, 207)' // grey
-        ],
-     */
 
     private function getDatabaseData(): Collection
     {

@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\Inverter;
+use App\Domain\Energy\Models\Inverter;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
@@ -57,7 +57,6 @@ class InverterChart extends ChartWidget
             ->where(
                 'period',
                 '>=',
-                // possibly use a sub query to get the last interval and sub 1 day
                 $lastExport->period->timezone('Europe/London')->subDay()
                     ->startOfDay()->timezone('UTC')
             )

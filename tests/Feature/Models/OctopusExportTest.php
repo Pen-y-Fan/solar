@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Models;
 
-use App\Models\OctopusExport;
+use App\Domain\Energy\Models\OctopusExport;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 

@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Actions;
+namespace App\Domain\Energy\Actions;
 
+use App\Domain\Energy\Models\OctopusExport as OctopusExportModel;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
@@ -19,7 +20,7 @@ class OctopusExport
     {
         Log::info('Start running Octopus export action');
 
-        $lastExportStart = \App\Models\OctopusExport::query()
+        $lastExportStart = OctopusExportModel::query()
             ->latest('interval_start')
             ->first('interval_start')
             ?->interval_start ?? now()->subDays(2);
@@ -36,7 +37,7 @@ class OctopusExport
         $data = $this->getExportData();
 
         // save it to the database
-        \App\Models\OctopusExport::upsert(
+        OctopusExportModel::upsert(
             $data,
             uniqueBy: ['interval_start'],
             update: ['consumption']

@@ -2,11 +2,9 @@
 
 namespace App\Filament\Widgets;
 
-use App\Actions\OctopusImport as OctopusImportAction;
-use App\Models\OctopusImport;
+use App\Domain\Energy\Actions\OctopusImport as OctopusImportAction;
+use App\Domain\Energy\Models\OctopusImport;
 use Filament\Widgets\ChartWidget;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -93,7 +91,6 @@ class OctopusImportChart extends ChartWidget
             ->where(
                 'interval_start',
                 '>=',
-                // possibly use a sub query to get the last interval and sub 1 day
                 $start
             )
             ->orderBy('interval_start')
@@ -146,9 +143,8 @@ class OctopusImportChart extends ChartWidget
                     'display' => true,
                     'position' => 'right',
 
-                    // grid line settings
                     'grid' => [
-                        'drawOnChartArea' => false, // only want the grid lines for one axis to show up
+                        'drawOnChartArea' => false,
                     ],
                 ],
             ],

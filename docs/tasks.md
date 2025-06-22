@@ -8,7 +8,8 @@ This document provides a comprehensive checklist of improvement tasks for the So
    - [x] Reorganize code into domain-specific modules
      - [x] Forecasting
      - [x] Strategy
-     - [ ] Energy
+     - [x] Energy
+     - [ ] 
    - [ ] Create clear boundaries between different domains (e.g., Forecasting, Strategy, Energy Import/Export)
    - [ ] Define value objects for domain concepts
 

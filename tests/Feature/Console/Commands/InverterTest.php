@@ -3,7 +3,7 @@
 namespace Tests\Feature\Console\Commands;
 
 use App\Console\Commands\Inverter;
-use App\Models\Inverter as InverterModel;
+use App\Domain\Energy\Models\Inverter as InverterModel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;

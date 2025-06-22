@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Actions;
 
-use App\Actions\AgileImport;
-use App\Models\AgileImport as AgileImportModel;
+use App\Domain\Energy\Actions\AgileImport;
+use App\Domain\Energy\Models\AgileImport as AgileImportModel;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;

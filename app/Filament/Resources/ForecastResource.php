@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ForecastResource\Pages;
 use App\Filament\Resources\ForecastResource\Widgets\ForecastChartWidget;
-use App\Models\Forecast;
+use App\Domain\Forecasting\Models\Forecast;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;

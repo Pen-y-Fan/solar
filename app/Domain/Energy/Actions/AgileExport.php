@@ -2,42 +2,43 @@
 
 declare(strict_types=1);
 
-namespace App\Actions;
+namespace App\Domain\Energy\Actions;
 
+use App\Domain\Energy\Models\AgileExport as AgileExportModel;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class AgileImport
+class AgileExport
 {
     /**
      * @throws \Throwable
      */
     public function run(): void
     {
-        Log::info('Start running Agile import action');
+        Log::info('Start running Agile export action');
 
         // normally released after 4PM and will have data up to 23:00 the next day!
-        $lastImportValidTo = \App\Models\AgileImport::query()
+        $lastExportValidTo = AgileExportModel::query()
             ->latest('valid_to')
             ->first('valid_to')
             ?->valid_to ?? now()->subDay();
 
         throw_if(
-            now()->diffInUTCHours($lastImportValidTo) > 7,
+            now()->diffInUTCHours($lastExportValidTo) > 7,
             sprintf(
                 'Already have data until %s, try again after 4 PM %s',
-                $lastImportValidTo->timezone('Europe/London')->format('j F Y H:i'),
-                $lastImportValidTo->timezone('Europe/London')->format('D')
+                $lastExportValidTo->timezone('Europe/London')->format('j F Y H:i'),
+                $lastExportValidTo->timezone('Europe/London')->format('D')
             )
         );
 
-        // fetch the latest import data
-        $data = $this->getImportData($lastImportValidTo);
+        // fetch the latest export data
+        $data = $this->getExportData($lastExportValidTo);
 
         // save it to the database
-        \App\Models\AgileImport::upsert(
+        AgileExportModel::upsert(
             $data,
             uniqueBy: ['valid_from'],
             update: ['value_exc_vat', 'value_inc_vat'],
@@ -47,14 +48,14 @@ class AgileImport
     /**
      * @throws \Throwable
      */
-    private function getImportData($lastImportValidTo): array
+    private function getExportData($lastExportValidTo): array
     {
         // https://developer.octopus.energy/rest/guides/endpoints
         // https://agile.octopushome.net/dashboard (watch network traffic and copy)
         $url = sprintf(
-            'https://api.octopus.energy/v1/products/AGILE-24-10-01/electricity-tariffs/E-1R-AGILE-24-10-01-K/'
-            . 'standard-unit-rates/?page_size=200&&period_from=%s&period_to=%s',
-            $lastImportValidTo->clone()
+            'https://api.octopus.energy/v1/products/AGILE-OUTGOING-19-05-13/electricity-tariffs/'
+            . 'E-1R-AGILE-OUTGOING-19-05-13-K/standard-unit-rates/?page_size=200&&period_from=%s&period_to=%s',
+            $lastExportValidTo->clone()
                 ->timezone('Europe/London')
                 ->startOfDay()
                 ->timezone('UTC')
@@ -69,21 +70,21 @@ class AgileImport
         try {
             $response = Http::get($url);
         } catch (Exception $e) {
-            Log::error('There was a connection error trying to get Agile import data:' . $e->getMessage());
-            throw new \RuntimeException('There was a connection error trying to get Agile import data:'
+            Log::error('There was a connection error trying to get Agile export data:' . $e->getMessage());
+            throw new \RuntimeException('There was a connection error trying to get Agile export data:'
                 . $e->getMessage());
         }
 
         $data = $response->json();
         Log::info(
-            'Agile import action',
+            'Agile export action',
             [
                 'successful' => $response->successful(),
                 'json' => $data,
             ]
         );
 
-        throw_if($response->failed(), 'Unsuccessful Agile import, check the log file for more details.');
+        throw_if($response->failed(), 'Unsuccessful Agile export, check the log file for more details.');
 
         return collect($data['results'])
             ->map(function ($item) {

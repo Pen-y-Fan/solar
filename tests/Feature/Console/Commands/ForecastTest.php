@@ -4,7 +4,7 @@ namespace Tests\Feature\Console\Commands;
 
 use App\Console\Commands\Forecast as ForecastCommand;
 use App\Domain\Forecasting\Models\ActualForecast;
-use App\Models\Forecast;
+use App\Domain\Forecasting\Models\Forecast;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;

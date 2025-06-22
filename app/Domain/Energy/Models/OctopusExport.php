@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Domain\Energy\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,9 +13,10 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property \Carbon\CarbonImmutable|null $interval_end
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\AgileExport|null $exportCost
- * @property-read \App\Models\AgileImport|null $importCost
- * @property-read \App\Models\OctopusImport|null $octopusImport
+ * @property-read \App\Domain\Energy\Models\AgileExport|null $exportCost
+ * @property-read \App\Domain\Energy\Models\AgileImport|null $importCost
+ * @property-read \App\Domain\Energy\Models\OctopusImport|null $octopusImport
+ * @property-read \App\Domain\Energy\Models\Inverter|null $inverter
  *
  * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport newQuery()

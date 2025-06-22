@@ -2,10 +2,9 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\OctopusExport;
+use App\Domain\Energy\Models\OctopusExport;
+use App\Domain\Energy\Actions\OctopusExport as OctopusExportAction;
 use Filament\Widgets\ChartWidget;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -129,7 +128,7 @@ class OctopusExportChart extends ChartWidget
     private function updateOctopusExport(): void
     {
         try {
-            (new \App\Actions\OctopusExport())->run();
+            (new OctopusExportAction())->run();
             Log::info('Successfully updated octopus export data');
         } catch (Throwable $th) {
             Log::error('Error running Octopus export action:', ['error message' => $th->getMessage()]);
@@ -150,9 +149,8 @@ class OctopusExportChart extends ChartWidget
                     'display' => true,
                     'position' => 'right',
 
-                    // grid line settings
                     'grid' => [
-                        'drawOnChartArea' => false, // only want the grid lines for one axis to show up
+                        'drawOnChartArea' => false,
                     ],
                 ],
             ],

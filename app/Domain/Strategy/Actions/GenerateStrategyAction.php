@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Domain\Strategy\Actions;
 
-use App\Models\Forecast;
-use App\Models\Inverter;
+use App\Domain\Forecasting\Models\Forecast;
+use App\Domain\Energy\Models\Inverter;
 use App\Domain\Strategy\Models\Strategy;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -111,14 +112,6 @@ class GenerateStrategyAction
             $minCost = min($importCosts);
         }
 
-        // make two calls to generate strategy, one passing in the average, the other passing in weekAgo.
-        // Upsert the results to Strategies.
-        // Call a method to calculate the strategy, passing in the consumption ($averageConsumptions)
-        // Save the results to an empty array
-        // Call a method to calculate the strategy, passing in the consumption ($weekAgpConsumptions)
-        // update the array
-        // save/upsert the data
-
         $this->chargeStrategy = ($averageCost + $minCost + $minCost) / 3;
         $firstPassStrategy1 = $this->getConsumption($forecastData, $averageConsumptions);
         $secondPassStrategy1 = $this->getConsumption($forecastData, $weekAgpConsumptions);
@@ -163,8 +156,8 @@ class GenerateStrategyAction
     }
 
     public function getConsumption(
-        \Illuminate\Database\Eloquent\Collection|array $forecastData,
-        \Illuminate\Database\Eloquent\Collection|array $consumptions,
+        Collection|array $forecastData,
+        Collection|array $consumptions,
     ): \Illuminate\Support\Collection {
         $battery = self::BATTERY_MIN;
         $result = [];
@@ -190,11 +183,9 @@ class GenerateStrategyAction
 
                 $battery += self::BATTERY_MAX_STRATEGY_PER_HALF_HOUR;
                 if ($battery > self::BATTERY_MAX) {
-                    // reset the battery to max
                     $battery = self::BATTERY_MAX;
                 }
             } else {
-                // We are not charging so use the battery then sort out the import or export
                 $battery += $estimatedBatteryRequired;
 
                 if ($battery < self::BATTERY_MIN) {

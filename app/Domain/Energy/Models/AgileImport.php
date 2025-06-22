@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Domain\Energy\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property \Carbon\CarbonImmutable|null $valid_to
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\AgileExport|null $exportCost
+ * @property-read \App\Domain\Energy\Models\AgileExport|null $exportCost
  *
  * @method static \Illuminate\Database\Eloquent\Builder|AgileImport newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|AgileImport newQuery()

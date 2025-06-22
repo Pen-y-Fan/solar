@@ -2,8 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Actions;
+namespace App\Domain\Energy\Actions;
 
+use App\Domain\Energy\Models\OctopusImport as OctopusImportModel;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
@@ -19,7 +20,7 @@ class OctopusImport
     {
         Log::info('Start running Octopus import action');
 
-        $lastImportStart = \App\Models\OctopusImport::query()
+        $lastImportStart = OctopusImportModel::query()
             ->latest('interval_start')
             ->first('interval_start')
             ?->interval_start ?? now()->subDays(2);
@@ -36,7 +37,7 @@ class OctopusImport
         $data = $this->getImportData();
 
         // save it to the database
-        \App\Models\OctopusImport::upsert(
+        OctopusImportModel::upsert(
             $data,
             uniqueBy: ['interval_start'],
             update: ['consumption']
