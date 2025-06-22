@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Actions\ActualForecast;
+use App\Domain\Forecasting\Actions\ActualForecastAction;
 use App\Actions\Forecast as ForecastAction;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
@@ -26,7 +26,7 @@ class Forecast extends Command
     /**
      * Execute the console command.
      */
-    public function handle(ForecastAction $forecast, ActualForecast $actualForecast): void
+    public function handle(ForecastAction $forecast, ActualForecastAction $actualForecast): void
     {
         try {
             $forecast->run();

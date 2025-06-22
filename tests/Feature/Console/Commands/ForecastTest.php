@@ -3,7 +3,7 @@
 namespace Tests\Feature\Console\Commands;
 
 use App\Console\Commands\Forecast as ForecastCommand;
-use App\Models\ActualForecast;
+use App\Domain\Forecasting\Models\ActualForecast;
 use App\Models\Forecast;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;

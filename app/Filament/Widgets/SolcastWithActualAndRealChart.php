@@ -2,7 +2,7 @@
 
 namespace App\Filament\Widgets;
 
-use App\Models\ActualForecast;
+use App\Domain\Forecasting\Models\ActualForecast;
 use App\Models\Inverter;
 use Carbon\CarbonPeriod;
 use Filament\Widgets\ChartWidget;

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Domain\Forecasting\Models\ActualForecast;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -26,7 +27,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property float|null $consumption_last_week_cost
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Models\ActualForecast|null $actualForecast
+ * @property-read \App\Domain\Forecasting\Models\ActualForecast|null $actualForecast
  * @property-read \App\Models\AgileExport|null $exportCost
  * @property-read \App\Models\Forecast|null $forecast
  * @property-read \App\Models\AgileImport|null $importCost
