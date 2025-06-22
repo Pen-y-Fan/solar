@@ -15,7 +15,7 @@ project, it requires a **Solis inverter** and energy supplied by **Octopus energ
 
 ## Bug fix
 
-The strategy chart currently has a hard coded minimum of 0, if any costs are below 0 the minimum should be to the nearest -5 see Agile cost chart on the dashboard for an example 
+None
 
 ## Requirements
 
@@ -161,7 +161,7 @@ The following packages have been used:
 
 ### Docker (optional)
 
-Laravel Sail has been installed as a composer package, if composer is not installed locally it can be installed using:
+Laravel Sail has been installed as a composer package, if composer is not installed locally it can be run using:
 
 ```shell
 docker run --rm \
@@ -177,7 +177,6 @@ Once the **.env** file and database have already been configured, the project ca
 ```shell
 sail up -d
 ```
-
 
 <!--
 - [Easy Coding Standard (ECS)](https://github.com/symplify/easy-coding-standard) - Preferred coding standard for this

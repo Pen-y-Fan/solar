@@ -1,26 +1,25 @@
 # Strategy Chart Bug Fix Tasks
 
 ## Overview
-The strategy chart currently has a hard-coded minimum of 0. If any costs are below 0, the minimum should be set to the nearest -5, similar to the Agile cost chart on the dashboard.
+The CostChart currently has a hard-coded minimum of 0. If any costs are below 0, the minimum should be set to the nearest -5, similar to the Agile cost chart on the dashboard.
 
 ## Tasks
 
 1. [x] **Analysis and Understanding**
-   - [x] Review the current StrategyChart implementation in `app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php`
+   - [x] Review the current CostChart implementation in `app/Filament/Resources/StrategyResource/Widgets/CostChart.php`
    - [x] Examine how the Agile cost chart (`app/Filament/Widgets/AgileChart.php`) handles negative values
    - [x] Identify all places where chart minimum values are set
 
-2. [ ] **Architecture Improvements**
-   - [ ] Evaluate if a common utility function for calculating chart minimums would be beneficial
-   - [ ] Consider creating a trait for charts that need dynamic minimum values
-   - [ ] Determine if other charts might benefit from the same fix
+2. [x] **Architecture Improvements**
+   - [x] Evaluate if a common utility function for calculating chart minimums would be beneficial
+   - [x] Consider creating a trait for charts that need dynamic minimum values
+   - [x] Determine if other charts might benefit from the same fix
 
 3. [x] **Code Implementation**
-   - [x] Add a `minValue` property to the StrategyChart class
+   - [x] Add a `minValue` property to the CostChart class (if required)
    - [x] Modify the `getDatabaseData()` method to calculate the minimum value based on the data
    - [x] Implement logic to round negative values to the nearest -5 (e.g., -3 becomes -5, -7 becomes -10)
    - [x] Update the `getOptions()` method to use the calculated minimum value
-   - [x] Update the AgileChart to handle minimum values with the same rounding logic, to round negative values to the nearest -5 
 
 4. [ ] **Testing**
    - [ ] Create test data that includes negative costs
@@ -33,9 +32,9 @@ The strategy chart currently has a hard-coded minimum of 0. If any costs are bel
    - [x] Add comments to the code explaining the minimum value calculation
    - [ ] Document the fix in the project changelog if one exists
 
-6. [ ] **Code Review and Quality Assurance**
-   - [ ] Review the changes for any potential side effects
-   - [ ] Ensure the code follows project coding standards
+6. [x] **Code Review and Quality Assurance**
+   - [x] Review the changes for any potential side effects
+   - [x] Ensure the code follows project coding standards
    - [ ] Verify that the fix works across different browsers and devices
 
 7. [ ] **Deployment**
