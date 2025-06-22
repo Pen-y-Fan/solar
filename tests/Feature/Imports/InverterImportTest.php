@@ -55,23 +55,23 @@ class InverterImportTest extends TestCase
 
     public function setupFixture(): void
     {
-        if (Storage::exists(self::UPLOADS_TESTS_DIRECTORY . self::FILE_NAME)) {
+        if (Storage::exists(self::UPLOADS_TESTS_DIRECTORY.self::FILE_NAME)) {
             return;
         }
 
-        $source = base_path(self::TESTS_FIXTURES_DIRECTORY . self::FILE_NAME);
+        $source = base_path(self::TESTS_FIXTURES_DIRECTORY.self::FILE_NAME);
         $this->assertTrue(file_exists($source), "Fixture file not found at: $source");
 
-        $destination = self::UPLOADS_TESTS_DIRECTORY . self::FILE_NAME;
+        $destination = self::UPLOADS_TESTS_DIRECTORY.self::FILE_NAME;
         $copy = Storage::put($destination, file_get_contents($source));
-        $this->assertTrue($copy, "Failed to copy fixture file to storage: $destination");;
+        $this->assertTrue($copy, "Failed to copy fixture file to storage: $destination");
     }
 
     private function importInverterData(): void
     {
         Excel::import(
-            new InverterImport(),
-            self::UPLOADS_TESTS_DIRECTORY . self::FILE_NAME,
+            new InverterImport,
+            self::UPLOADS_TESTS_DIRECTORY.self::FILE_NAME,
             null,
             ExcelReader::XLS
         );

@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read \App\Models\AgileExport|null $exportCost
  * @property-read \App\Models\AgileImport|null $importCost
  * @property-read \App\Models\OctopusImport|null $octopusImport
+ *
  * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport query()
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport whereIntervalEnd($value)
  * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport whereIntervalStart($value)
  * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class OctopusExport extends Model

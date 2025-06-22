@@ -39,9 +39,6 @@ class InverterImport implements ToCollection, WithHeadingRow
         HeadingRowFormatter::default(HeadingRowFormatter::FORMATTER_NONE);
     }
 
-    /**
-     * @param Collection $collection
-     */
     public function collection(Collection $collection)
     {
         if ($collection->isEmpty()) {

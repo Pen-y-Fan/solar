@@ -21,6 +21,7 @@ class AgileChart extends ChartWidget
     protected static ?string $maxHeight = '400px';
 
     protected static ?string $heading = 'Agile forecast';
+
     protected static ?string $pollingInterval = '120s';
 
     /**
@@ -48,7 +49,7 @@ class AgileChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Export value',
-                    'data' => $data->map(fn($item): string => $item['export_value_inc_vat']),
+                    'data' => $data->map(fn ($item): string => $item['export_value_inc_vat']),
                     'fill' => true,
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
                     'borderColor' => 'rgb(75, 192, 192)',
@@ -56,7 +57,7 @@ class AgileChart extends ChartWidget
                 ],
                 [
                     'label' => 'Import value',
-                    'data' => $data->map(fn($item): string => $item['import_value_inc_vat']),
+                    'data' => $data->map(fn ($item): string => $item['import_value_inc_vat']),
                     'fill' => '-1',
                     'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
                     'borderColor' => 'rgb(255, 99, 132)',
@@ -64,7 +65,7 @@ class AgileChart extends ChartWidget
                 ],
                 [
                     'label' => sprintf('Average export value (%0.02f)', $averageExport),
-                    'data' => $data->map(fn($item): string => number_format($averageExport, 2)),
+                    'data' => $data->map(fn ($item): string => number_format($averageExport, 2)),
                     'type' => 'line',
                     'borderDash' => [5, 10],
                     'pointRadius' => 0,
@@ -73,12 +74,12 @@ class AgileChart extends ChartWidget
 
                 [
                     'label' => sprintf('Average import value (%0.02f)', $averageImport),
-                    'data' => $data->map(fn($item): string => number_format($averageImport, 2)),
+                    'data' => $data->map(fn ($item): string => number_format($averageImport, 2)),
                     'borderDash' => [5, 10],
                     'type' => 'line',
                     'pointRadius' => 0,
                     'borderColor' => 'rgb(255, 99, 132)',
-                ]
+                ],
             ],
             'labels' => $data->map(function ($item): string {
                 $date = Carbon::parse($item['valid_from'], 'UTC')
@@ -168,10 +169,10 @@ class AgileChart extends ChartWidget
         }
 
         // combine the data for the chart
-        return $importData->map(fn($item) => [
+        return $importData->map(fn ($item) => [
             'valid_from' => $item->valid_from,
             'import_value_inc_vat' => $item->value_inc_vat,
-            'export_value_inc_vat' => $item->exportCost?->value_inc_vat ?? 0
+            'export_value_inc_vat' => $item->exportCost?->value_inc_vat ?? 0,
         ]);
     }
 
@@ -187,8 +188,8 @@ class AgileChart extends ChartWidget
                 'y' => [
                     'type' => 'linear',
                     'min' => $this->minValue,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
@@ -197,13 +198,13 @@ class AgileChart extends ChartWidget
         Log::info('Updating agile import chart data from API.');
 
         try {
-            (new AgileImportAction())->run();
+            (new AgileImportAction)->run();
         } catch (Throwable $th) {
             Log::error('Error running Octopus Agile import action:', ['error message' => $th->getMessage()]);
         }
 
         try {
-            (new OctopusImport())->run();
+            (new OctopusImport)->run();
             Log::info('Octopus import has been fetched!');
         } catch (Throwable $th) {
             Log::error('Error running Octopus import action:', ['error message' => $th->getMessage()]);
@@ -215,7 +216,7 @@ class AgileChart extends ChartWidget
         Log::info('Updating agile export chart data from API.');
 
         try {
-            (new AgileExportAction())->run();
+            (new AgileExportAction)->run();
         } catch (Throwable $th) {
             Log::error('Error running Octopus Agile export action:', ['error message' => $th->getMessage()]);
         }

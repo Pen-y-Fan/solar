@@ -27,8 +27,8 @@ class ActualForecastTest extends TestCase
     public function test_an_actual_forecast_can_be_created_with_utc_iso_8601_date_string(): void
     {
         $data = [
-            "period_end" => now('UTC')->parse("2024-06-15T09:00:00.0000000Z"),
-            "pv_estimate" => 1.3873,
+            'period_end' => now('UTC')->parse('2024-06-15T09:00:00.0000000Z'),
+            'pv_estimate' => 1.3873,
         ];
         $actualForecast = ActualForecast::create($data);
 
@@ -55,7 +55,6 @@ class ActualForecastTest extends TestCase
         ];
 
         ActualForecast::create($newData);
-
 
     }
 

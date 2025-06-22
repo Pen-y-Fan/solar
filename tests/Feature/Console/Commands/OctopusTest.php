@@ -23,8 +23,8 @@ class OctopusTest extends TestCase
                         'consumption' => 0.001,
                         'interval_start' => '2024-06-15T00:00:00+01:00',
                         'interval_end' => '2024-06-15T00:30:00+01:00',
-                    ]
-                ]
+                    ],
+                ],
             ], 200),
 
             // Mock for AgileImport & Export HTTP calls
@@ -35,15 +35,15 @@ class OctopusTest extends TestCase
                         'value_inc_vat' => 18.94,
                         'valid_from' => '2024-06-20T21:30:00Z',
                         'valid_to' => '2024-06-20T22:00:00Z',
-                    ]
-                ]
+                    ],
+                ],
             ], 200),
         ]);
 
         Log::shouldReceive('info')->atLeast()->once();
 
         // Act and Assert
-        $this->artisan((new Octopus())->getName())
+        $this->artisan((new Octopus)->getName())
             ->expectsOutputToContain('Running Octopus action!')
             ->expectsOutputToContain('Octopus import has been fetched!')
             ->expectsOutputToContain('Octopus export has been fetched!')

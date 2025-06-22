@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * 
- *
  * @property int $id
  * @property float|null $consumption
  * @property \Carbon\CarbonImmutable|null $interval_start
@@ -16,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\AgileImport|null $importCost
+ *
  * @method static \Illuminate\Database\Eloquent\Builder|OctopusImport newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OctopusImport newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OctopusImport query()
@@ -25,6 +24,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static \Illuminate\Database\Eloquent\Builder|OctopusImport whereIntervalEnd($value)
  * @method static \Illuminate\Database\Eloquent\Builder|OctopusImport whereIntervalStart($value)
  * @method static \Illuminate\Database\Eloquent\Builder|OctopusImport whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class OctopusImport extends Model

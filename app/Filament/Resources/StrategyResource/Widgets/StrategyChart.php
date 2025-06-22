@@ -10,6 +10,7 @@ use Illuminate\Support\Collection;
 class StrategyChart extends ChartWidget
 {
     use InteractsWithPageTable;
+
     protected int|string|array $columnSpan = 2;
 
     protected static ?string $maxHeight = '400px';
@@ -22,6 +23,7 @@ class StrategyChart extends ChartWidget
 
         if ($rawData->count() === 0) {
             self::$heading = 'No forecast data';
+
             return [];
         }
 
@@ -39,14 +41,14 @@ class StrategyChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Import',
-                    'data' => $rawData->map(fn($item) => $item['import']),
+                    'data' => $rawData->map(fn ($item) => $item['import']),
                     'backgroundColor' => 'rgba(255, 205, 86, 0.2)',
                     'borderColor' => 'rgb(255, 205, 86)',
                     'yAxisID' => 'y',
                 ],
                 [
                     'label' => 'Export',
-                    'data' => $rawData->map(fn($item) => -$item['export']),
+                    'data' => $rawData->map(fn ($item) => -$item['export']),
                     'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
                     'borderColor' => 'rgb(54, 162, 235)',
                     'yAxisID' => 'y',
@@ -54,37 +56,37 @@ class StrategyChart extends ChartWidget
                 [
                     'label' => 'Acc. Cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => $item['acc_cost']),
+                    'data' => $rawData->map(fn ($item) => $item['acc_cost']),
                     'borderColor' => 'rgb(54, 162, 235)',
                     'yAxisID' => 'y2',
                 ],
                 [
                     'label' => 'Acc. import cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => $item['import_accumulative_cost']),
+                    'data' => $rawData->map(fn ($item) => $item['import_accumulative_cost']),
                     'borderColor' => 'rgb(255, 99, 132)',
                     'yAxisID' => 'y2',
                 ],
                 [
                     'label' => 'Acc. export cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => -$item['export_accumulative_cost']),
+                    'data' => $rawData->map(fn ($item) => -$item['export_accumulative_cost']),
                     'borderColor' => 'rgb(75, 192, 192)',
                     'yAxisID' => 'y2',
                 ],
                 [
                     'label' => 'Battery (%)',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => $item['battery_percent']),
+                    'data' => $rawData->map(fn ($item) => $item['battery_percent']),
                     'borderColor' => 'rgb(255, 159, 64)',
                     'yAxisID' => 'y1',
                 ],
             ],
-            'labels' => $rawData->map(fn($item) => sprintf(
+            'labels' => $rawData->map(fn ($item) => sprintf(
                 '%s%s',
                 $item['charging'] ? '* ' : '',
                 $item['period_end']->timezone('Europe/London')->format('H:i'))
-            )
+            ),
         ];
     }
 
@@ -168,8 +170,8 @@ class StrategyChart extends ChartWidget
                         // only want the grid lines for one axis to show up
                         'drawOnChartArea' => false,
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
     }
 }

@@ -22,7 +22,6 @@ class AgileImportTest extends TestCase
         $valueExcVat = 18.04;
         $valueIncVat = 18.94;
 
-
         Http::fake([
             'https://api.octopus.energy/*' => Http::response([
                 'results' => [
@@ -33,11 +32,11 @@ class AgileImportTest extends TestCase
                         'valid_to' => $end->toISOString(),
                     ],
                 ],
-            ], 200)
+            ], 200),
         ]);
 
         Log::shouldReceive('info')->atLeast()->once();
-        $agileImport = new AgileImport();
+        $agileImport = new AgileImport;
 
         // Act
         $agileImport->run();

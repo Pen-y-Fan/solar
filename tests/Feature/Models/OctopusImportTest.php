@@ -27,12 +27,12 @@ class OctopusImportTest extends TestCase
         $this->assertSame($data['consumption'], $octopusImport->consumption);
     }
 
-    public function test_a_octopusImport_can_be_created_with_utc_iso_8601_date_string(): void
+    public function test_an_octopus_import_can_be_created_with_utc_iso_8601_date_string(): void
     {
         $estimate = fake()->randomFloat(4);
         $data = [
-            "interval_start" => now('UTC')->parse("2024-06-15T09:00:00.0000000Z")->toDateTimeString(),
-            "interval_end" => now('UTC')->parse("2024-06-15T09:00:30.0000000Z")->toDateTimeString(),
+            'interval_start' => now('UTC')->parse('2024-06-15T09:00:00.0000000Z')->toDateTimeString(),
+            'interval_end' => now('UTC')->parse('2024-06-15T09:00:30.0000000Z')->toDateTimeString(),
             'consumption' => $estimate,
         ];
         $octopusImport = OctopusImport::create($data);
@@ -74,7 +74,6 @@ class OctopusImportTest extends TestCase
             'interval_end' => now()->addHours(2)->startOfHour()->addMinutes(30),
             'consumption' => $estimate,
         ];
-
 
         $octopusImport = OctopusImport::create($data);
 

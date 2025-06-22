@@ -34,7 +34,7 @@ class InverterTest extends TestCase
     {
 
         $data = [
-            "period" => now('UTC')->parse("2024-06-15T09:00:00.0000000Z"),
+            'period' => now('UTC')->parse('2024-06-15T09:00:00.0000000Z'),
             'yield' => fake()->randomFloat(4),
             'to_grid' => fake()->randomFloat(4),
             'from_grid' => fake()->randomFloat(4),
@@ -80,7 +80,6 @@ class InverterTest extends TestCase
             'consumption' => fake()->randomFloat(4),
         ];
 
-
         $inverter = Inverter::create($data);
 
         $this->assertInstanceOf(Inverter::class, $inverter);
@@ -88,7 +87,6 @@ class InverterTest extends TestCase
         $this->assertSame($data['to_grid'], $inverter->to_grid);
         $this->assertSame($data['from_grid'], $inverter->from_grid);
         $this->assertSame($data['consumption'], $inverter->consumption);
-
 
         $newData = [
             [

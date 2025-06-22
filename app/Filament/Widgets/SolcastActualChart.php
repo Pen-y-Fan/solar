@@ -10,10 +10,10 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-
 class SolcastActualChart extends ChartWidget
 {
     protected static ?string $heading = 'Solcast actual';
+
     protected static ?string $pollingInterval = '120s';
 
     private const UPDATE_FREQUENCY_HOURS = 6;
@@ -24,6 +24,7 @@ class SolcastActualChart extends ChartWidget
 
         if ($rawData->count() === 0) {
             self::$heading = 'No data for Solis actual';
+
             return [];
         }
         $lastRecord = $rawData->last();
@@ -81,7 +82,7 @@ class SolcastActualChart extends ChartWidget
     private function updateSolcast(): void
     {
         try {
-            (new ActualForecastAction())->run();
+            (new ActualForecastAction)->run();
         } catch (Throwable $th) {
             Log::error('Error running actual forecast import action', ['error message' => $th->getMessage()]);
         }

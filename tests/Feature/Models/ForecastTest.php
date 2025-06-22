@@ -33,7 +33,7 @@ class ForecastTest extends TestCase
     {
         $estimate = fake()->randomFloat(4);
         $data = [
-            "period_end" => now('UTC')->parse("2024-06-15T09:00:00.0000000Z"),
+            'period_end' => now('UTC')->parse('2024-06-15T09:00:00.0000000Z'),
             'pv_estimate' => $estimate,
             'pv_estimate10' => $estimate * 0.5,
             'pv_estimate90' => $estimate * 1.2,
@@ -77,7 +77,6 @@ class ForecastTest extends TestCase
             'pv_estimate10' => $estimate * 0.5,
             'pv_estimate90' => $estimate * 1.2,
         ];
-
 
         $forecast = Forecast::create($data);
 

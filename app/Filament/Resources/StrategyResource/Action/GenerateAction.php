@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\StrategyResource\Action;
 
 use App\Actions\GenerateStrategyAction;
+use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
-use Filament\Actions\Concerns\CanCustomizeProcess;
 use Illuminate\Support\Facades\Log;
 
 class GenerateAction extends Action
@@ -42,8 +42,8 @@ class GenerateAction extends Action
                     return;
                 }
 
-                Log::debug('Generating strategy for: ' . $periodValue);
-                $action = new GenerateStrategyAction();
+                Log::debug('Generating strategy for: '.$periodValue);
+                $action = new GenerateStrategyAction;
                 $action->filter = $periodValue;
                 $this->result = $action->run();
             });

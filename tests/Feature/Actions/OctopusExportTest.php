@@ -27,11 +27,11 @@ class OctopusExportTest extends TestCase
                         'interval_end' => $end->toISOString(),
                     ],
                 ],
-            ], 200)
+            ], 200),
         ]);
 
         Log::shouldReceive('info')->atLeast()->once();
-        $octopusExport = new OctopusExport();
+        $octopusExport = new OctopusExport;
 
         // Act
         $octopusExport->run();

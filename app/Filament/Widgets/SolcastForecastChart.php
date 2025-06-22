@@ -13,6 +13,7 @@ use Throwable;
 class SolcastForecastChart extends ChartWidget
 {
     protected static ?string $heading = 'Solcast forecast';
+
     protected static ?string $pollingInterval = '120s';
 
     private const UPDATE_FREQUENCY_DAY_HOURS = 2;
@@ -25,6 +26,7 @@ class SolcastForecastChart extends ChartWidget
 
         if ($rawData->count() === 0) {
             self::$heading = 'No data for Solis forecast';
+
             return [];
         }
 
@@ -44,24 +46,24 @@ class SolcastForecastChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Forecast (10%)',
-                    'data' => $rawData->map(fn($item): string => $item['pv_estimate10']),
-                    'fill' => "+1",
+                    'data' => $rawData->map(fn ($item): string => $item['pv_estimate10']),
+                    'fill' => '+1',
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
-                    'borderColor' => 'rgb(75, 192, 192)'
+                    'borderColor' => 'rgb(75, 192, 192)',
                 ],
                 [
                     'label' => 'Forecast',
-                    'data' => $rawData->map(fn($item): string => $item['pv_estimate']),
-                    'fill' => "+1",
+                    'data' => $rawData->map(fn ($item): string => $item['pv_estimate']),
+                    'fill' => '+1',
                     'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
-                    'borderColor' => 'rgb(255, 99, 132)'
+                    'borderColor' => 'rgb(255, 99, 132)',
                 ],
                 [
                     'label' => 'Forecast (90%)',
-                    'data' => $rawData->map(fn($item): string => $item['pv_estimate90']),
+                    'data' => $rawData->map(fn ($item): string => $item['pv_estimate90']),
                 ],
             ],
-            'labels' => $rawData->map(fn($item): string => Carbon::parse($item['period_end'], 'UTC')
+            'labels' => $rawData->map(fn ($item): string => Carbon::parse($item['period_end'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('H:i')),
         ];
@@ -119,7 +121,7 @@ class SolcastForecastChart extends ChartWidget
     private function updateSolcast(): void
     {
         try {
-            (new ForecastAction())->run();
+            (new ForecastAction)->run();
         } catch (Throwable $th) {
             Log::error('Error running forecast import action', ['error message' => $th->getMessage()]);
         }

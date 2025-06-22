@@ -26,6 +26,7 @@ class OctopusChart extends ChartWidget
 
         if ($rawData->count() === 0) {
             self::$heading = 'No electric export data';
+
             return [];
         }
 
@@ -43,7 +44,7 @@ class OctopusChart extends ChartWidget
                 [
                     'label' => 'Export',
                     'type' => 'bar',
-                    'data' => $rawData->map(fn($item) => -$item['export_consumption']),
+                    'data' => $rawData->map(fn ($item) => -$item['export_consumption']),
                     'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
                     'borderColor' => 'rgb(54, 162, 235)',
                     'yAxisID' => 'y',
@@ -51,13 +52,13 @@ class OctopusChart extends ChartWidget
                 [
                     'label' => 'Export accumulative cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => -$item['export_accumulative_cost']),
+                    'data' => $rawData->map(fn ($item) => -$item['export_accumulative_cost']),
                     'borderColor' => 'rgb(75, 192, 192)',
                     'yAxisID' => 'y1',
                 ],
                 [
                     'label' => 'Import',
-                    'data' => $rawData->map(fn($item) => $item['import_consumption']),
+                    'data' => $rawData->map(fn ($item) => $item['import_consumption']),
                     'backgroundColor' => 'rgba(255, 159, 64, 0.2)',
                     'borderColor' => 'rgb(255, 159, 64)',
                     'yAxisID' => 'y',
@@ -65,19 +66,19 @@ class OctopusChart extends ChartWidget
                 [
                     'label' => 'Import accumulative cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => -$item['import_accumulative_cost']),
+                    'data' => $rawData->map(fn ($item) => -$item['import_accumulative_cost']),
                     'borderColor' => 'rgb(255, 99, 132)',
                     'yAxisID' => 'y1',
                 ],
                 [
                     'label' => 'Net accumulative cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => -$item['net_accumulative_cost']),
+                    'data' => $rawData->map(fn ($item) => -$item['net_accumulative_cost']),
                     'borderColor' => 'rgb(54, 162, 235)',
                     'yAxisID' => 'y1',
                 ],
             ],
-            'labels' => $rawData->map(fn($item) => Carbon::parse($item['interval_start'], 'UTC')
+            'labels' => $rawData->map(fn ($item) => Carbon::parse($item['interval_start'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('H:i')),
         ];
@@ -111,7 +112,7 @@ class OctopusChart extends ChartWidget
         $limit = 48;
 
         $data = OctopusExport::query()
-            ->with(['importCost','exportCost', 'octopusImport'])
+            ->with(['importCost', 'exportCost', 'octopusImport'])
             ->where(
                 'interval_start', '>=',
                 $start
@@ -152,7 +153,7 @@ class OctopusChart extends ChartWidget
                 'import_cost' => $importCost,
                 'export_accumulative_cost' => $exportAccumulativeCost,
                 'import_accumulative_cost' => $importAccumulativeCost,
-                'net_accumulative_cost' => $exportAccumulativeCost+$importAccumulativeCost,
+                'net_accumulative_cost' => $exportAccumulativeCost + $importAccumulativeCost,
             ];
 
         }
@@ -178,8 +179,8 @@ class OctopusChart extends ChartWidget
                     'grid' => [
                         'drawOnChartArea' => false, // only want the grid lines for one axis to show up
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
     }
 }

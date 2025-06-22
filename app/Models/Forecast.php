@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * 
- *
  * @property int $id
  * @property \Carbon\CarbonImmutable|null $period_end
  * @property float|null $pv_estimate
@@ -19,6 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read \App\Models\AgileExport|null $exportCost
  * @property-read \App\Models\AgileImport|null $importCost
  * @property-read \App\Models\Strategy|null $strategy
+ *
  * @method static \Illuminate\Database\Eloquent\Builder|Forecast newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Forecast newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Forecast query()
@@ -29,6 +28,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static \Illuminate\Database\Eloquent\Builder|Forecast wherePvEstimate10($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Forecast wherePvEstimate90($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Forecast whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class Forecast extends Model

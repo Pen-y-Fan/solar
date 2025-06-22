@@ -31,14 +31,14 @@ class AgileExportTest extends TestCase
         $this->assertSame($data['value_inc_vat'], $agileExport->value_inc_vat);
     }
 
-    public function test_a_agileExport_can_be_created_with_utc_iso_8601_date_string(): void
+    public function test_an_agile_export_can_be_created_with_utc_iso_8601_date_string(): void
     {
         $valueIncVat = fake()->randomFloat(4);
         $valueExcVat = fake()->randomFloat(4);
 
         $data = [
-            "valid_from" => now('UTC')->parse("2024-06-15T09:00:00.0000000Z")->toDateTimeString(),
-            "valid_to" => now('UTC')->parse("2024-06-15T09:00:30.0000000Z")->toDateTimeString(),
+            'valid_from' => now('UTC')->parse('2024-06-15T09:00:00.0000000Z')->toDateTimeString(),
+            'valid_to' => now('UTC')->parse('2024-06-15T09:00:30.0000000Z')->toDateTimeString(),
             'value_exc_vat' => $valueIncVat,
             'value_inc_vat' => $valueExcVat,
         ];

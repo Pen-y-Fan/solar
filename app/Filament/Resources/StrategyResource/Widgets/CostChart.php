@@ -17,6 +17,7 @@ class CostChart extends ChartWidget
     protected static ?string $maxHeight = '400px';
 
     protected static ?string $heading = 'Agile forecast cost';
+
     protected static ?string $pollingInterval = '120s';
 
     public float $minValue = 0.0;
@@ -27,6 +28,7 @@ class CostChart extends ChartWidget
 
         if ($data->count() === 0) {
             self::$heading = 'No forecast data';
+
             return [];
         }
 
@@ -46,7 +48,7 @@ class CostChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Export value',
-                    'data' => $data->map(fn($item): string => $item['export_value_inc_vat']),
+                    'data' => $data->map(fn ($item): string => $item['export_value_inc_vat']),
                     'fill' => true,
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
                     'borderColor' => 'rgb(75, 192, 192)',
@@ -54,7 +56,7 @@ class CostChart extends ChartWidget
                 ],
                 [
                     'label' => 'Import value',
-                    'data' => $data->map(fn($item): string => $item['import_value_inc_vat']),
+                    'data' => $data->map(fn ($item): string => $item['import_value_inc_vat']),
                     'fill' => '-1',
                     'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
                     'borderColor' => 'rgb(255, 99, 132)',
@@ -62,7 +64,7 @@ class CostChart extends ChartWidget
                 ],
                 [
                     'label' => sprintf('Average export value (%0.02f)', $averageExport),
-                    'data' => $data->map(fn($item): string => number_format($averageExport, 2)),
+                    'data' => $data->map(fn ($item): string => number_format($averageExport, 2)),
                     'type' => 'line',
                     'borderDash' => [5, 10],
                     'pointRadius' => 0,
@@ -71,12 +73,12 @@ class CostChart extends ChartWidget
 
                 [
                     'label' => sprintf('Average import value (%0.02f)', $averageImport),
-                    'data' => $data->map(fn($item): string => number_format($averageImport, 2)),
+                    'data' => $data->map(fn ($item): string => number_format($averageImport, 2)),
                     'borderDash' => [5, 10],
                     'type' => 'line',
                     'pointRadius' => 0,
                     'borderColor' => 'rgb(255, 99, 132)',
-                ]
+                ],
             ],
             'labels' => $data->map(function ($item): string {
                 $date = Carbon::parse($item['valid_from'], 'UTC')
@@ -97,7 +99,7 @@ class CostChart extends ChartWidget
     private function getDatabaseData(): Collection
     {
         $strategies = $this->getPageTableRecords();
-        $collection = new Collection();
+        $collection = new Collection;
 
         foreach ($strategies as $strategy) {
             $collection[] = [
@@ -124,8 +126,8 @@ class CostChart extends ChartWidget
                 'y' => [
                     'type' => 'linear',
                     'min' => $this->minValue,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 

@@ -29,10 +29,10 @@ class InverterTest extends TestCase
         Log::shouldReceive('info')->atLeast()->once();
 
         // Act
-        $this->artisan((new Inverter())->getName())
+        $this->artisan((new Inverter)->getName())
             ->expectsOutputToContain('Finding inverter data.')
             ->expectsOutputToContain('File processed and moved to:')
-            ->expectsOutputToContain('uploads/processed/' . self::FILE_NAME)
+            ->expectsOutputToContain('uploads/processed/'.self::FILE_NAME)
             ->expectsOutputToContain('Successfully imported inverter data!')
             ->assertSuccessful();
 
@@ -40,7 +40,7 @@ class InverterTest extends TestCase
         $this->assertDatabaseCount(InverterModel::class, 4);
 
         $deleted = Storage::delete(
-            "uploads/processed/" . self::FILE_NAME,
+            'uploads/processed/'.self::FILE_NAME,
         );
 
         $this->assertTrue($deleted, 'Failed to delete test fixture file from storage.');
@@ -48,10 +48,10 @@ class InverterTest extends TestCase
 
     public function setupFixture(): void
     {
-        $source = base_path('tests/Fixtures/' . self::FILE_NAME);
+        $source = base_path('tests/Fixtures/'.self::FILE_NAME);
         $this->assertTrue(file_exists($source), 'Fixture file not found at: $source');
 
-        $destination = 'uploads/' . self::FILE_NAME;
+        $destination = 'uploads/'.self::FILE_NAME;
         $copy = Storage::put($destination, file_get_contents($source));
         $this->assertTrue($copy);
     }

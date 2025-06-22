@@ -25,6 +25,7 @@ class OctopusExportChart extends ChartWidget
 
         if ($rawData->count() === 0) {
             self::$heading = 'No electric export data';
+
             return [];
         }
 
@@ -46,7 +47,7 @@ class OctopusExportChart extends ChartWidget
                 [
                     'label' => 'Export',
                     'type' => 'bar',
-                    'data' => $rawData->map(fn($item) => -$item['consumption']),
+                    'data' => $rawData->map(fn ($item) => -$item['consumption']),
                     'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
                     'borderColor' => 'rgb(54, 162, 235)',
                     'yAxisID' => 'y',
@@ -54,13 +55,13 @@ class OctopusExportChart extends ChartWidget
                 [
                     'label' => 'Accumulative cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => -$item['accumulative_cost']),
+                    'data' => $rawData->map(fn ($item) => -$item['accumulative_cost']),
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
                     'borderColor' => 'rgb(75, 192, 192)',
                     'yAxisID' => 'y1',
                 ],
             ],
-            'labels' => $rawData->map(fn($item) => Carbon::parse($item['interval_start'], 'UTC')
+            'labels' => $rawData->map(fn ($item) => Carbon::parse($item['interval_start'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('H:i')),
         ];
@@ -151,8 +152,8 @@ class OctopusExportChart extends ChartWidget
                     'grid' => [
                         'drawOnChartArea' => false, // only want the grid lines for one axis to show up
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
@@ -162,5 +163,4 @@ class OctopusExportChart extends ChartWidget
             ->latest('interval_start')
             ->first();
     }
-
 }

@@ -33,14 +33,14 @@ class InverterChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Consumption',
-                    'data' => $data->map(fn($item): string => $item['consumption']),
+                    'data' => $data->map(fn ($item): string => $item['consumption']),
                     'fill' => true,
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
                     'borderColor' => 'rgb(75, 192, 192)',
                     'stepped' => 'middle',
                 ],
             ],
-            'labels' => $data->map(fn($item): string => Carbon::parse($item['period'], 'UTC')
+            'labels' => $data->map(fn ($item): string => Carbon::parse($item['period'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('H:i')),
         ];
@@ -77,8 +77,8 @@ class InverterChart extends ChartWidget
                 'y' => [
                     'type' => 'linear',
                     'min' => 0,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 }

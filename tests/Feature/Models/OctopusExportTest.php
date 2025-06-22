@@ -4,7 +4,6 @@ namespace Tests\Feature\Models;
 
 use App\Models\OctopusExport;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class OctopusExportTest extends TestCase
@@ -28,12 +27,12 @@ class OctopusExportTest extends TestCase
         $this->assertSame($data['consumption'], $octopusExport->consumption);
     }
 
-    public function test_a_octopusExport_can_be_created_with_utc_iso_8601_date_string(): void
+    public function test_a_octopus_export_can_be_created_with_utc_iso_8601_date_string(): void
     {
         $estimate = fake()->randomFloat(4);
         $data = [
-            "interval_start" => now('UTC')->parse("2024-06-15T09:00:00.0000000Z")->toDateTimeString(),
-            "interval_end" => now('UTC')->parse("2024-06-15T09:00:30.0000000Z")->toDateTimeString(),
+            'interval_start' => now('UTC')->parse('2024-06-15T09:00:00.0000000Z')->toDateTimeString(),
+            'interval_end' => now('UTC')->parse('2024-06-15T09:00:30.0000000Z')->toDateTimeString(),
             'consumption' => $estimate,
         ];
         $octopusExport = OctopusExport::create($data);
@@ -75,7 +74,6 @@ class OctopusExportTest extends TestCase
             'interval_end' => now()->addHours(2)->startOfHour()->addMinutes(30),
             'consumption' => $estimate,
         ];
-
 
         $octopusExport = OctopusExport::create($data);
 

@@ -31,12 +31,12 @@ class AgileExportTest extends TestCase
                         'valid_to' => $end->toISOString(),
                     ],
                 ],
-            ], 200)
+            ], 200),
         ]);
 
         Log::shouldReceive('info')->atLeast()->once();
 
-        $agileExport = new AgileExport();
+        $agileExport = new AgileExport;
 
         // Act
         $agileExport->run();

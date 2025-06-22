@@ -26,6 +26,7 @@ class OctopusImportChart extends ChartWidget
 
         if ($rawData->count() === 0) {
             self::$heading = 'No electric usage data';
+
             return [];
         }
 
@@ -43,7 +44,7 @@ class OctopusImportChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Usage',
-                    'data' => $rawData->map(fn($item) => $item['consumption']),
+                    'data' => $rawData->map(fn ($item) => $item['consumption']),
                     'backgroundColor' => 'rgba(255, 159, 64, 0.2)',
                     'borderColor' => 'rgb(255, 159, 64)',
                     'yAxisID' => 'y',
@@ -51,12 +52,12 @@ class OctopusImportChart extends ChartWidget
                 [
                     'label' => 'Accumulative cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => $item['accumulative_cost']),
+                    'data' => $rawData->map(fn ($item) => $item['accumulative_cost']),
                     'borderColor' => 'rgb(255, 99, 132)',
                     'yAxisID' => 'y1',
                 ],
             ],
-            'labels' => $rawData->map(fn($item) => Carbon::parse($item['interval_start'], 'UTC')
+            'labels' => $rawData->map(fn ($item) => Carbon::parse($item['interval_start'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('H:i')),
         ];
@@ -148,8 +149,8 @@ class OctopusImportChart extends ChartWidget
                     'grid' => [
                         'drawOnChartArea' => false, // only want the grid lines for one axis to show up
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
