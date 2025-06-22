@@ -1,0 +1,96 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Access to an undefined property App\\\\Models\\\\Inverter\\:\\:\\$time\\.$#"
+			count: 1
+			path: app/Actions/GenerateStrategyAction.php
+
+		-
+			message: "#^Access to an undefined property App\\\\Models\\\\Inverter\\:\\:\\$value\\.$#"
+			count: 1
+			path: app/Actions/GenerateStrategyAction.php
+
+		-
+			message: "#^Call to an undefined method Illuminate\\\\Support\\\\Carbon\\:\\:subdays\\(\\)\\.$#"
+			count: 1
+			path: app/Actions/GenerateStrategyAction.php
+
+		-
+			message: "#^Parameter \\#1 \\$callback of method Illuminate\\\\Support\\\\Collection\\<int,Illuminate\\\\Database\\\\Eloquent\\\\Model\\>\\:\\:each\\(\\) expects callable\\(Illuminate\\\\Database\\\\Eloquent\\\\Model, int\\)\\: mixed, Closure\\(App\\\\Models\\\\Strategy\\)\\: void given\\.$#"
+			count: 1
+			path: app/Filament/Resources/StrategyResource/Action/CalculateBatteryAction.php
+
+		-
+			message: "#^Parameter \\#1 \\$callback of method Illuminate\\\\Database\\\\Eloquent\\\\Collection\\<int,Illuminate\\\\Database\\\\Eloquent\\\\Model\\>\\:\\:map\\(\\) expects callable\\(Illuminate\\\\Database\\\\Eloquent\\\\Model, int\\)\\: int, Closure\\(App\\\\Models\\\\Strategy\\)\\: int given\\.$#"
+			count: 1
+			path: app/Filament/Resources/StrategyResource/Action/CopyConsumptionWeekAgoAction.php
+
+		-
+			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$period\\.$#"
+			count: 1
+			path: app/Filament/Resources/StrategyResource/Widgets/CostChart.php
+
+		-
+			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$battery_charge_amount\\.$#"
+			count: 1
+			path: app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php
+
+		-
+			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$battery_percentage_manual\\.$#"
+			count: 1
+			path: app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php
+
+		-
+			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$export_amount\\.$#"
+			count: 1
+			path: app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php
+
+		-
+			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$export_value_inc_vat\\.$#"
+			count: 1
+			path: app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php
+
+		-
+			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$import_amount\\.$#"
+			count: 1
+			path: app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php
+
+		-
+			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$import_value_inc_vat\\.$#"
+			count: 1
+			path: app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php
+
+		-
+			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$period\\.$#"
+			count: 1
+			path: app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php
+
+		-
+			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$strategy_manual\\.$#"
+			count: 1
+			path: app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php
+
+		-
+			message: "#^Call to an undefined method Illuminate\\\\Support\\\\Carbon\\:\\:subdays\\(\\)\\.$#"
+			count: 1
+			path: app/Filament/Widgets/ForecastChart.php
+
+		-
+			message: "#^Property App\\\\Models\\\\ActualForecast\\:\\:\\$period_end \\(Carbon\\\\CarbonImmutable\\|null\\) does not accept Illuminate\\\\Support\\\\Carbon\\.$#"
+			count: 1
+			path: tests/Feature/Console/Commands/ForecastTest.php
+
+		-
+			message: "#^Property App\\\\Models\\\\Forecast\\:\\:\\$period_end \\(Carbon\\\\CarbonImmutable\\|null\\) does not accept Illuminate\\\\Support\\\\Carbon\\.$#"
+			count: 1
+			path: tests/Feature/Console/Commands/ForecastTest.php
+
+		-
+			message: "#^Access to an undefined property App\\\\Models\\\\ActualForecast\\:\\:\\$pv_estimate10\\.$#"
+			count: 2
+			path: tests/Feature/Models/StrategyTest.php
+
+		-
+			message: "#^Access to an undefined property App\\\\Models\\\\ActualForecast\\:\\:\\$pv_estimate90\\.$#"
+			count: 2
+			path: tests/Feature/Models/StrategyTest.php

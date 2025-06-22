@@ -19,7 +19,8 @@ class InverterChart extends ChartWidget
     {
         $data = $this->getDatabaseData();
 
-        self::$heading = sprintf('Consumption from %s to %s was %0.2f kWh',
+        self::$heading = sprintf(
+            'Consumption from %s to %s was %0.2f kWh',
             Carbon::parse($data->first()['period'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
@@ -33,20 +34,20 @@ class InverterChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Consumption',
-                    'data' => $data->map(fn($item): string => $item['consumption']),
+                    'data' => $data->map(fn ($item): string => $item['consumption']),
                     'fill' => true,
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
                     'borderColor' => 'rgb(75, 192, 192)',
                     'stepped' => 'middle',
                 ],
             ],
-            'labels' => $data->map(fn($item): string => Carbon::parse($item['period'], 'UTC')
+            'labels' => $data->map(fn ($item): string => Carbon::parse($item['period'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('H:i')),
         ];
     }
 
-    private function getDatabaseData(): Collection|array
+    private function getDatabaseData(): Collection
     {
         $lastExport = Inverter::query()
             ->latest('period')
@@ -54,7 +55,8 @@ class InverterChart extends ChartWidget
 
         return Inverter::query()
             ->where(
-                'period', '>=',
+                'period',
+                '>=',
                 // possibly use a sub query to get the last interval and sub 1 day
                 $lastExport->period->timezone('Europe/London')->subDay()
                     ->startOfDay()->timezone('UTC')
@@ -62,7 +64,6 @@ class InverterChart extends ChartWidget
             ->orderBy('period')
             ->limit(48)
             ->get();
-
     }
 
     protected function getType(): string
@@ -77,8 +78,8 @@ class InverterChart extends ChartWidget
                 'y' => [
                     'type' => 'linear',
                     'min' => 0,
-                ]
-            ]
+                ],
+            ],
         ];
     }
 }

@@ -10,7 +10,7 @@ class ActualForecastTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_an_actual_forecast_can_be_created(): void
+    public function testAnActualForecastCanBeCreated(): void
     {
         $data = [
             'period_end' => now()->addHours(2)->startOfHour(),
@@ -24,21 +24,24 @@ class ActualForecastTest extends TestCase
         $this->assertSame($data['pv_estimate'], $actualForecast->pv_estimate);
     }
 
-    public function test_an_actual_forecast_can_be_created_with_utc_iso_8601_date_string(): void
+    public function testAnActualForecastCanBeCreatedWithUtcIso8601DateString(): void
     {
         $data = [
-            "period_end" => now('UTC')->parse("2024-06-15T09:00:00.0000000Z"),
-            "pv_estimate" => 1.3873,
+            'period_end' => now('UTC')->parse('2024-06-15T09:00:00.0000000Z'),
+            'pv_estimate' => 1.3873,
         ];
         $actualForecast = ActualForecast::create($data);
 
         $this->assertInstanceOf(ActualForecast::class, $actualForecast);
         $this->assertDatabaseCount(ActualForecast::class, 1);
-        $this->assertSame(now()->parse($data['period_end'])->toDateTimeString(), $actualForecast->period_end->toDateTimeString());
+        $this->assertSame(
+            now()->parse($data['period_end'])->toDateTimeString(),
+            $actualForecast->period_end->toDateTimeString()
+        );
         $this->assertSame($data['pv_estimate'], $actualForecast->pv_estimate);
     }
 
-    public function test_an_actual_forecast_can_not_be_created_for_the_same_period(): void
+    public function testAnActualForecastCanNotBeCreatedForTheSamePeriod(): void
     {
         $this->expectException(\Illuminate\Database\UniqueConstraintViolationException::class);
         $data = [
@@ -55,11 +58,9 @@ class ActualForecastTest extends TestCase
         ];
 
         ActualForecast::create($newData);
-
-
     }
 
-    public function test_an_actual_forecast_can_be_upserted_for_the_same_period(): void
+    public function testAnActualForecastCanBeUpsertedForTheSamePeriod(): void
     {
         $data = [
             'period_end' => now()->addHours(2)->startOfHour(),

@@ -12,6 +12,7 @@ class ElectricImportExportChart extends ChartWidget
 {
     #[Reactive]
     public ?array $tableFilters = null;
+
     protected int|string|array $columnSpan = 2;
 
     protected static ?string $maxHeight = '400px';
@@ -24,15 +25,17 @@ class ElectricImportExportChart extends ChartWidget
 
     protected function getData(): array
     {
-//        dd($this->tableFilters);
+        //        dd($this->tableFilters);
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
             self::$heading = 'No electric export data';
+
             return [];
         }
 
-        self::$heading = sprintf('Actual electric export and import from %s to %s cost £%0.2f',
+        self::$heading = sprintf(
+            'Actual electric export and import from %s to %s cost £%0.2f',
             Carbon::parse($rawData->first()['interval_start'], 'London/Europe')
                 ->timezone('UTC')
                 ->format('D jS M Y H:i'),
@@ -47,7 +50,7 @@ class ElectricImportExportChart extends ChartWidget
                 [
                     'label' => 'Export',
                     'type' => 'bar',
-                    'data' => $rawData->map(fn($item) => -$item['export_consumption']),
+                    'data' => $rawData->map(fn ($item) => -$item['export_consumption']),
                     'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
                     'borderColor' => 'rgb(54, 162, 235)',
                     'yAxisID' => 'y',
@@ -55,13 +58,13 @@ class ElectricImportExportChart extends ChartWidget
                 [
                     'label' => 'Export accumulative cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => -$item['export_accumulative_cost']),
+                    'data' => $rawData->map(fn ($item) => -$item['export_accumulative_cost']),
                     'borderColor' => 'rgb(75, 192, 192)',
                     'yAxisID' => 'y1',
                 ],
                 [
                     'label' => 'Import',
-                    'data' => $rawData->map(fn($item) => $item['import_consumption']),
+                    'data' => $rawData->map(fn ($item) => $item['import_consumption']),
                     'backgroundColor' => 'rgba(255, 159, 64, 0.2)',
                     'borderColor' => 'rgb(255, 159, 64)',
                     'yAxisID' => 'y',
@@ -69,26 +72,26 @@ class ElectricImportExportChart extends ChartWidget
                 [
                     'label' => 'Import accumulative cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => -$item['import_accumulative_cost']),
+                    'data' => $rawData->map(fn ($item) => -$item['import_accumulative_cost']),
                     'borderColor' => 'rgb(255, 99, 132)',
                     'yAxisID' => 'y1',
                 ],
                 [
                     'label' => 'Net accumulative cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => -$item['net_accumulative_cost']),
+                    'data' => $rawData->map(fn ($item) => -$item['net_accumulative_cost']),
                     'borderColor' => 'rgb(54, 162, 235)',
                     'yAxisID' => 'y1',
                 ],
                 [
                     'label' => 'Battery (%)',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => $item['battery_percent']),
+                    'data' => $rawData->map(fn ($item) => $item['battery_percent']),
                     'borderColor' => 'rgb(255, 159, 64)',
                     'yAxisID' => 'y2',
                 ],
             ],
-            'labels' => $rawData->map(fn($item) => Carbon::parse($item['interval_start'], 'UTC')
+            'labels' => $rawData->map(fn ($item) => Carbon::parse($item['interval_start'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('H:i')),
         ];
@@ -107,9 +110,10 @@ class ElectricImportExportChart extends ChartWidget
         $limit = 48;
 
         $data = OctopusExport::query()
-            ->with(['importCost','exportCost', 'octopusImport', 'inverter'])
+            ->with(['importCost', 'exportCost', 'octopusImport', 'inverter'])
             ->where(
-                'interval_start', '>=',
+                'interval_start',
+                '>=',
                 $start
             )
             ->where(
@@ -149,10 +153,9 @@ class ElectricImportExportChart extends ChartWidget
                 'import_cost' => $importCost,
                 'export_accumulative_cost' => $exportAccumulativeCost,
                 'import_accumulative_cost' => $importAccumulativeCost,
-                'net_accumulative_cost' => $exportAccumulativeCost+$importAccumulativeCost,
+                'net_accumulative_cost' => $exportAccumulativeCost + $importAccumulativeCost,
                 'battery_percent' => $battery,
             ];
-
         }
 
         return collect($result);
@@ -186,8 +189,8 @@ class ElectricImportExportChart extends ChartWidget
                     'grid' => [
                         'drawOnChartArea' => false, // only want the grid lines for one axis to show up
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
     }
 }

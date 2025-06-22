@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * 
- *
  * @property int $id
  * @property \Carbon\CarbonImmutable|null $period
  * @property float|null $yield
@@ -17,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $battery_soc
+ *
  * @method static \Illuminate\Database\Eloquent\Builder|Inverter newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Inverter newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Inverter query()
@@ -29,6 +28,7 @@ use Illuminate\Database\Eloquent\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Inverter whereToGrid($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Inverter whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Inverter whereYield($value)
+ *
  * @mixin \Eloquent
  */
 class Inverter extends Model

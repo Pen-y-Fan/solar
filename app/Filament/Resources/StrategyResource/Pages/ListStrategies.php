@@ -37,7 +37,7 @@ class ListStrategies extends ListRecords
             StrategyChart::class,
         ];
 
-        if (!($date === now()->format('Y-m-d') || $date === now()->addDay()->format('Y-m-d'))) {
+        if (! ($date === now()->format('Y-m-d') || $date === now()->addDay()->format('Y-m-d'))) {
             $widgets[] = ElectricImportExportChart::class;
         }
 

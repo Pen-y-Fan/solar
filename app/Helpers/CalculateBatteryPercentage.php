@@ -5,11 +5,17 @@ namespace App\Helpers;
 class CalculateBatteryPercentage
 {
     private const BATTERY_MIN = 0.4;
+
     private const BATTERY_MAX = 4.0;
+
     private const BATTERY_MAX_CHARGE_PER_HALF_HOUR = 1.0;
+
     private bool $charging = false;
+
     private float $consumption = 0.0;
+
     private int $batteryPercentage = 10;
+
     private float $estimatePV = 0.0;
 
     public function calculate(): array
@@ -67,7 +73,6 @@ class CalculateBatteryPercentage
             }
         }
 
-
         $this->batteryPercentage = $this->convertFromKhhToBatteryPercentage($battery);
 
         return [$this->batteryPercentage, $charge, $import, $export];
@@ -80,30 +85,34 @@ class CalculateBatteryPercentage
 
     private function convertFromKhhToBatteryPercentage(float $battery): int
     {
-        return $battery * 100 / self::BATTERY_MAX;
+        return (int) ($battery * 100 / self::BATTERY_MAX);
     }
 
     public function consumption(float $consumption): CalculateBatteryPercentage
     {
         $this->consumption = $consumption;
+
         return $this;
     }
 
     public function startBatteryPercentage(int $batteryPercentage): CalculateBatteryPercentage
     {
         $this->batteryPercentage = $batteryPercentage;
+
         return $this;
     }
 
     public function isCharging(bool $charging): CalculateBatteryPercentage
     {
         $this->charging = $charging;
+
         return $this;
     }
 
     public function estimatePVkWh(float $estimatePV): CalculateBatteryPercentage
     {
         $this->estimatePV = $estimatePV;
+
         return $this;
     }
 }

@@ -36,16 +36,16 @@ class ForecastChartWidget extends ChartWidget
                 [
                     'label' => 'Forecast (10%)',
                     'data' => $pvEstimate10s,
-                    'fill' => "+1",
+                    'fill' => '+1',
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
-                    'borderColor' => 'rgb(75, 192, 192)'
+                    'borderColor' => 'rgb(75, 192, 192)',
                 ],
                 [
                     'label' => 'Forecast',
                     'data' => $pvEstimates,
-                    'fill' => "+1",
+                    'fill' => '+1',
                     'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
-                    'borderColor' => 'rgb(255, 99, 132)'
+                    'borderColor' => 'rgb(255, 99, 132)',
                 ],
                 [
                     'label' => 'Forecast (90%)',

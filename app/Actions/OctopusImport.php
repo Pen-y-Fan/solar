@@ -24,7 +24,8 @@ class OctopusImport
             ->first('interval_start')
             ?->interval_start ?? now()->subDays(2);
 
-        throw_if($lastImportStart >= now()->subDay(),
+        throw_if(
+            $lastImportStart >= now()->subDay(),
             sprintf(
                 'Last updated in the day, try again in %s',
                 $lastImportStart->addDay()->diffForHumans()
@@ -63,25 +64,28 @@ class OctopusImport
             $response = Http::withBasicAuth($api, '')->get($url);
         } catch (ConnectionException $e) {
             Log::error('There was a connection error trying to get Octopus import data:' . $e->getMessage());
-            throw new \RuntimeException('There was a connection error trying to get Octopus import data:' . $e->getMessage());
+            throw new \RuntimeException('There was a connection error trying to get Octopus import data:'
+                . $e->getMessage());
         }
 
         $data = $response->json();
-        Log::info('Octopus import action',
+        Log::info(
+            'Octopus import action',
             [
                 'successful' => $response->successful(),
-                'json' => $data
-            ]);
+                'json' => $data,
+            ]
+        );
 
-        throw_if($response->failed(), "Unsuccessful Octopus import, check the log file for more details.");
+        throw_if($response->failed(), 'Unsuccessful Octopus import, check the log file for more details.');
 
         return collect($data['results'])
             ->map(function ($item) {
                 return [
                     // "consumption":0.001,"interval_start":"2024-06-15T00:00:00+01:00","interval_end":"2024-06-15T00:30:00+01:00"
-                    "consumption" => $item['consumption'],
-                    "interval_start" => Carbon::parse($item['interval_start'])->timezone('UTC')->toDateTimeString(),
-                    "interval_end" => Carbon::parse($item['interval_end'])->timezone('UTC')->toDateTimeString(),
+                    'consumption' => $item['consumption'],
+                    'interval_start' => Carbon::parse($item['interval_start'])->timezone('UTC')->toDateTimeString(),
+                    'interval_end' => Carbon::parse($item['interval_end'])->timezone('UTC')->toDateTimeString(),
                 ];
             })->toArray();
     }

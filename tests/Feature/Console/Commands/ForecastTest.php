@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Console\Commands;
 
-use App\Models\ActualForecast;
 use App\Console\Commands\Forecast as ForecastCommand;
+use App\Models\ActualForecast;
 use App\Models\Forecast;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -14,7 +14,7 @@ class ForecastTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_forecast_console_command(): void
+    public function testForecastConsoleCommand(): void
     {
         // Arrange
         Http::fake([
@@ -57,7 +57,7 @@ class ForecastTest extends TestCase
         $actualForecast->save();
 
         // Act & Assert
-        $this->artisan((new ForecastCommand)->getName())
+        $this->artisan((new ForecastCommand())->getName())
             ->expectsOutputToContain('Forecast has been fetched!')
             ->expectsOutputToContain('Actual forecast has been fetched!')
             ->assertSuccessful();
@@ -71,7 +71,5 @@ class ForecastTest extends TestCase
         $this->assertDatabaseHas('actual_forecasts', [
             'pv_estimate' => 0.9,
         ]);
-
-
     }
 }

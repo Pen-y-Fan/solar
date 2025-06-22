@@ -26,24 +26,26 @@ class OctopusImportChart extends ChartWidget
 
         if ($rawData->count() === 0) {
             self::$heading = 'No electric usage data';
+
             return [];
         }
 
-        self::$heading = sprintf('Electric import from %s to %s (£%.2f)',
+        self::$heading = sprintf(
+            'Electric import from %s to %s (£%.2f)',
             $rawData->first()['interval_start']
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
             $rawData->last()['interval_end']
                 ->timezone('Europe/London')
                 ->format('jS M H:i'),
-            -$rawData->last()['accumulative_cost'] ?? 0
+            -$rawData->last()['accumulative_cost']
         );
 
         return [
             'datasets' => [
                 [
                     'label' => 'Usage',
-                    'data' => $rawData->map(fn($item) => $item['consumption']),
+                    'data' => $rawData->map(fn ($item) => $item['consumption']),
                     'backgroundColor' => 'rgba(255, 159, 64, 0.2)',
                     'borderColor' => 'rgb(255, 159, 64)',
                     'yAxisID' => 'y',
@@ -51,12 +53,12 @@ class OctopusImportChart extends ChartWidget
                 [
                     'label' => 'Accumulative cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => $item['accumulative_cost']),
+                    'data' => $rawData->map(fn ($item) => $item['accumulative_cost']),
                     'borderColor' => 'rgb(255, 99, 132)',
                     'yAxisID' => 'y1',
                 ],
             ],
-            'labels' => $rawData->map(fn($item) => Carbon::parse($item['interval_start'], 'UTC')
+            'labels' => $rawData->map(fn ($item) => Carbon::parse($item['interval_start'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('H:i')),
         ];
@@ -89,7 +91,8 @@ class OctopusImportChart extends ChartWidget
         $importData = OctopusImport::query()
             ->with('importCost')
             ->where(
-                'interval_start', '>=',
+                'interval_start',
+                '>=',
                 // possibly use a sub query to get the last interval and sub 1 day
                 $start
             )
@@ -122,12 +125,11 @@ class OctopusImportChart extends ChartWidget
     private function updateOctopusImport(): void
     {
         try {
-            (new OctopusImportAction)->run();
+            (new OctopusImportAction())->run();
             Log::info('Successfully updated octopus import cost data');
         } catch (Throwable $th) {
             Log::error('Error running Octopus import cost action:', ['error message' => $th->getMessage()]);
         }
-
     }
 
     protected function getOptions(): array
@@ -148,12 +150,12 @@ class OctopusImportChart extends ChartWidget
                     'grid' => [
                         'drawOnChartArea' => false, // only want the grid lines for one axis to show up
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
-    private function getLatestImport(): Model|Builder|null
+    private function getLatestImport(): OctopusImport|null
     {
         return OctopusImport::query()
             ->latest('interval_start')

@@ -44,7 +44,7 @@ class GenerateStrategyAction
             ->orderBy('period_end')
             ->whereBetween('period_end', [
                 $startDate,
-                $startDate->copy()->timezone('Europe/London')->endOfDay()->timezone('UTC')
+                $startDate->copy()->timezone('Europe/London')->endOfDay()->timezone('UTC'),
             ])
             ->limit($limit)
             ->orderBy('period_end')
@@ -74,7 +74,7 @@ class GenerateStrategyAction
         $weekAgpConsumptions = Inverter::query()
             ->whereBetween('period', [
                 $startDate->clone()->timezone('Europe/London')->subWeek()->timezone('UTC'),
-                $startDate->clone()->timezone('Europe/London')->subWeek()->endOfDay()->timezone('UTC')
+                $startDate->clone()->timezone('Europe/London')->subWeek()->endOfDay()->timezone('UTC'),
             ])
             ->get();
 
@@ -95,22 +95,21 @@ class GenerateStrategyAction
             }
         });
 
+        $importCosts = [];
 
-            $importCosts = [];
+        $forecastData->each(function ($forecast) use (&$importCosts) {
+            $importCost = $forecast->importCost?->value_inc_vat;
 
-            $forecastData->each(function ($forecast) use (&$importCosts) {
-                $importCost = $forecast->importCost?->value_inc_vat ?? 0;
-
-                if ($importCost > 0) {
-                    $importCosts[] = $importCost;
-                }
-            });
-
-            if (count($importCosts) > 0) {
-                $averageCost = array_sum($importCosts) / count($importCosts);
-
-                $minCost = min($importCosts);
+            if ($importCost !== null) {
+                $importCosts[] = $importCost;
             }
+        });
+
+        if (count($importCosts) > 0) {
+            $averageCost = array_sum($importCosts) / count($importCosts);
+
+            $minCost = min($importCosts);
+        }
 
         // make two calls to generate strategy, one passing in the average, the other passing in weekAgo.
         // Upsert the results to Strategies.
@@ -128,9 +127,9 @@ class GenerateStrategyAction
 
         $strategies = [];
         $firstPassStrategy1->each(function ($item, $key) use (&$strategies) {
-           $strategies[$key]['import_value_inc_vat'] = $item['import_value_inc_vat'];
-           $strategies[$key]['strategy1'] = $item['charging'];
-           $strategies[$key]['consumption_average'] = $item['consumption'];
+            $strategies[$key]['import_value_inc_vat'] = $item['import_value_inc_vat'];
+            $strategies[$key]['strategy1'] = $item['charging'];
+            $strategies[$key]['consumption_average'] = $item['consumption'];
         });
 
         $secondPassStrategy1->each(function ($item, $key) use (&$strategies) {
@@ -139,11 +138,11 @@ class GenerateStrategyAction
 
         $thirdPassStrategy2->each(function ($item, $key) use (&$strategies) {
             $strategies[$key]['strategy2'] = $item['charging'];
-
         });
 
         $forecastData->each(function ($forecast) use (&$strategies) {
-            $strategies[$forecast->period_end->format('Hi')]['export_value_inc_vat'] = $forecast->exportCost?->value_inc_vat ?? 0;
+            $strategies[$forecast->period_end->format('Hi')]['export_value_inc_vat'] =
+                $forecast->exportCost?->value_inc_vat ?? 0;
             $strategies[$forecast->period_end->format('Hi')]['period'] = $forecast->period_end;
         });
 
@@ -163,23 +162,18 @@ class GenerateStrategyAction
         return true;
     }
 
-    /**
-     * @param \Illuminate\Database\Eloquent\Collection|array $forecastData
-     * @param \Illuminate\Database\Eloquent\Collection|array $consumptions
-     * @return \Illuminate\Support\Collection
-     */
     public function getConsumption(
         \Illuminate\Database\Eloquent\Collection|array $forecastData,
         \Illuminate\Database\Eloquent\Collection|array $consumptions,
-    ): \Illuminate\Support\Collection
-    {
+    ): \Illuminate\Support\Collection {
         $battery = self::BATTERY_MIN;
         $result = [];
 
         foreach ($forecastData as $forecast) {
             $importValueIncVat = $forecast->importCost?->value_inc_vat ?? 0;
 
-            Log::info('Charge at: ' . $forecast->period_end->format('H:i:s'). ' import cost ' . $importValueIncVat . ' battery ' . $battery);
+            Log::info('Charge at: ' . $forecast->period_end->format('H:i:s') . ' import cost '
+                . $importValueIncVat . ' battery ' . $battery);
             $consumption = $consumptions->where(
                 'time',
                 $forecast->period_end->format('H:i:s')

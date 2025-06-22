@@ -58,6 +58,7 @@ class ForecastChart extends ChartWidget
 
         if ($rawData->count() === 0) {
             self::$heading = 'No forecast data';
+
             return [];
         }
 
@@ -67,7 +68,8 @@ class ForecastChart extends ChartWidget
             $strategy = '(without charging battery)';
         }
 
-        self::$heading = sprintf('Forecast for %s to %s cost £%0.2f %s',
+        self::$heading = sprintf(
+            'Forecast for %s to %s cost £%0.2f %s',
             $rawData->first()['period_end']
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
@@ -82,7 +84,7 @@ class ForecastChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Acc. grid import',
-                    'data' => $rawData->map(fn($item) => -$item['consumption']),
+                    'data' => $rawData->map(fn ($item) => -$item['consumption']),
                     'backgroundColor' => 'rgba(255, 205, 86, 0.2)',
                     'borderColor' => 'rgb(255, 205, 86)',
                     'yAxisID' => 'y',
@@ -90,30 +92,30 @@ class ForecastChart extends ChartWidget
                 [
                     'label' => 'Cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => $item['cost']),
+                    'data' => $rawData->map(fn ($item) => $item['cost']),
                     'borderColor' => 'rgb(54, 162, 235)',
                     'yAxisID' => 'y2',
                 ],
                 [
                     'label' => 'Acc. Cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => $item['acc_cost']),
+                    'data' => $rawData->map(fn ($item) => $item['acc_cost']),
                     'borderColor' => 'rgb(255, 99, 132)',
                     'yAxisID' => 'y3',
                 ],
                 [
                     'label' => 'Battery (%)',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => $item['battery_percent']),
+                    'data' => $rawData->map(fn ($item) => $item['battery_percent']),
                     'borderColor' => 'rgb(75, 192, 192)',
                     'yAxisID' => 'y1',
                 ],
             ],
-            'labels' => $rawData->map(fn($item) => sprintf(
+            'labels' => $rawData->map(fn ($item) => sprintf(
                 '%s%s',
-                $item['import_value_inc_vat'] < $this->chargeStrategy ? '* ': '',
-                $item['period_end']->timezone('Europe/London')->format('H:i'))
-            )
+                $item['import_value_inc_vat'] < $this->chargeStrategy ? '* ' : '',
+                $item['period_end']->timezone('Europe/London')->format('H:i')
+            )),
         ];
     }
 
@@ -125,12 +127,18 @@ class ForecastChart extends ChartWidget
     private function getDatabaseData(): Collection
     {
         $startDate = match ($this->filter) {
-            'yesterday', 'yesterday10', 'yesterday90', 'yesterday_strategy1', 'yesterday_strategy2'
-            => now('Europe/London')->subDay()->startOfDay()->timezone('UTC'),
-            'today', 'today10', 'today90', 'today_strategy1', 'today_strategy2'
-            => now('Europe/London')->startOfDay()->timezone('UTC'),
-            'tomorrow', 'tomorrow10', 'tomorrow90', 'tomorrow_strategy1', 'tomorrow_strategy2'
-            => now('Europe/London')->addDay()->startOfDay()->timezone('UTC'),
+            'yesterday', 'yesterday10', 'yesterday90', 'yesterday_strategy1', 'yesterday_strategy2' =>
+            now('Europe/London')
+                ->subDay()
+                ->startOfDay()
+                ->timezone('UTC'),
+            'tomorrow', 'tomorrow10', 'tomorrow90', 'tomorrow_strategy1', 'tomorrow_strategy2' => now('Europe/London')
+                ->addDay()
+                ->startOfDay()
+                ->timezone('UTC'),
+            default => now('Europe/London')
+                ->startOfDay()
+                ->timezone('UTC'),
         };
 
         $this->charge = str_contains($this->filter, '_strategy');
@@ -142,7 +150,7 @@ class ForecastChart extends ChartWidget
             ->orderBy('period_end')
             ->whereBetween('period_end', [
                 $startDate,
-                $startDate->copy()->timezone('Europe/London')->endOfDay()->timezone('UTC')
+                $startDate->copy()->timezone('Europe/London')->endOfDay()->timezone('UTC'),
             ])
             ->limit($limit)
             ->orderBy('period_end')
@@ -177,10 +185,10 @@ class ForecastChart extends ChartWidget
         if ($this->charge) {
             $importCosts = [];
 
-            $forecastData->each(function ($forecast) use (&$accumulativeConsumption, &$importCosts) {
-                $importCost = $forecast->importCost?->value_inc_vat ?? 0;
+            $forecastData->each(function ($forecast) use (&$importCosts) {
+                $importCost = $forecast->importCost?->value_inc_vat;
 
-                if ($importCost > 0) {
+                if ($importCost !== null) {
                     $importCosts[] = $importCost;
                 }
             });
@@ -205,16 +213,15 @@ class ForecastChart extends ChartWidget
             $averageConsumption = $averageConsumptions->where(
                 'time',
                 $forecast->period_end->format('H:i:s')
-            )->first() ?? 0;
+            )->first()?->value ?? 0;
 
             $estimatePV = match ($this->filter) {
-                'yesterday', 'today', 'tomorrow', 'yesterday_strategy1', 'today_strategy1', 'tomorrow_strategy1',
-                'yesterday_strategy2', 'today_strategy2', 'tomorrow_strategy2' => $forecast->pv_estimate / 2,
                 'yesterday10', 'today10', 'tomorrow10', => $forecast->pv_estimate10 / 2,
                 'yesterday90', 'today90', 'tomorrow90' => $forecast->pv_estimate90 / 2,
+                 default => $forecast->pv_estimate / 2,
             };
 
-            $estimatedBatteryRequired = $estimatePV - $averageConsumption->value;
+            $estimatedBatteryRequired = $estimatePV - $averageConsumption;
 
             $import = 0;
             $export = 0;
@@ -226,7 +233,7 @@ class ForecastChart extends ChartWidget
                 // we are charging so negative $estimatedBatteryRequired means we charge the battery
                 // the import cost is the chargeAmount + $estimatedBatteryRequired
                 // if the battery reaches MAX the export will cut in chargeAmount + PV generated over the max
-                $maxChargeAmount = min(self::BATTERY_MAX_STRATEGY_PER_HALF_HOUR , self::BATTERY_MAX - $battery );
+                $maxChargeAmount = min(self::BATTERY_MAX_STRATEGY_PER_HALF_HOUR, self::BATTERY_MAX - $battery);
 
                 $battery += self::BATTERY_MAX_STRATEGY_PER_HALF_HOUR;
 
@@ -286,7 +293,6 @@ class ForecastChart extends ChartWidget
         return collect($result);
     }
 
-
     protected function getOptions(): array
     {
         return [
@@ -328,8 +334,8 @@ class ForecastChart extends ChartWidget
                         // only want the grid lines for one axis to show up
                         'drawOnChartArea' => false,
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
     }
 }

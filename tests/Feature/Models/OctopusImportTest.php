@@ -10,7 +10,7 @@ class OctopusImportTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_an_octopus_import_can_be_created(): void
+    public function testAnOctopusImportCanBeCreated(): void
     {
         $estimate = fake()->randomFloat(4);
         $data = [
@@ -22,29 +22,40 @@ class OctopusImportTest extends TestCase
 
         $this->assertInstanceOf(OctopusImport::class, $octopusImport);
         $this->assertDatabaseCount(OctopusImport::class, 1);
-        $this->assertSame($data['interval_start']->toDateTimeString(), $octopusImport->interval_start->toDateTimeString());
+        $this->assertSame(
+            $data['interval_start']->toDateTimeString(),
+            $octopusImport->interval_start->toDateTimeString()
+        );
         $this->assertSame($data['interval_end']->toDateTimeString(), $octopusImport->interval_end->toDateTimeString());
         $this->assertSame($data['consumption'], $octopusImport->consumption);
     }
 
-    public function test_a_octopusImport_can_be_created_with_utc_iso_8601_date_string(): void
+    public function testAnOctopusImportCanBeCreatedWithUtcIso8601DateString(): void
     {
         $estimate = fake()->randomFloat(4);
         $data = [
-            "interval_start" => now('UTC')->parse("2024-06-15T09:00:00.0000000Z")->toDateTimeString(),
-            "interval_end" => now('UTC')->parse("2024-06-15T09:00:30.0000000Z")->toDateTimeString(),
+            'interval_start' => now('UTC')->parse('2024-06-15T09:00:00.0000000Z')->toDateTimeString(),
+            'interval_end' => now('UTC')->parse('2024-06-15T09:00:30.0000000Z')->toDateTimeString(),
             'consumption' => $estimate,
         ];
         $octopusImport = OctopusImport::create($data);
 
         $this->assertInstanceOf(OctopusImport::class, $octopusImport);
         $this->assertDatabaseCount(OctopusImport::class, 1);
-        $this->assertSame(now()->parse($data['interval_start'])->toDateTimeString(), $octopusImport->interval_start->toDateTimeString());
-        $this->assertSame(now()->parse($data['interval_end'])->toDateTimeString(), $octopusImport->interval_end->toDateTimeString());
+        $this->assertSame(
+            now()->parse($data['interval_start'])->toDateTimeString(),
+            $octopusImport->interval_start->toDateTimeString()
+        );
+        $this->assertSame(
+            now()
+            ->parse($data['interval_end'])
+            ->toDateTimeString(),
+            $octopusImport->interval_end->toDateTimeString()
+        );
         $this->assertSame($data['consumption'], $octopusImport->consumption);
     }
 
-    public function test_an_octopus_import_can_not_be_created_for_the_same_period(): void
+    public function testAnOctopusImportCanNotBeCreatedForTheSamePeriod(): void
     {
         $this->expectException(\Illuminate\Database\UniqueConstraintViolationException::class);
         $data = [
@@ -66,7 +77,7 @@ class OctopusImportTest extends TestCase
         OctopusImport::create($newData);
     }
 
-    public function test_an_octopus_import_can_be_upserted_for_the_same_period(): void
+    public function testAnOctopusImportCanBeUpsertedForTheSamePeriod(): void
     {
         $estimate = fake()->randomFloat(4);
         $data = [
@@ -74,7 +85,6 @@ class OctopusImportTest extends TestCase
             'interval_end' => now()->addHours(2)->startOfHour()->addMinutes(30),
             'consumption' => $estimate,
         ];
-
 
         $octopusImport = OctopusImport::create($data);
 
@@ -91,7 +101,11 @@ class OctopusImportTest extends TestCase
                 'consumption' => $estimate1,
             ],
             [
-                'interval_start' => $data['interval_start']->clone()->addMinutes(30)->timezone('UTC')->toDateTimeString(),
+                'interval_start' => $data['interval_start']
+                    ->clone()
+                    ->addMinutes(30)
+                    ->timezone('UTC')
+                    ->toDateTimeString(),
                 'interval_end' => $data['interval_end']->clone()->addMinutes(30)->timezone('UTC')->toDateTimeString(),
                 'consumption' => $estimate2,
             ],

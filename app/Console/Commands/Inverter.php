@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Imports\InverterImport;
+use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -42,10 +43,10 @@ class Inverter extends Command
 
         $count = 0;
         foreach ($files as $file) {
-
-            if (!Str::endsWith($file, '.xls')) {
+            if (! Str::endsWith($file, '.xls')) {
                 $this->error('File not processed as it is not an excel .xls file:');
                 $this->error($file);
+
                 continue;
             }
 
@@ -56,9 +57,10 @@ class Inverter extends Command
                     null,
                     ReaderType::XLS
                 );
-            } catch (\PhpOffice\PhpSpreadsheet\Reader\Exception $exception) {
+            } catch (Exception $exception) {
                 $this->error('Failed to import inverter data for file:');
                 $this->error($file);
+
                 continue;
             }
 

@@ -2,20 +2,17 @@
 
 namespace App\Filament\Resources\StrategyResource\Action;
 
-use App\Actions\GenerateStrategyAction;
 use App\Models\Strategy;
+use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
-use Filament\Actions\Concerns\CanCustomizeProcess;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class CopyConsumptionWeekAgoAction extends Action
 {
     use CanCustomizeProcess;
 
-    private bool $result;
-
+    private int $result;
 
     public static function getDefaultName(): ?string
     {
@@ -46,13 +43,12 @@ class CopyConsumptionWeekAgoAction extends Action
                 })->toArray();
 
                 $this->result = Strategy::whereIn('id', $updatedManualConsumptionIds) // Apply filter(s)
-                ->update([
-                    'consumption_manual' => DB::raw('consumption_last_week'),
-                ]);
-
+                    ->update([
+                        'consumption_manual' => DB::raw('consumption_last_week'),
+                    ]);
             });
 
-            if ($this->result) {
+            if ($this->result > 0) {
                 $this->success();
             }
         });

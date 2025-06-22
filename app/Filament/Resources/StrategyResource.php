@@ -62,7 +62,8 @@ class StrategyResource extends Resource
                 Tables\Columns\TextColumn::make('period')
                     ->label('Date time')
                     ->dateTime(format: 'd M H:i', timezone: 'Europe/London')
-                    ->description(fn($record) => $record->period->clone()->setTimezone('Europe/London')->format('P') !== $record->period->clone()->setTimezone('UTC')->format('P')
+                    ->description(fn ($record) => $record->period->clone()->setTimezone('Europe/London')->format('P')
+                    !== $record->period->clone()->setTimezone('UTC')->format('P')
                         ? sprintf('(%s UTC)', $record->period->clone()->setTimezone('UTC')->format('d M H:i'))
                         : null)
                     ->sortable(),
@@ -74,19 +75,19 @@ class StrategyResource extends Resource
 
                 Tables\Columns\TextColumn::make('battery_charge_amount')
                     ->label('Bat.charge')
-                    ->description(fn($record) => $record->battery_charge_amount * $record->import_value_inc_vat)
+                    ->description(fn ($record) => $record->battery_charge_amount * $record->import_value_inc_vat)
                     ->numeric(2)
                     ->summarize(Sum::make()),
 
                 Tables\Columns\TextColumn::make('import_amount')
                     ->label('Import')
-                    ->description(fn($record) => $record->import_amount * $record->import_value_inc_vat)
+                    ->description(fn ($record) => $record->import_amount * $record->import_value_inc_vat)
                     ->numeric(2)
                     ->summarize(Sum::make()),
 
                 Tables\Columns\TextColumn::make('export_amount')
                     ->label('Export')
-                    ->description(fn($record) => $record->export_amount * $record->export_value_inc_vat)
+                    ->description(fn ($record) => $record->export_amount * $record->export_value_inc_vat)
                     ->numeric(2)
                     ->summarize(Sum::make()),
 
@@ -101,7 +102,7 @@ class StrategyResource extends Resource
                 Tables\Columns\IconColumn::make('strategy2')
                     ->label('stat2')
                     ->toggleable()
-                    ->boolean(2),
+                    ->boolean(),
 
                 // TODO: validation
                 Tables\Columns\TextInputColumn::make('consumption_manual')

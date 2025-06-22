@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * 
- *
  * @property int $id
  * @property \Carbon\CarbonImmutable|null $period
  * @property int|null $battery_percentage1
@@ -32,6 +30,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read \App\Models\AgileExport|null $exportCost
  * @property-read \App\Models\Forecast|null $forecast
  * @property-read \App\Models\AgileImport|null $importCost
+ *
  * @method static \Database\Factories\StrategyFactory factory($count = null, $state = [])
  * @method static \Illuminate\Database\Eloquent\Builder|Strategy newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Strategy newQuery()
@@ -55,6 +54,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereStrategy2($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereStrategyManual($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereUpdatedAt($value)
+ *
  * @mixin \Eloquent
  */
 class Strategy extends Model
@@ -80,7 +80,7 @@ class Strategy extends Model
     ];
 
     protected $casts = [
-        'period' => 'immutable_datetime'
+        'period' => 'immutable_datetime',
     ];
 
     public function importCost(): HasOne

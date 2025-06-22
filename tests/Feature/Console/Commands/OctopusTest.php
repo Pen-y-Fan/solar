@@ -12,7 +12,7 @@ class OctopusTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_octopus_console_command(): void
+    public function testOctopusConsoleCommand(): void
     {
         // Arrange
         Http::fake([
@@ -23,8 +23,8 @@ class OctopusTest extends TestCase
                         'consumption' => 0.001,
                         'interval_start' => '2024-06-15T00:00:00+01:00',
                         'interval_end' => '2024-06-15T00:30:00+01:00',
-                    ]
-                ]
+                    ],
+                ],
             ], 200),
 
             // Mock for AgileImport & Export HTTP calls
@@ -35,8 +35,8 @@ class OctopusTest extends TestCase
                         'value_inc_vat' => 18.94,
                         'valid_from' => '2024-06-20T21:30:00Z',
                         'valid_to' => '2024-06-20T22:00:00Z',
-                    ]
-                ]
+                    ],
+                ],
             ], 200),
         ]);
 

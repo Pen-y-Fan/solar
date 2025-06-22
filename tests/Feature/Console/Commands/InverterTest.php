@@ -23,7 +23,7 @@ class InverterTest extends TestCase
         $this->setupFixture();
     }
 
-    public function test_inverter_console_command(): void
+    public function testInverterConsoleCommand(): void
     {
         // Arrange
         Log::shouldReceive('info')->atLeast()->once();
@@ -40,7 +40,7 @@ class InverterTest extends TestCase
         $this->assertDatabaseCount(InverterModel::class, 4);
 
         $deleted = Storage::delete(
-            "uploads/processed/" . self::FILE_NAME,
+            'uploads/processed/' . self::FILE_NAME,
         );
 
         $this->assertTrue($deleted, 'Failed to delete test fixture file from storage.');

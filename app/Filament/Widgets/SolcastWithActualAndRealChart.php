@@ -22,6 +22,7 @@ class SolcastWithActualAndRealChart extends ChartWidget
 
         if ($rawData->count() === 0) {
             self::$heading = 'No data for PV Yield vs Forecast solis actual ';
+
             return [];
         }
         $this->setHeading($rawData);
@@ -34,7 +35,7 @@ class SolcastWithActualAndRealChart extends ChartWidget
                         return $item['pv_estimate'];
                     }),
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
-                    'borderColor' => 'rgb(75, 192, 192)'
+                    'borderColor' => 'rgb(75, 192, 192)',
                 ],
                 [
                     'label' => 'PV Yield',
@@ -42,7 +43,7 @@ class SolcastWithActualAndRealChart extends ChartWidget
                         return $item['inverter_yield'];
                     }),
                     'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
-                    'borderColor' => 'rgb(255, 99, 132)'
+                    'borderColor' => 'rgb(255, 99, 132)',
                 ],
             ],
             'labels' => $rawData->map(function ($item) {
@@ -96,17 +97,18 @@ class SolcastWithActualAndRealChart extends ChartWidget
             ->get();
 
         // return the combined data
-        return $actualForecast->map(fn($item) => [
+        return $actualForecast->map(fn ($item) => [
             'period_end' => $item->period_end,
             'pv_estimate' => $item->pv_estimate / 2,
             'inverter_yield' => $inverterData->where('period', '=', $item->period_end)
-                    ->first()?->yield ?? 0
+                ->first()?->yield ?? 0,
         ]);
     }
 
     private function setHeading(\Illuminate\Support\Collection $rawData): void
     {
-        self::$heading = sprintf('Solis actual (%01.2f) vs PV Yield (%01.2f) Chart from %s to %s',
+        self::$heading = sprintf(
+            'Solis actual (%01.2f) vs PV Yield (%01.2f) Chart from %s to %s',
             $rawData->sum('pv_estimate'),
             $rawData->sum('inverter_yield'),
             Carbon::parse($rawData->first()['period_end'], 'UTC')

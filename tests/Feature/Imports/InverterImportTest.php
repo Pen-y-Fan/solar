@@ -20,7 +20,7 @@ class InverterImportTest extends TestCase
 
     private const TESTS_FIXTURES_DIRECTORY = 'tests/Fixtures/';
 
-    public function test_an_inverter_import_can_create_inverter_data(): void
+    public function testAnInverterImportCanCreateInverterData(): void
     {
         // Arrange
         $this->setupFixture();
@@ -39,7 +39,7 @@ class InverterImportTest extends TestCase
         $this->assertEquals(53, $inverters->min('battery_soc'));
     }
 
-    public function test_a_inverter_can_be_upserted_for_the_same_period(): void
+    public function testAInverterCanBeUpsertedForTheSamePeriod(): void
     {
         // Arrange
         $this->setupFixture();
@@ -64,7 +64,7 @@ class InverterImportTest extends TestCase
 
         $destination = self::UPLOADS_TESTS_DIRECTORY . self::FILE_NAME;
         $copy = Storage::put($destination, file_get_contents($source));
-        $this->assertTrue($copy, "Failed to copy fixture file to storage: $destination");;
+        $this->assertTrue($copy, "Failed to copy fixture file to storage: $destination");
     }
 
     private function importInverterData(): void

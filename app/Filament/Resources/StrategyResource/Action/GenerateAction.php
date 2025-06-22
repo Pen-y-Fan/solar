@@ -3,9 +3,9 @@
 namespace App\Filament\Resources\StrategyResource\Action;
 
 use App\Actions\GenerateStrategyAction;
+use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
-use Filament\Actions\Concerns\CanCustomizeProcess;
 use Illuminate\Support\Facades\Log;
 
 class GenerateAction extends Action

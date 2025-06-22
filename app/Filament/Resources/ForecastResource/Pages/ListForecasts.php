@@ -21,7 +21,7 @@ class ListForecasts extends ListRecords
     protected function getHeaderWidgets(): array
     {
         return [
-            ForecastChartWidget::class
+            ForecastChartWidget::class,
         ];
     }
 }

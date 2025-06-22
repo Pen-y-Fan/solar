@@ -10,7 +10,7 @@ class InverterTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_a_inverter_can_be_created(): void
+    public function testAInverterCanBeCreated(): void
     {
         $data = [
             'period' => now()->addHours(2)->startOfHour(),
@@ -30,11 +30,11 @@ class InverterTest extends TestCase
         $this->assertSame($data['consumption'], $inverter->consumption);
     }
 
-    public function test_a_inverter_can_be_created_with_utc_iso_8601_date_string(): void
+    public function testAInverterCanBeCreatedWithUtcIso8601DateString(): void
     {
 
         $data = [
-            "period" => now('UTC')->parse("2024-06-15T09:00:00.0000000Z"),
+            'period' => now('UTC')->parse('2024-06-15T09:00:00.0000000Z'),
             'yield' => fake()->randomFloat(4),
             'to_grid' => fake()->randomFloat(4),
             'from_grid' => fake()->randomFloat(4),
@@ -50,7 +50,7 @@ class InverterTest extends TestCase
         $this->assertSame($data['from_grid'], $inverter->from_grid);
     }
 
-    public function test_a_inverter_can_not_be_created_for_the_same_period(): void
+    public function testAInverterCanNotBeCreatedForTheSamePeriod(): void
     {
         $this->expectException(\Illuminate\Database\UniqueConstraintViolationException::class);
         $data = [
@@ -70,7 +70,7 @@ class InverterTest extends TestCase
         Inverter::create($newData);
     }
 
-    public function test_a_inverter_can_be_upserted_for_the_same_period(): void
+    public function testAInverterCanBeUpsertedForTheSamePeriod(): void
     {
         $data = [
             'period' => now()->addHours(2)->startOfHour(),
@@ -80,7 +80,6 @@ class InverterTest extends TestCase
             'consumption' => fake()->randomFloat(4),
         ];
 
-
         $inverter = Inverter::create($data);
 
         $this->assertInstanceOf(Inverter::class, $inverter);
@@ -88,7 +87,6 @@ class InverterTest extends TestCase
         $this->assertSame($data['to_grid'], $inverter->to_grid);
         $this->assertSame($data['from_grid'], $inverter->from_grid);
         $this->assertSame($data['consumption'], $inverter->consumption);
-
 
         $newData = [
             [

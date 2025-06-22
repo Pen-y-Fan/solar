@@ -10,7 +10,7 @@ class AgileImportTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_an_agile_import_can_be_created(): void
+    public function testAnAgileImportCanBeCreated(): void
     {
         $valueExcVat = fake()->randomFloat(4);
         $valueIncVat = fake()->randomFloat(4);
@@ -31,14 +31,14 @@ class AgileImportTest extends TestCase
         $this->assertSame($data['value_inc_vat'], $agileImport->value_inc_vat);
     }
 
-    public function test_a_agileImport_can_be_created_with_utc_iso_8601_date_string(): void
+    public function testAAgileImportCanBeCreatedWithUtcIso8601DateString(): void
     {
         $valueIncVat = fake()->randomFloat(4);
         $valueExcVat = fake()->randomFloat(4);
 
         $data = [
-            "valid_from" => now('UTC')->parse("2024-06-15T09:00:00.0000000Z")->toDateTimeString(),
-            "valid_to" => now('UTC')->parse("2024-06-15T09:00:30.0000000Z")->toDateTimeString(),
+            'valid_from' => now('UTC')->parse('2024-06-15T09:00:00.0000000Z')->toDateTimeString(),
+            'valid_to' => now('UTC')->parse('2024-06-15T09:00:30.0000000Z')->toDateTimeString(),
             'value_exc_vat' => $valueIncVat,
             'value_inc_vat' => $valueExcVat,
         ];
@@ -46,13 +46,15 @@ class AgileImportTest extends TestCase
 
         $this->assertInstanceOf(AgileImport::class, $agileImport);
         $this->assertDatabaseCount(AgileImport::class, 1);
-        $this->assertSame(now()->parse($data['valid_from'])->toDateTimeString(), $agileImport->valid_from->toDateTimeString());
-        $this->assertSame(now()->parse($data['valid_to'])->toDateTimeString(), $agileImport->valid_to->toDateTimeString());
+        $parsedValidFrom = now()->parse($data['valid_from'])->toDateTimeString();
+        $this->assertSame($parsedValidFrom, $agileImport->valid_from->toDateTimeString());
+        $parsedValidTo = now()->parse($data['valid_to'])->toDateTimeString();
+        $this->assertSame($parsedValidTo, $agileImport->valid_to->toDateTimeString());
         $this->assertSame($data['value_exc_vat'], $agileImport->value_exc_vat);
         $this->assertSame($data['value_inc_vat'], $agileImport->value_inc_vat);
     }
 
-    public function test_an_agile_import_can_not_be_created_for_the_same_period(): void
+    public function testAnAgileImportCanNotBeCreatedForTheSamePeriod(): void
     {
         $this->expectException(\Illuminate\Database\UniqueConstraintViolationException::class);
         $data = [
@@ -76,7 +78,7 @@ class AgileImportTest extends TestCase
         AgileImport::create($newData);
     }
 
-    public function test_an_agile_import_can_be_upserted_for_the_same_period(): void
+    public function testAnAgileImportCanBeUpsertedForTheSamePeriod(): void
     {
         $data = [
             'valid_from' => now()->addHours(2)->startOfHour(),
@@ -84,7 +86,6 @@ class AgileImportTest extends TestCase
             'value_exc_vat' => fake()->randomFloat(4),
             'value_inc_vat' => fake()->randomFloat(4),
         ];
-
 
         $agileImport = AgileImport::create($data);
 
@@ -104,8 +105,10 @@ class AgileImportTest extends TestCase
                 'value_inc_vat' => $valueIncVat1,
             ],
             [
-                'valid_from' => $data['valid_from']->clone()->addMinutes(30)->timezone('UTC')->toDateTimeString(),
-                'valid_to' => $data['valid_to']->clone()->addMinutes(30)->timezone('UTC')->toDateTimeString(),
+                'valid_from' => $data['valid_from']->clone()->addMinutes(30)
+                    ->timezone('UTC')->toDateTimeString(),
+                'valid_to' => $data['valid_to']->clone()->addMinutes(30)
+                    ->timezone('UTC')->toDateTimeString(),
                 'value_exc_vat' => $valueExcVat2,
                 'value_inc_vat' => $valueIncVat2,
             ],

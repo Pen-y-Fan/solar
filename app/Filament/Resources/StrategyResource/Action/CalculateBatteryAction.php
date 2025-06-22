@@ -4,9 +4,9 @@ namespace App\Filament\Resources\StrategyResource\Action;
 
 use App\Helpers\CalculateBatteryPercentage;
 use App\Models\Strategy;
+use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
-use Filament\Actions\Concerns\CanCustomizeProcess;
 use Illuminate\Support\Facades\Log;
 
 class CalculateBatteryAction extends Action
@@ -14,7 +14,6 @@ class CalculateBatteryAction extends Action
     use CanCustomizeProcess;
 
     private bool $result = false;
-
 
     public static function getDefaultName(): ?string
     {

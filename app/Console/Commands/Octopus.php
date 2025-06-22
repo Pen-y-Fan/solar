@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\AgileExport;
+use App\Actions\AgileImport;
 use App\Actions\OctopusExport;
 use App\Actions\OctopusImport;
-use App\Actions\AgileImport;
-use App\Actions\AgileExport;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -28,8 +28,12 @@ class Octopus extends Command
     /**
      * Execute the console command.
      */
-    public function handle(OctopusImport $octopusImport, OctopusExport $octopusExport, AgileImport $agileImport, AgileExport $agileExport)
-    {
+    public function handle(
+        OctopusImport $octopusImport,
+        OctopusExport $octopusExport,
+        AgileImport $agileImport,
+        AgileExport $agileExport
+    ) {
         $this->info('Running Octopus action!');
 
         try {

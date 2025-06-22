@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * 
- *
  * @property int $id
  * @property float|null $value_exc_vat
  * @property float|null $value_inc_vat
@@ -17,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\AgileExport|null $exportCost
+ *
  * @method static \Illuminate\Database\Eloquent\Builder|AgileImport newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|AgileImport newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|AgileImport query()
@@ -27,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @method static \Illuminate\Database\Eloquent\Builder|AgileImport whereValidTo($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgileImport whereValueExcVat($value)
  * @method static \Illuminate\Database\Eloquent\Builder|AgileImport whereValueIncVat($value)
+ *
  * @mixin \Eloquent
  */
 class AgileImport extends Model

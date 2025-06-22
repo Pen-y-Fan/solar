@@ -10,10 +10,10 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
-
 class SolcastActualChart extends ChartWidget
 {
     protected static ?string $heading = 'Solcast actual';
+
     protected static ?string $pollingInterval = '120s';
 
     private const UPDATE_FREQUENCY_HOURS = 6;
@@ -24,11 +24,13 @@ class SolcastActualChart extends ChartWidget
 
         if ($rawData->count() === 0) {
             self::$heading = 'No data for Solis actual';
+
             return [];
         }
         $lastRecord = $rawData->last();
 
-        self::$heading = sprintf('Solcast actual from %s to %s (last updated %s)',
+        self::$heading = sprintf(
+            'Solcast actual from %s to %s (last updated %s)',
             Carbon::parse($rawData->first()['period_end'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),

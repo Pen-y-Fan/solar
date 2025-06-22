@@ -25,10 +25,12 @@ class OctopusExportChart extends ChartWidget
 
         if ($rawData->count() === 0) {
             self::$heading = 'No electric export data';
+
             return [];
         }
 
-        self::$heading = sprintf('Electric export from %s to %s (last updated %s) (£%.2f)',
+        self::$heading = sprintf(
+            'Electric export from %s to %s (last updated %s) (£%.2f)',
             Carbon::parse($rawData->first()['interval_start'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
@@ -46,7 +48,7 @@ class OctopusExportChart extends ChartWidget
                 [
                     'label' => 'Export',
                     'type' => 'bar',
-                    'data' => $rawData->map(fn($item) => -$item['consumption']),
+                    'data' => $rawData->map(fn ($item) => -$item['consumption']),
                     'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
                     'borderColor' => 'rgb(54, 162, 235)',
                     'yAxisID' => 'y',
@@ -54,13 +56,13 @@ class OctopusExportChart extends ChartWidget
                 [
                     'label' => 'Accumulative cost',
                     'type' => 'line',
-                    'data' => $rawData->map(fn($item) => -$item['accumulative_cost']),
+                    'data' => $rawData->map(fn ($item) => -$item['accumulative_cost']),
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
                     'borderColor' => 'rgb(75, 192, 192)',
                     'yAxisID' => 'y1',
                 ],
             ],
-            'labels' => $rawData->map(fn($item) => Carbon::parse($item['interval_start'], 'UTC')
+            'labels' => $rawData->map(fn ($item) => Carbon::parse($item['interval_start'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('H:i')),
         ];
@@ -94,7 +96,8 @@ class OctopusExportChart extends ChartWidget
         $data = OctopusExport::query()
             ->with('exportCost')
             ->where(
-                'interval_start', '>=',
+                'interval_start',
+                '>=',
                 $start
             )
             ->orderBy('interval_start')
@@ -126,7 +129,7 @@ class OctopusExportChart extends ChartWidget
     private function updateOctopusExport(): void
     {
         try {
-            (new \App\Actions\OctopusExport)->run();
+            (new \App\Actions\OctopusExport())->run();
             Log::info('Successfully updated octopus export data');
         } catch (Throwable $th) {
             Log::error('Error running Octopus export action:', ['error message' => $th->getMessage()]);
@@ -151,16 +154,15 @@ class OctopusExportChart extends ChartWidget
                     'grid' => [
                         'drawOnChartArea' => false, // only want the grid lines for one axis to show up
                     ],
-                ]
-            ]
+                ],
+            ],
         ];
     }
 
-    private function getLastExport(): Model|Builder|null
+    private function getLastExport(): OctopusExport|null
     {
         return OctopusExport::query()
             ->latest('interval_start')
             ->first();
     }
-
 }
