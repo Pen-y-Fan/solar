@@ -24,7 +24,6 @@ class CostChart extends ChartWidget
      */
     public float $minValue = 0.0;
 
-
     protected function getData(): array
     {
         $data = $this->getDatabaseData();
@@ -100,18 +99,20 @@ class CostChart extends ChartWidget
 
     private function getDatabaseData(): Collection
     {
-        $tableData = $this->getPageTableRecords();
-        $data = [];
+        $strategies = $this->getPageTableRecords();
+        $collection = new Collection();
 
-        foreach ($tableData as $strategy) {
-            $data[] = [
+        foreach ($strategies as $strategy) {
+            $collection[] = [
                 'valid_from' => $strategy->period,
-                'import_value_inc_vat' => $strategy->import_value_inc_vat,
-                'export_value_inc_vat' => $strategy->export_value_inc_vat,
+                'import_value_inc_vat' => $strategy->import_value_inc_vat ?? 0,
+                'export_value_inc_vat' => $strategy->export_value_inc_vat ?? 0,
             ];
         }
 
-        return collect($data);
+        $this->setMinimumValue($collection);
+
+        return $collection;
     }
 
     protected function getTablePage(): string
@@ -130,4 +131,16 @@ class CostChart extends ChartWidget
             ]
         ];
     }
+
+    private function setMinimumValue(Collection $collection): void
+    {
+        $min = floor(min(
+            $collection->min('import_value_inc_vat'),
+            $collection->min('export_value_inc_vat')
+        ));
+
+        $this->minValue = $min >= 0 ? 0 : floor($min / 5) * 5;
+    }
+
+
 }
