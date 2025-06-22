@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Domain\Strategy\Models\Strategy;
 
 /**
  * @property int $id
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\AgileExport|null $exportCost
  * @property-read \App\Models\AgileImport|null $importCost
- * @property-read \App\Models\Strategy|null $strategy
+ * @property-read \App\Domain\Strategy\Models\Strategy|null $strategy
  *
  * @method static \Illuminate\Database\Eloquent\Builder|Forecast newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Forecast newQuery()

@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Filament\Resources\StrategyResource\Action;
+namespace App\Domain\Strategy\Actions;
 
-use App\Models\Strategy;
+use App\Domain\Strategy\Models\Strategy;
 use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
