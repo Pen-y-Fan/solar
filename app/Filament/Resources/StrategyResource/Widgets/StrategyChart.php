@@ -16,11 +16,6 @@ class StrategyChart extends ChartWidget
 
     protected static ?string $heading = 'Manual charge strategy';
 
-    /**
-     * @var float The minimum value for the chart's y-axis
-     */
-    protected float $minValue = 0.0;
-
     protected function getData(): array
     {
         $rawData = $this->getDatabaseData();
@@ -100,13 +95,13 @@ class StrategyChart extends ChartWidget
 
     private function getDatabaseData(): Collection
     {
+
         $tableData = $this->getPageTableRecords();
 
         $accumulativeCost = 0;
         $exportAccumulativeCost = 0;
         $importAccumulativeCost = 0;
         $data = [];
-        $minCost = 0;
 
         foreach ($tableData as $strategy) {
             $import = $strategy->import_amount + $strategy->battery_charge_amount;
@@ -121,9 +116,6 @@ class StrategyChart extends ChartWidget
             $importAccumulativeCost += $importCost;
             $exportAccumulativeCost += $exportCost;
 
-            // Track the minimum cost value
-            $minCost = min($minCost, $cost, $accumulativeCost, -$exportAccumulativeCost);
-
             $data[] = [
                 'period_end' => $strategy->period,
                 'import' => $import,
@@ -136,18 +128,6 @@ class StrategyChart extends ChartWidget
                 'export_accumulative_cost' => $exportAccumulativeCost,
 
             ];
-        }
-
-        // Calculate the minimum value for the chart
-        if ($minCost < 0) {
-            // Round negative values to the nearest -5
-            // For example: -3 becomes -5, -7 becomes -10, -12 becomes -15
-            // This ensures that the chart displays negative values correctly
-            // and maintains consistency with the Agile cost chart
-            $this->minValue = floor($minCost / 5) * 5;
-        } else {
-            // If there are no negative values, use 0 as the minimum
-            $this->minValue = 0;
         }
 
         return collect($data);
@@ -166,13 +146,11 @@ class StrategyChart extends ChartWidget
                     'type' => 'linear',
                     'display' => true,
                     'position' => 'left',
-                    'min' => $this->minValue,
                 ],
                 'y1' => [
                     'type' => 'linear',
                     'display' => true,
                     'position' => 'right',
-                    'min' => 0, // Battery percentage should not go below 0
 
                     // grid line settings
                     'grid' => [
@@ -184,7 +162,6 @@ class StrategyChart extends ChartWidget
                     'type' => 'linear',
                     'display' => true,
                     'position' => 'right',
-                    'min' => $this->minValue,
 
                     // grid line settings
                     'grid' => [
