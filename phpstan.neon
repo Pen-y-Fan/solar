@@ -1,0 +1,26 @@
+includes:
+    - ./vendor/nunomaduro/larastan/extension.neon
+
+parameters:
+    level: 5
+    paths:
+        - app
+        - tests
+    excludePaths:
+        - vendor
+        - storage
+        - bootstrap/cache
+        - node_modules
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+
+    # Laravel specific configuration
+    noUnnecessaryCollectionCall: true
+    checkModelProperties: true
+    checkPhpDocMissingReturn: true
+
+    # Ignore errors from Laravel magic methods
+    ignoreErrors:
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::newQuery\(\)#'
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::query\(\)#'
+        - '#Access to an undefined property [a-zA-Z0-9\\_]+::\$[a-zA-Z0-9_]+#'

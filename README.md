@@ -178,10 +178,61 @@ Once the **.env** file and database have already been configured, the project ca
 sail up -d
 ```
 
+## Code Quality Tools
+
+This project includes several code quality tools to help maintain code standards and identify potential issues.
+
+### Running Code Quality Tools
+
+#### PHP_CodeSniffer
+
+PHP_CodeSniffer is used to check code against the PSR-12 coding standard.
+
+To check your code:
+
+```shell
+./vendor/bin/sail composer cs
+```
+
+To automatically fix coding standard issues:
+
+```shell
+./vendor/bin/sail composer cs-fix
+```
+
+#### Laravel Pint
+
+Laravel Pint is an opinionated PHP code style fixer based on PHP-CS-Fixer.
+
+To run Pint:
+
+```shell
+./vendor/bin/sail pint
+```
+
+To run Pint and show all files that would be modified:
+
+```shell
+./vendor/bin/sail pint --test
+```
+
+#### PHPStan/Larastan
+
+PHPStan and Larastan provide static analysis to find potential bugs and errors in your code.
+
+To run PHPStan/Larastan:
+
+```shell
+./vendor/bin/sail composer phpstan
+```
+
+Or directly:
+
+```shell
+./vendor/bin/sail phpstan analyse
+```
+
 <!--
-- [Easy Coding Standard (ECS)](https://github.com/symplify/easy-coding-standard) - Preferred coding standard for this
-  project, set to PSR-12 plus other standards.
-- [Larastan](https://github.com/nunomaduro/larastan) - Static analysis for Laravel using PhpStan.
 - [Rector](https://github.com/rectorphp/rector) - Automatic code update - set to Laravel 10 and PHPUnit 10.
 - [Parallel-Lint](https://github.com/php-parallel-lint/PHP-Parallel-Lint) - This application checks syntax of PHP files
   in parallel
