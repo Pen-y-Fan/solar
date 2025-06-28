@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Imports;
 
-use App\Imports\InverterImport;
+use App\Domain\Energy\Imports\InverterImport;
 use App\Domain\Energy\Models\Inverter;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;

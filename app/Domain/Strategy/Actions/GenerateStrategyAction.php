@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace App\Domain\Strategy\Actions;
 
+use App\Domain\Energy\Repositories\InverterRepositoryInterface;
 use App\Domain\Forecasting\Models\Forecast;
-use App\Domain\Energy\Models\Inverter;
 use App\Domain\Strategy\Models\Strategy;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class GenerateStrategyAction
@@ -25,6 +24,11 @@ class GenerateStrategyAction
     private bool $charge = true;
 
     public ?string $filter = 'today';
+
+    public function __construct(
+        private readonly InverterRepositoryInterface $inverterRepository
+    ) {
+    }
 
     /**
      * @throws \Throwable
@@ -55,34 +59,15 @@ class GenerateStrategyAction
             return false;
         }
 
-        $averageConsumptions = Inverter::query()
-            ->select(DB::raw('time(period) as `time`, avg(`consumption`) as `value`'))
-            ->where(
-                'period',
-                '>',
-                now()->timezone('Europe/London')
-                    ->subdays(21)
-                    ->startOfDay()
-                    ->timezone('UTC')
-            )
-            ->groupBy('time')
-            ->get();
+        $averageConsumptions = $this->inverterRepository->getAverageConsumptionByTime(now());
 
         if ($averageConsumptions->count() === 0) {
             return false;
         }
 
-        $weekAgpConsumptions = Inverter::query()
-            ->whereBetween('period', [
-                $startDate->clone()->timezone('Europe/London')->subWeek()->timezone('UTC'),
-                $startDate->clone()->timezone('Europe/London')->subWeek()->endOfDay()->timezone('UTC'),
-            ])
-            ->get();
-
-        $weekAgpConsumptions->each(function ($consumption) {
-            $consumption->time = $consumption->period->format('H:i:s');
-            $consumption->value = $consumption->consumption;
-        });
+        $weekAgoStart = $startDate->clone()->timezone('Europe/London')->subWeek()->timezone('UTC');
+        $weekAgoEnd = $startDate->clone()->timezone('Europe/London')->subWeek()->endOfDay()->timezone('UTC');
+        $weekAgpConsumptions = $this->inverterRepository->getConsumptionForDateRange($weekAgoStart, $weekAgoEnd);
 
         $importCosts = [];
         $minCost = 0;
@@ -157,7 +142,7 @@ class GenerateStrategyAction
 
     public function getConsumption(
         Collection|array $forecastData,
-        Collection|array $consumptions,
+        \Illuminate\Support\Collection $consumptions,
     ): \Illuminate\Support\Collection {
         $battery = self::BATTERY_MIN;
         $result = [];
@@ -167,10 +152,12 @@ class GenerateStrategyAction
 
             Log::info('Charge at: ' . $forecast->period_end->format('H:i:s') . ' import cost '
                 . $importValueIncVat . ' battery ' . $battery);
-            $consumption = $consumptions->where(
-                'time',
-                $forecast->period_end->format('H:i:s')
-            )->first()?->value ?? 0;
+
+            $consumptionData = $consumptions->first(function ($item) use ($forecast) {
+                return $item->time === $forecast->period_end->format('H:i:s');
+            });
+
+            $consumption = $consumptionData?->value ?? 0;
 
             $estimatePV = $forecast->pv_estimate / 2;
 
