@@ -9,7 +9,8 @@ This document provides a comprehensive checklist of improvement tasks for the So
      - [x] Forecasting
      - [x] Strategy
      - [x] Energy
-     - [ ] 
+     - [x] Equipment
+     - [x] User
    - [ ] Create clear boundaries between different domains (e.g., Forecasting, Strategy, Energy Import/Export)
    - [ ] Define value objects for domain concepts
 
