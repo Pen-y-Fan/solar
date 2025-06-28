@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\StrategyResource\Action;
 
+use App\Domain\Energy\Repositories\InverterRepositoryInterface;
 use App\Domain\Strategy\Actions\GenerateStrategyAction;
 use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Tables\Actions\Action;
@@ -45,8 +46,9 @@ class GenerateAction extends Action
                     return;
                 }
 
-                Log::debug('Generating strategy for: ' . $periodValue);
-                $action = new GenerateStrategyAction();
+                Log::info('Generating strategy for: ' . $periodValue);
+                $inverterRepository = app(InverterRepositoryInterface::class);
+                $action = new GenerateStrategyAction($inverterRepository);
                 $action->filter = $periodValue;
                 $this->result = $action->run();
             });

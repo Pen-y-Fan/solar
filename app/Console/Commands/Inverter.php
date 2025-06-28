@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Imports\InverterImport;
+use App\Domain\Energy\Imports\InverterImport;
 use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;

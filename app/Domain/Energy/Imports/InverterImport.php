@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Imports;
+namespace App\Domain\Energy\Imports;
 
 use App\Domain\Energy\Models\Inverter;
 use Illuminate\Support\Carbon;
