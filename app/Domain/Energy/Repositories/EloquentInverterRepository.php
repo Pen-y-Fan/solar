@@ -37,10 +37,10 @@ class EloquentInverterRepository implements InverterRepositoryInterface
             ->get();
 
         return $averageConsumptions->map(function ($item) {
-            return InverterConsumptionData::fromArray([
-                'time' => $item->time,
-                'value' => $item->value,
-            ]);
+            return new InverterConsumptionData(
+                time: $item->time,
+                value: (float) $item->value
+            );
         });
     }
 
@@ -61,9 +61,9 @@ class EloquentInverterRepository implements InverterRepositoryInterface
             ->get();
 
         return $consumptions->map(function ($consumption) {
-            return InverterConsumptionData::fromCarbon(
-                $consumption->period,
-                (float) $consumption->consumption
+            return new InverterConsumptionData(
+                time: $consumption->period->format('H:i:s'),
+                value: (float) $consumption->consumption
             );
         });
     }

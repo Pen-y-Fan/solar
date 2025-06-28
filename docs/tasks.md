@@ -12,7 +12,7 @@ This document provides a comprehensive checklist of improvement tasks for the So
      - [x] Equipment
      - [x] User
    - [x] Create clear boundaries between different domains (e.g., Forecasting, Strategy, Energy Import/Export)
-   - [ ] Define value objects for domain concepts
+   - [x] Define value objects for domain concepts
 
 [ ] **Refactor Actions for consistency**
    - [ ] Standardize input/output formats across all Actions
