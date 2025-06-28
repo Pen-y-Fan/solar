@@ -31,8 +31,12 @@ class CostData
         return new self(
             importValueIncVat: isset($data['import_value_inc_vat']) ? (float) $data['import_value_inc_vat'] : null,
             exportValueIncVat: isset($data['export_value_inc_vat']) ? (float) $data['export_value_inc_vat'] : null,
-            consumptionAverageCost: isset($data['consumption_average_cost']) ? (float) $data['consumption_average_cost'] : null,
-            consumptionLastWeekCost: isset($data['consumption_last_week_cost']) ? (float) $data['consumption_last_week_cost'] : null
+            consumptionAverageCost: isset($data['consumption_average_cost'])
+                ? (float) $data['consumption_average_cost']
+                : null,
+            consumptionLastWeekCost: isset($data['consumption_last_week_cost'])
+                ? (float) $data['consumption_last_week_cost']
+                : null
         );
     }
 

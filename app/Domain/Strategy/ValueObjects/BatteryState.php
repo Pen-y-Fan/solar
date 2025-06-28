@@ -36,7 +36,9 @@ class BatteryState
         return new self(
             percentage: (int) $data['battery_percentage1'],
             chargeAmount: (float) $data['battery_charge_amount'],
-            manualPercentage: isset($data['battery_percentage_manual']) ? (int) $data['battery_percentage_manual'] : null
+            manualPercentage: isset($data['battery_percentage_manual'])
+                ? (int) $data['battery_percentage_manual']
+                : null
         );
     }
 
