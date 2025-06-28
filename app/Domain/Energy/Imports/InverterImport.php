@@ -3,6 +3,8 @@
 namespace App\Domain\Energy\Imports;
 
 use App\Domain\Energy\Models\Inverter;
+use App\Domain\Energy\ValueObjects\BatteryStateOfCharge;
+use App\Domain\Energy\ValueObjects\EnergyFlow;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -71,16 +73,23 @@ class InverterImport implements ToCollection, WithHeadingRow
                     $lastInPeriod = $collection[$i - 2];
                 }
 
+                $energyFlow = new EnergyFlow(
+                    yield: $lastInPeriod['Today Yield(kWh)'] - $firstInPeriod['Today Yield(kWh)'],
+                    toGrid: $lastInPeriod['Total Energy to Grid(kWh)'] - $firstInPeriod['Total Energy to Grid(kWh)'],
+                    fromGrid: $lastInPeriod['Total Energy from Grid(kWh)']
+                    - $firstInPeriod['Total Energy from Grid(kWh)'],
+                    consumption: $lastInPeriod['Today Total Load Consumption(kWh)']
+                    - $firstInPeriod['Today Total Load Consumption(kWh)']
+                );
+
+                $batterySoc = isset($firstInPeriod['Battery SOC(%)'])
+                    ? new BatteryStateOfCharge(percentage: (int)$firstInPeriod['Battery SOC(%)'])
+                    : null;
+
                 $data[] = [
                     'period' => $currentPeriod->toDateTimeString(),
-                    'yield' => $lastInPeriod['Today Yield(kWh)'] - $firstInPeriod['Today Yield(kWh)'],
-                    'to_grid' => $lastInPeriod['Total Energy to Grid(kWh)']
-                        - $firstInPeriod['Total Energy to Grid(kWh)'],
-                    'from_grid' => $lastInPeriod['Total Energy from Grid(kWh)']
-                        - $firstInPeriod['Total Energy from Grid(kWh)'],
-                    'battery_soc' => $firstInPeriod['Battery SOC(%)'],
-                    'consumption' => $lastInPeriod['Today Total Load Consumption(kWh)']
-                        - $firstInPeriod['Today Total Load Consumption(kWh)'],
+                    ...$energyFlow->toArray(),
+                    'battery_soc' => $batterySoc?->percentage,
                 ];
 
                 $currentPeriod->addMinutes(30);
