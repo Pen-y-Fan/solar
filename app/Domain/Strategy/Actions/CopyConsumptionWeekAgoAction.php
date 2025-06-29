@@ -3,16 +3,16 @@
 namespace App\Domain\Strategy\Actions;
 
 use App\Domain\Strategy\Models\Strategy;
+use App\Domain\Strategy\ValueObjects\ConsumptionData;
 use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\DB;
 
 class CopyConsumptionWeekAgoAction extends Action
 {
     use CanCustomizeProcess;
 
-    private int $result;
+    private int $result = 0;
 
     public static function getDefaultName(): ?string
     {
@@ -35,17 +35,33 @@ class CopyConsumptionWeekAgoAction extends Action
 
         $this->action(function (): void {
             $this->process(function (Table $table) {
-
                 $strategies = $table->getQuery()->get();
 
-                $updatedManualConsumptionIds = $strategies->map(function (Strategy $strategy) {
-                    return $strategy->id;
-                })->toArray();
+                foreach ($strategies as $strategy) {
+                    // Ensure we're working with a Strategy model
+                    if (!$strategy instanceof Strategy) {
+                        continue;
+                    }
 
-                $this->result = Strategy::whereIn('id', $updatedManualConsumptionIds) // Apply filter(s)
-                    ->update([
-                        'consumption_manual' => DB::raw('consumption_last_week'),
-                    ]);
+                    // Get the consumption data value object
+                    $consumptionData = $strategy->getConsumptionDataValueObject();
+
+                    // Only update if there's last week data available
+                    if ($consumptionData->lastWeek !== null) {
+                        // Create a new consumption data object with the last week value as manual
+                        $newConsumptionData = new ConsumptionData(
+                            lastWeek: $consumptionData->lastWeek,
+                            average: $consumptionData->average,
+                            manual: $consumptionData->lastWeek
+                        );
+
+                        // Update the strategy's consumption_manual attribute
+                        $strategy->consumption_manual = $newConsumptionData->manual;
+                        $strategy->save();
+
+                        $this->result++;
+                    }
+                }
             });
 
             if ($this->result > 0) {

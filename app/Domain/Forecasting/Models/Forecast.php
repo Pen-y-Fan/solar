@@ -38,6 +38,16 @@ class Forecast extends Model
 {
     use HasFactory;
 
+    /**
+     * Create a new factory instance for the model.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    protected static function newFactory()
+    {
+        return \Database\Factories\ForecastFactory::new();
+    }
+
     protected $fillable = [
         'period_end',
         'pv_estimate',

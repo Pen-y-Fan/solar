@@ -22,8 +22,10 @@ class StrategyFactory extends Factory
      */
     public function definition(): array
     {
+        static $periodOffset = 0;
+
         return [
-            'period' => now()->startOfHour(),
+            'period' => now()->startOfHour()->addHours($periodOffset++),
             'battery_charge_amount' => fake()->randomFloat(2, 0, 500),
             'import_amount' => fake()->randomFloat(2, 0, 500),
             'export_amount' => fake()->randomFloat(2, 0, 500),

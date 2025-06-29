@@ -12,7 +12,48 @@ This document provides a comprehensive checklist of improvement tasks for the So
      - [x] Equipment
      - [x] User
    - [x] Create clear boundaries between different domains (e.g., Forecasting, Strategy, Energy Import/Export)
-   - [x] Define value objects for domain concepts
+   - [ ] Define value objects for domain concepts
+     - [ ]  app/Domain/Strategy/ValueObjects/StrategyType.php
+       - [ ] Update `Strategy` model to use `StrategyType` value object for `strategy1`, `strategy2`, and `strategy_manual` properties
+       - [ ] Add accessor and mutator methods in the `Strategy` model to convert between raw database values and the value object
+       - [ ] Update `GenerateStrategyAction` to use the `StrategyType` value object
+       - [ ] Update Filament forms in `StrategyResource` to work with the value object
+     - [ ]  app/Domain/Strategy/ValueObjects/CostData.php
+       - [ ] Update `Strategy` model to use `CostData` value object for cost-related properties
+       - [ ] Add accessor and mutator methods in the `Strategy` model to convert between raw database values and the value object
+       - [ ] Update actions that calculate or use cost data to work with the value object
+       - [ ] Update Filament forms in `StrategyResource` to work with the value object
+     - [x]  app/Domain/Strategy/ValueObjects/ConsumptionData.php
+       - [x] Update `Strategy` model to use `ConsumptionData` value object for consumption-related properties
+       - [x] Add accessor and mutator methods in the `Strategy` model to convert between raw database values and the value object
+       - [x] Update `CopyConsumptionWeekAgoAction` to use the `ConsumptionData` value object
+       - [x] Update Filament forms in `StrategyResource` to work with the value object
+     - [x]  app/Domain/Strategy/ValueObjects/BatteryState.php
+       - [x] Update `Strategy` model to use `BatteryState` value object for battery-related properties
+       - [x] Add accessor and mutator methods in the `Strategy` model to convert between raw database values and the value object
+       - [x] Update `CalculateBatteryAction` to use the `BatteryState` value object
+       - [x] Update Filament forms in `StrategyResource` to work with the value object
+     - [ ]  app/Domain/Forecasting/ValueObjects/PvEstimate.php
+       - [ ] Update `Forecast` and `ActualForecast` models to use `PvEstimate` value object for PV estimate properties
+       - [ ] Add accessor and mutator methods in both models to convert between raw database values and the value object
+       - [ ] Update `ForecastAction` and `ActualForecastAction` to use the `PvEstimate` value object
+       - [ ] Update Filament forms in `ForecastResource` to work with the value object
+     - [ ]  app/Domain/Energy/ValueObjects/MonetaryValue.php
+       - [ ] Update `AgileImport` and `AgileExport` models to use `MonetaryValue` value object for value properties
+       - [ ] Add accessor and mutator methods in both models to convert between raw database values and the value object
+       - [ ] Update energy import/export actions to use the `MonetaryValue` value object
+       - [ ] Update any Filament forms that display or edit monetary values
+     - [ ]  app/Domain/Energy/ValueObjects/TimeInterval.php
+       - [ ] Update `AgileImport` and `AgileExport` models to use `TimeInterval` value object for `valid_from` and `valid_to` properties
+       - [ ] Add accessor and mutator methods in both models to convert between raw database values and the value object
+       - [ ] Update energy import/export actions to use the `TimeInterval` value object
+       - [ ] Update any Filament forms that display or edit time intervals
+     - [x]  app/Domain/User/ValueObjects/Email.php
+       - [x] Update `User` model to use `Email` value object for email-related properties
+       - [x] Add accessor and mutator methods in the `User` model to convert between raw database values and the value object
+       - [x] Update authentication and user management code to use the `Email` value object
+       - [x] Update any Filament forms that display or edit email addresses
+
 
 [ ] **Refactor Actions for consistency**
    - [ ] Standardize input/output formats across all Actions
