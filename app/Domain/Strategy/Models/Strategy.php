@@ -6,6 +6,8 @@ use App\Domain\Forecasting\Models\ActualForecast;
 use App\Domain\Energy\Models\AgileExport;
 use App\Domain\Energy\Models\AgileImport;
 use App\Domain\Forecasting\Models\Forecast;
+use App\Domain\Strategy\ValueObjects\BatteryState;
+use App\Domain\Strategy\ValueObjects\ConsumptionData;
 use Database\Factories\StrategyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -67,6 +69,16 @@ class Strategy extends Model
     use HasFactory;
 
     /**
+     * The ConsumptionData value object
+     */
+    private ?ConsumptionData $consumptionDataObject = null;
+
+    /**
+     * The BatteryState value object
+     */
+    private ?BatteryState $batteryStateObject = null;
+
+    /**
      * Create a new factory instance for the model.
      *
      * @return \Illuminate\Database\Eloquent\Factories\Factory
@@ -116,5 +128,181 @@ class Strategy extends Model
     public function actualForecast(): HasOne
     {
         return $this->hasOne(ActualForecast::class, 'period_end', 'period');
+    }
+
+    /**
+     * Get the ConsumptionData value object
+     */
+    public function getConsumptionDataValueObject(): ConsumptionData
+    {
+        if ($this->consumptionDataObject === null) {
+            $this->consumptionDataObject = ConsumptionData::fromArray([
+                'consumption_last_week' => $this->attributes['consumption_last_week'] ?? null,
+                'consumption_average' => $this->attributes['consumption_average'] ?? null,
+                'consumption_manual' => $this->attributes['consumption_manual'] ?? null,
+            ]);
+        }
+
+        return $this->consumptionDataObject;
+    }
+
+    /**
+     * Get the BatteryState value object
+     */
+    public function getBatteryStateValueObject(): BatteryState
+    {
+        if ($this->batteryStateObject === null) {
+            $this->batteryStateObject = BatteryState::fromArray([
+                'battery_percentage1' => $this->attributes['battery_percentage1'] ?? 0,
+                'battery_charge_amount' => $this->attributes['battery_charge_amount'] ?? 0.0,
+                'battery_percentage_manual' => $this->attributes['battery_percentage_manual'] ?? null,
+            ]);
+        }
+
+        return $this->batteryStateObject;
+    }
+
+    /**
+     * Get the consumption last week
+     */
+    public function getConsumptionLastWeekAttribute($value): ?float
+    {
+        return $this->getConsumptionDataValueObject()->lastWeek;
+    }
+
+    /**
+     * Set the consumption last week
+     */
+    public function setConsumptionLastWeekAttribute(?float $value): void
+    {
+        $this->attributes['consumption_last_week'] = $value;
+
+        if ($this->consumptionDataObject !== null) {
+            $this->consumptionDataObject = new ConsumptionData(
+                lastWeek: $value,
+                average: $this->consumptionDataObject->average,
+                manual: $this->consumptionDataObject->manual
+            );
+        }
+    }
+
+    /**
+     * Get the consumption average
+     */
+    public function getConsumptionAverageAttribute($value): ?float
+    {
+        return $this->getConsumptionDataValueObject()->average;
+    }
+
+    /**
+     * Set the consumption average
+     */
+    public function setConsumptionAverageAttribute(?float $value): void
+    {
+        $this->attributes['consumption_average'] = $value;
+
+        if ($this->consumptionDataObject !== null) {
+            $this->consumptionDataObject = new ConsumptionData(
+                lastWeek: $this->consumptionDataObject->lastWeek,
+                average: $value,
+                manual: $this->consumptionDataObject->manual
+            );
+        }
+    }
+
+    /**
+     * Get the consumption manual
+     */
+    public function getConsumptionManualAttribute($value): ?float
+    {
+        return $this->getConsumptionDataValueObject()->manual;
+    }
+
+    /**
+     * Set the consumption manual
+     */
+    public function setConsumptionManualAttribute(?float $value): void
+    {
+        $this->attributes['consumption_manual'] = $value;
+
+        if ($this->consumptionDataObject !== null) {
+            $this->consumptionDataObject = new ConsumptionData(
+                lastWeek: $this->consumptionDataObject->lastWeek,
+                average: $this->consumptionDataObject->average,
+                manual: $value
+            );
+        }
+    }
+
+    /**
+     * Get the battery percentage
+     */
+    public function getBatteryPercentage1Attribute($value): int
+    {
+        return $this->getBatteryStateValueObject()->percentage;
+    }
+
+    /**
+     * Set the battery percentage
+     */
+    public function setBatteryPercentage1Attribute(int $value): void
+    {
+        $this->attributes['battery_percentage1'] = $value;
+
+        if ($this->batteryStateObject !== null) {
+            $this->batteryStateObject = new BatteryState(
+                percentage: $value,
+                chargeAmount: $this->batteryStateObject->chargeAmount,
+                manualPercentage: $this->batteryStateObject->manualPercentage
+            );
+        }
+    }
+
+    /**
+     * Get the battery charge amount
+     */
+    public function getBatteryChargeAmountAttribute($value): float
+    {
+        return $this->getBatteryStateValueObject()->chargeAmount;
+    }
+
+    /**
+     * Set the battery charge amount
+     */
+    public function setBatteryChargeAmountAttribute(float $value): void
+    {
+        $this->attributes['battery_charge_amount'] = $value;
+
+        if ($this->batteryStateObject !== null) {
+            $this->batteryStateObject = new BatteryState(
+                percentage: $this->batteryStateObject->percentage,
+                chargeAmount: $value,
+                manualPercentage: $this->batteryStateObject->manualPercentage
+            );
+        }
+    }
+
+    /**
+     * Get the battery percentage manual
+     */
+    public function getBatteryPercentageManualAttribute($value): ?int
+    {
+        return $this->getBatteryStateValueObject()->manualPercentage;
+    }
+
+    /**
+     * Set the battery percentage manual
+     */
+    public function setBatteryPercentageManualAttribute(?int $value): void
+    {
+        $this->attributes['battery_percentage_manual'] = $value;
+
+        if ($this->batteryStateObject !== null) {
+            $this->batteryStateObject = new BatteryState(
+                percentage: $this->batteryStateObject->percentage,
+                chargeAmount: $this->batteryStateObject->chargeAmount,
+                manualPercentage: $value
+            );
+        }
     }
 }

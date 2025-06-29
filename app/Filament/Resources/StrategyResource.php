@@ -36,15 +36,50 @@ class StrategyResource extends Resource
         return $form
             ->schema([
                 Forms\Components\DateTimePicker::make('period')->readOnly(),
-                Forms\Components\Toggle::make('strategy_manual'),
-                Forms\Components\Toggle::make('strategy1'),
-                Forms\Components\Toggle::make('strategy2'),
-                Forms\Components\TextInput::make('consumption_last_week')
-                    ->numeric()->readOnly(),
-                Forms\Components\TextInput::make('consumption_average')
-                    ->numeric()->readOnly(),
-                Forms\Components\TextInput::make('consumption_manual')
+                Forms\Components\Toggle::make('strategy_manual')
+                    ->label('Manual Strategy')
+                    ->helperText('Enable manual strategy control'),
+                Forms\Components\Toggle::make('strategy1')
+                    ->label('Strategy 1')
+                    ->helperText('Enable strategy 1'),
+                Forms\Components\Toggle::make('strategy2')
+                    ->label('Strategy 2')
+                    ->helperText('Enable strategy 2'),
+                Forms\Components\TextInput::make('battery_percentage1')
+                    ->label('Battery Percentage')
+                    ->helperText('Current battery percentage (0-100)')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(100)
+                    ->integer(),
+                Forms\Components\TextInput::make('battery_charge_amount')
+                    ->label('Battery Charge Amount')
+                    ->helperText('Amount of energy to charge/discharge')
                     ->numeric(),
+                Forms\Components\TextInput::make('battery_percentage_manual')
+                    ->label('Manual Battery Percentage')
+                    ->helperText('Manually set battery percentage (0-100)')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(100)
+                    ->integer(),
+                Forms\Components\TextInput::make('consumption_last_week')
+                    ->label('Consumption Last Week')
+                    ->helperText('Last week\'s consumption data (read-only)')
+                    ->numeric()
+                    ->minValue(0)
+                    ->readOnly(),
+                Forms\Components\TextInput::make('consumption_average')
+                    ->label('Average Consumption')
+                    ->helperText('Average consumption data (read-only)')
+                    ->numeric()
+                    ->minValue(0)
+                    ->readOnly(),
+                Forms\Components\TextInput::make('consumption_manual')
+                    ->label('Manual Consumption')
+                    ->helperText('Manually set consumption value')
+                    ->numeric()
+                    ->minValue(0),
                 Forms\Components\TextInput::make('import_value_inc_vat')
                     ->numeric()->readOnly(),
                 Forms\Components\TextInput::make('export_value_inc_vat')
@@ -68,16 +103,25 @@ class StrategyResource extends Resource
                         : null)
                     ->sortable(),
 
-                // TODO: validation
                 Tables\Columns\TextInputColumn::make('battery_percentage_manual')
                     ->label('Battery %')
-                    ->type('number'),
+                    ->type('number')
+                    ->rules(['integer', 'min:0', 'max:100']),
 
                 Tables\Columns\TextColumn::make('battery_charge_amount')
                     ->label('Bat.charge')
                     ->description(fn ($record) => $record->battery_charge_amount * $record->import_value_inc_vat)
+                    ->tooltip(fn ($record) => $record->getBatteryStateValueObject()->isCharging()
+                        ? 'Battery is charging'
+                        : 'Battery is discharging')
                     ->numeric(2)
                     ->summarize(Sum::make()),
+
+                Tables\Columns\TextColumn::make('battery_percentage1')
+                    ->label('Battery Target %')
+                    ->tooltip('Target battery percentage')
+                    ->numeric(0)
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('import_amount')
                     ->label('Import')
@@ -104,22 +148,31 @@ class StrategyResource extends Resource
                     ->toggleable()
                     ->boolean(),
 
-                // TODO: validation
                 Tables\Columns\TextInputColumn::make('consumption_manual')
-                    ->label('Usage')
-                    ->type('number'),
+                    ->label('Man Usage')
+                    ->type('number')
+                    ->rules(['numeric', 'min:0']),
 
                 Tables\Columns\TextColumn::make('consumption_last_week')
-                    ->label('Usage')
+                    ->label('Usage -1wk')
+                    ->tooltip('Consumption from last week')
                     ->numeric(2)
                     ->toggleable()
                     ->summarize(Sum::make()),
 
                 Tables\Columns\TextColumn::make('consumption_average')
-                    ->label('Usage avg')
-                    ->numeric()
+                    ->label('Avg Usage')
+                    ->tooltip('Average consumption')
+                    ->numeric(2)
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->summarize(Sum::make()),
+
+                Tables\Columns\TextColumn::make('best_estimate')
+                    ->label('Best Estimate')
+                    ->tooltip('Best consumption estimate (prioritizes manual, then last week, then average)')
+                    ->getStateUsing(fn ($record) => $record->getConsumptionDataValueObject()->getBestEstimate())
+                    ->numeric(2)
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('consumption_last_week_cost')
                     ->label('p')

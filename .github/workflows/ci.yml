@@ -36,11 +36,18 @@ jobs:
         mkdir -p database
         touch database/database.sqlite
 
-    - name: Execute tests (Unit and Feature tests) via PHPUnit
+    - name: Execute tests with coverage (Unit and Feature tests) via PHPUnit
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
-      run: vendor/bin/phpunit
+        XDEBUG_MODE: coverage
+      run: vendor/bin/phpunit --coverage-clover coverage/clover.xml
+
+    - name: Upload coverage report
+      uses: codecov/codecov-action@v3
+      with:
+        file: coverage/clover.xml
+        fail_ci_if_error: false
 
   code-quality:
     runs-on: ubuntu-latest

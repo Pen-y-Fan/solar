@@ -101,15 +101,14 @@ class StrategyTest extends TestCase
 
     public function testAStrategyCanHaveOneRelatedAgileImport()
     {
+        $strategy = Strategy::factory()->create();
+
         $agileImport = AgileImport::create([
-            'valid_from' => now()->startOfHour(),
-            'valid_to' => now()->startOfHour()->addMinutes(30),
+            'valid_from' => $strategy->period,
+            'valid_to' => $strategy->period->clone()->addMinutes(30),
             'value_exc_vat' => fake()->randomFloat(4),
             'value_inc_vat' => fake()->randomFloat(4),
-
         ]);
-
-        $strategy = Strategy::factory()->create();
 
         $strategy->load('importCost');
 
@@ -121,15 +120,16 @@ class StrategyTest extends TestCase
 
     public function testAStrategyCanHaveOneRelatedAgileExport()
     {
+        $strategy = Strategy::factory()->create();
+
         $agileExport = AgileExport::create([
-            'valid_from' => now()->startOfHour(),
-            'valid_to' => now()->startOfHour()->addMinutes(30),
+            'valid_from' => $strategy->period,
+            'valid_to' => $strategy->period->clone()->addMinutes(30),
             'value_exc_vat' => fake()->randomFloat(4),
             'value_inc_vat' => fake()->randomFloat(4),
 
         ]);
 
-        $strategy = Strategy::factory()->create();
 
         $strategy->load('exportCost');
 
@@ -141,16 +141,15 @@ class StrategyTest extends TestCase
 
     public function testAStrategyCanHaveOneRelatedForecast()
     {
+        $strategy = Strategy::factory()->create();
         $estimate = fake()->randomFloat(4);
         $forecast = Forecast::create([
-            'period_end' => now()->startOfHour(),
+            'period_end' => $strategy->period,
             'pv_estimate' => $estimate,
             'pv_estimate10' => $estimate * 0.1,
             'pv_estimate90' => $estimate * 1.1,
 
         ]);
-
-        $strategy = Strategy::factory()->create();
 
         $strategy->load('forecast');
 
@@ -163,16 +162,16 @@ class StrategyTest extends TestCase
 
     public function testAStrategyCanHaveOneRelatedActualForecast()
     {
+        $strategy = Strategy::factory()->create();
+
         $estimate = fake()->randomFloat(4);
         $actualForecast = ActualForecast::create([
-            'period_end' => now()->startOfHour(),
+            'period_end' => $strategy->period,
             'pv_estimate' => $estimate,
             'pv_estimate10' => $estimate * 0.1,
             'pv_estimate90' => $estimate * 1.1,
 
         ]);
-
-        $strategy = Strategy::factory()->create();
 
         $strategy->load('actualForecast');
 

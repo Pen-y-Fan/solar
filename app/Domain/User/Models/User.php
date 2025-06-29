@@ -3,6 +3,8 @@
 namespace App\Domain\User\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Domain\User\ValueObjects\Email;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\DatabaseNotification;
@@ -42,6 +44,21 @@ class User extends Authenticatable
     use Notifiable;
 
     /**
+     * Create a new factory instance for the model.
+     *
+     * @return \Illuminate\Database\Eloquent\Factories\Factory
+     */
+    protected static function newFactory()
+    {
+        return \Database\Factories\UserFactory::new();
+    }
+
+    /**
+     * The Email value object
+     */
+    private ?Email $emailObject = null;
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -73,5 +90,65 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the Email value object
+     */
+    public function getEmailValueObject(): Email
+    {
+        if ($this->emailObject === null) {
+            $this->emailObject = Email::fromArray([
+                'email' => $this->attributes['email'],
+                'email_verified_at' => $this->email_verified_at,
+            ]);
+        }
+
+        return $this->emailObject;
+    }
+
+    /**
+     * Get the email address
+     */
+    public function getEmailAttribute(): string
+    {
+        return $this->getEmailValueObject()->address;
+    }
+
+    /**
+     * Set the email address
+     */
+    public function setEmailAttribute(string $value): void
+    {
+        $verifiedAt = $this->email_verified_at;
+        $this->emailObject = new Email($value, $verifiedAt instanceof CarbonImmutable
+            ? $verifiedAt
+            : ($verifiedAt ? $verifiedAt->toImmutable() : null));
+        $this->attributes['email'] = $value;
+    }
+
+    /**
+     * Get the email verified at timestamp
+     */
+    public function getEmailVerifiedAtAttribute($value)
+    {
+        return $value;
+    }
+
+    /**
+     * Set the email verified at timestamp
+     */
+    public function setEmailVerifiedAtAttribute($value): void
+    {
+        $this->attributes['email_verified_at'] = $value;
+
+        if ($this->emailObject !== null) {
+            $this->emailObject = new Email(
+                $this->attributes['email'],
+                $value instanceof CarbonImmutable
+                    ? $value
+                    : ($value ? CarbonImmutable::parse($value) : null)
+            );
+        }
     }
 }
