@@ -57,7 +57,15 @@
         "cs": "phpcs --standard=PSR12 app tests",
         "cs-fix": "phpcbf --standard=PSR12 app tests",
         "phpstan": "phpstan analyse",
-        "phpstan-baseline": "phpstan analyse --generate-baseline"
+        "phpstan-baseline": "phpstan analyse --generate-baseline",
+        "test": "phpunit",
+        "test-coverage": "XDEBUG_MODE=coverage phpunit --coverage-html coverage/html",
+        "test-coverage-text": "XDEBUG_MODE=coverage phpunit --coverage-text",
+        "all": [
+            "@cs",
+            "@phpstan",
+            "@test-coverage"
+        ]
     },
     "extra": {
         "laravel": {

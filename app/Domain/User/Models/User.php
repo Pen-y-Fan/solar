@@ -121,7 +121,9 @@ class User extends Authenticatable
     public function setEmailAttribute(string $value): void
     {
         $verifiedAt = $this->email_verified_at;
-        $this->emailObject = new Email($value, $verifiedAt instanceof CarbonImmutable ? $verifiedAt : ($verifiedAt ? $verifiedAt->toImmutable() : null));
+        $this->emailObject = new Email($value, $verifiedAt instanceof CarbonImmutable
+            ? $verifiedAt
+            : ($verifiedAt ? $verifiedAt->toImmutable() : null));
         $this->attributes['email'] = $value;
     }
 
@@ -143,7 +145,9 @@ class User extends Authenticatable
         if ($this->emailObject !== null) {
             $this->emailObject = new Email(
                 $this->attributes['email'],
-                $value instanceof CarbonImmutable ? $value : ($value ? CarbonImmutable::parse($value) : null)
+                $value instanceof CarbonImmutable
+                    ? $value
+                    : ($value ? CarbonImmutable::parse($value) : null)
             );
         }
     }
