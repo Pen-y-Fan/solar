@@ -12,6 +12,9 @@ project, it requires a **Solis inverter** and energy supplied by **Octopus energ
 - Calculate rolling average usage per 30 minutes
 - Forecast battery and solar usage with cost(s)
 - Battery charging strategy
+- Create an comparison with Octopus Outgoing (curently 15p/kwh export)
+  - https://api.octopus.energy/v1/products/OUTGOING-VAR-24-10-26/electricity-tariffs/E-1R-OUTGOING-VAR-24-10-26-K/standard-unit-rates/
+- update the output from Account commend to display current tariffs.
 
 ## Bug fix
 
@@ -64,20 +67,21 @@ cp .env.example .env
 Configure the Laravel **.env** as per you local setup. e.g.
 
 ```ini
-APP_NAME = Solar
+APP_NAME=Solar
 
-APP_URL = https://solar.test
+APP_URL=https://solar.test
 
 # Sign up for Solcast API: https://docs.solcast.com.au/
-SOLCAST_API_KEY =
-SOLCAST_RESOURCE_ID =
+SOLCAST_API_KEY=
+SOLCAST_RESOURCE_ID=
 
 # Existing customers can generate a key: https://octopus.energy/dashboard/new/accounts/personal-details/api-access
-OCTOPUS_API_KEY =
-OCTOPUS_EXPORT_MPAN =
-OCTOPUS_IMPORT_MPAN =
-OCTOPUS_EXPORT_SERIAL_NUMBER =
-OCTOPUS_IMPORT_SERIAL_NUMBER =
+OCTOPUS_API_KEY=
+OCTOPUS_ACCOUNT=
+OCTOPUS_EXPORT_MPAN=
+OCTOPUS_IMPORT_MPAN=
+OCTOPUS_EXPORT_SERIAL_NUMBER=
+OCTOPUS_IMPORT_SERIAL_NUMBER=
 ```
 
 Laravel 11 can use many databases, by default the database is **sqlite**, update the **.env** file as required, for
