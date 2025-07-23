@@ -110,7 +110,7 @@ class ElectricImportExportChart extends ChartWidget
         $limit = 48;
 
         $data = OctopusExport::query()
-            ->with(['importCost', 'exportCost', 'octopusImport', 'inverter'])
+            ->with(['importCost', 'strategy', 'octopusImport', 'inverter'])
             ->where(
                 'interval_start',
                 '>=',
@@ -130,7 +130,7 @@ class ElectricImportExportChart extends ChartWidget
 
         $result = [];
         foreach ($data as $exportItem) {
-            $exportValueIncVat = $exportItem->exportCost?->value_inc_vat ?? 0;
+            $exportValueIncVat = $exportItem->strategy?->export_value_inc_vat ?? 0;
             $importValueIncVat = $exportItem->importCost?->value_inc_vat ?? 0;
             $importConsumption = $exportItem->octopusImport?->consumption ?? 0;
             $battery = $exportItem->inverter?->battery_soc ?? 0;

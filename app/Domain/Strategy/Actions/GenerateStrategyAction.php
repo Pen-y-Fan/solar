@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Strategy\Actions;
 
+use App\Domain\Energy\Models\OutgoingOctopus;
 use App\Domain\Energy\Repositories\InverterRepositoryInterface;
 use App\Domain\Forecasting\Models\Forecast;
 use App\Domain\Strategy\Models\Strategy;
@@ -118,9 +119,13 @@ class GenerateStrategyAction
             $strategies[$key]['strategy2'] = $item['charging'];
         });
 
-        $forecastData->each(function ($forecast) use (&$strategies) {
+        $eighthJuly2025 = Carbon::createFromFormat('Y-m-d', '2025-07-08', 'UTC');
+
+        $forecastData->each(function ($forecast) use (&$strategies, $eighthJuly2025) {
             $strategies[$forecast->period_end->format('Hi')]['export_value_inc_vat'] =
-                $forecast->exportCost?->value_inc_vat ?? 0;
+                $forecast->period_end->isAfter($eighthJuly2025)
+                    ? OutgoingOctopus::EXPORT_COST
+                    : $forecast->exportCost?->value_inc_vat ?? 0;
             $strategies[$forecast->period_end->format('Hi')]['period'] = $forecast->period_end;
         });
 
@@ -185,11 +190,11 @@ class GenerateStrategyAction
             }
 
             $result[$forecast->period_end->format('Hi')] = [
-                'period' => $forecast->period_end,
+                'period'               => $forecast->period_end,
                 'import_value_inc_vat' => $importValueIncVat,
-                'charging' => $charging,
-                'consumption' => $consumption,
-                'battery_percentage' => $battery * 25,
+                'charging'             => $charging,
+                'consumption'          => $consumption,
+                'battery_percentage'   => $battery * 25,
             ];
         }
 

@@ -35,7 +35,13 @@ class StrategyResourceTest extends TestCase
     public function testCanViewListStrategies(): void
     {
         // Create some strategies
-        Strategy::factory()->count(5)->create();
+        Strategy::factory()->create([
+            'period' => now()->startOfDay()->addHours(2),
+        ]);
+
+        Strategy::factory()->create([
+            'period' => now()->startOfDay()->addHours(3),
+        ]);
 
         // Test the Livewire component
         Livewire::actingAs($this->user)
@@ -83,7 +89,9 @@ class StrategyResourceTest extends TestCase
     public function testCanDeleteStrategy(): void
     {
         // Create a strategy
-        $strategy = Strategy::factory()->create();
+        $strategy = Strategy::factory()->create([
+            'period' => now()->startOfHour(),
+        ]);
 
         // Test the Livewire component for bulk deletion
         Livewire::actingAs($this->user)
