@@ -2,6 +2,7 @@
 
 namespace App\Domain\Energy\Models;
 
+use App\Domain\Strategy\Models\Strategy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -17,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property-read \App\Domain\Energy\Models\AgileImport|null $importCost
  * @property-read \App\Domain\Energy\Models\OctopusImport|null $octopusImport
  * @property-read \App\Domain\Energy\Models\Inverter|null $inverter
+ * @property-read \App\Domain\Strategy\Models\Strategy|null $strategy
  *
  * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport newQuery()
@@ -63,5 +65,10 @@ class OctopusExport extends Model
     public function inverter(): HasOne
     {
         return $this->hasOne(Inverter::class, 'period', 'interval_start');
+    }
+
+    public function strategy(): HasOne
+    {
+        return $this->hasOne(Strategy::class, 'period', 'interval_start');
     }
 }

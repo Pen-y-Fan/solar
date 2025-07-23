@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\StrategyResource\Widgets;
 
+use App\Domain\Strategy\Models\Strategy;
 use App\Filament\Resources\StrategyResource\Pages\ListStrategies;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
@@ -106,6 +107,7 @@ class StrategyChart extends ChartWidget
         $importAccumulativeCost = 0;
         $data = [];
 
+        /** @var Strategy $strategy */
         foreach ($tableData as $strategy) {
             $import = $strategy->import_amount + $strategy->battery_charge_amount;
             $export = $strategy->export_amount;

@@ -3,6 +3,7 @@
 namespace App\Filament\Widgets;
 
 use App\Domain\Energy\Models\OctopusExport;
+use App\Domain\Energy\Models\OutgoingOctopus;
 use Carbon\CarbonPeriod;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
@@ -132,8 +133,13 @@ class OctopusChart extends ChartWidget
         $importAccumulativeCost = 0;
 
         $result = [];
+        $eighthJuly2025 = Carbon::createFromFormat('Y-m-d', '2025-07-08', 'UTC');
+
+        /** @var OctopusExport $exportItem */
         foreach ($data as $exportItem) {
-            $exportValueIncVat = $exportItem->exportCost?->value_inc_vat ?? 0;
+            $exportValueIncVat = $exportItem->interval_start->isAfter($eighthJuly2025)
+                ? OutgoingOctopus::EXPORT_COST
+                : $exportItem->exportCost?->value_inc_vat ?? 0;
             $importValueIncVat = $exportItem->importCost?->value_inc_vat ?? 0;
             $importConsumption = $exportItem->octopusImport?->consumption ?? 0;
 

@@ -26,46 +26,6 @@ parameters:
 			path: app/Filament/Resources/StrategyResource/Widgets/CostChart.php
 
 		-
-			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$battery_charge_amount\\.$#"
-			count: 1
-			path: app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php
-
-		-
-			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$battery_percentage_manual\\.$#"
-			count: 1
-			path: app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php
-
-		-
-			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$export_amount\\.$#"
-			count: 1
-			path: app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php
-
-		-
-			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$export_value_inc_vat\\.$#"
-			count: 1
-			path: app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php
-
-		-
-			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$import_amount\\.$#"
-			count: 1
-			path: app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php
-
-		-
-			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$import_value_inc_vat\\.$#"
-			count: 1
-			path: app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php
-
-		-
-			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$period\\.$#"
-			count: 1
-			path: app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php
-
-		-
-			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$strategy_manual\\.$#"
-			count: 1
-			path: app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php
-
-		-
 			message: "#^Call to an undefined method Illuminate\\\\Support\\\\Carbon\\:\\:subdays\\(\\)\\.$#"
 			count: 1
 			path: app/Filament/Widgets/ForecastChart.php
