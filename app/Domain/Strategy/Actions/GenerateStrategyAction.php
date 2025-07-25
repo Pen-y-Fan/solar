@@ -75,7 +75,7 @@ class GenerateStrategyAction
         $averageCost = 0;
 
         $forecastData->each(function ($forecast) use (&$importCosts) {
-            $importCost = $forecast->importCost?->value_inc_vat ?? 0;
+            $importCost = $forecast->importCost ? $forecast->importCost->value_inc_vat : 0;
 
             if ($importCost > 0) {
                 $importCosts[] = $importCost;
@@ -85,7 +85,7 @@ class GenerateStrategyAction
         $importCosts = [];
 
         $forecastData->each(function ($forecast) use (&$importCosts) {
-            $importCost = $forecast->importCost?->value_inc_vat;
+            $importCost = $forecast->importCost ? $forecast->importCost->value_inc_vat : null;
 
             if ($importCost !== null) {
                 $importCosts[] = $importCost;
@@ -125,7 +125,7 @@ class GenerateStrategyAction
             $strategies[$forecast->period_end->format('Hi')]['export_value_inc_vat'] =
                 $forecast->period_end->isAfter($eighthJuly2025)
                     ? OutgoingOctopus::EXPORT_COST
-                    : $forecast->exportCost?->value_inc_vat ?? 0;
+                    : ($forecast->exportCost ? $forecast->exportCost->value_inc_vat : 0);
             $strategies[$forecast->period_end->format('Hi')]['period'] = $forecast->period_end;
         });
 
@@ -153,7 +153,7 @@ class GenerateStrategyAction
         $result = [];
 
         foreach ($forecastData as $forecast) {
-            $importValueIncVat = $forecast->importCost?->value_inc_vat ?? 0;
+            $importValueIncVat = $forecast->importCost ? $forecast->importCost->value_inc_vat : 0;
 
             Log::info('Charge at: ' . $forecast->period_end->format('H:i:s') . ' import cost '
                 . $importValueIncVat . ' battery ' . $battery);
@@ -162,7 +162,7 @@ class GenerateStrategyAction
                 return $item->time === $forecast->period_end->format('H:i:s');
             });
 
-            $consumption = $consumptionData?->value ?? 0;
+            $consumption = $consumptionData ? $consumptionData->value : 0;
 
             $estimatePV = $forecast->pv_estimate / 2;
 

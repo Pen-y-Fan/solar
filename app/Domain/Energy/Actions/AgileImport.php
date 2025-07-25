@@ -20,10 +20,11 @@ class AgileImport
         Log::info('Start running Agile import action');
 
         // normally released after 4PM and will have data up to 23:00 the next day!
-        $lastImportValidTo = AgileImportModel::query()
+        $result = AgileImportModel::query()
             ->latest('valid_to')
-            ->first('valid_to')
-            ?->valid_to ?? now()->subDay();
+            ->first('valid_to');
+
+        $lastImportValidTo = $result ? $result->valid_to : now()->subDay();
 
         throw_if(
             now()->diffInUTCHours($lastImportValidTo) > 7,

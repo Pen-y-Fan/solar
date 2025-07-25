@@ -87,7 +87,7 @@ class OctopusExportChart extends ChartWidget
             $lastExport = $this->getLastExport();
         }
 
-        $start = ($lastExport?->interval_start ?? now())->timezone('Europe/London')->subDay()
+        $start = ($lastExport ? $lastExport->interval_start : now())->timezone('Europe/London')->subDay()
             ->startOfDay()->timezone('UTC');
 
         $limit = 48;
@@ -106,7 +106,7 @@ class OctopusExportChart extends ChartWidget
         $accumulativeCost = 0;
         $result = [];
         foreach ($data as $item) {
-            $exportValueIncVat = $item->exportCost?->value_inc_vat ?? 0;
+            $exportValueIncVat = $item->exportCost ? $item->exportCost->value_inc_vat : 0;
 
             $cost = $exportValueIncVat * $item->consumption;
             $accumulativeCost += ($cost / 100);

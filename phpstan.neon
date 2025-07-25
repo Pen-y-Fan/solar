@@ -1,6 +1,6 @@
 includes:
     - phpstan-baseline.neon
-    - ./vendor/nunomaduro/larastan/extension.neon
+    - ./vendor/larastan/larastan/extension.neon
 
 parameters:
     level: 5
@@ -8,10 +8,11 @@ parameters:
         - app
         - tests
     excludePaths:
-        - vendor
-        - storage
-        - bootstrap/cache
-        - node_modules
+        analyseAndScan:
+            - vendor
+            - storage
+            - bootstrap/cache
+            - node_modules (?)
 
     # Laravel specific configuration
     noUnnecessaryCollectionCall: true

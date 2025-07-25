@@ -21,11 +21,6 @@ parameters:
 			path: app/Domain/Energy/Repositories/EloquentInverterRepository.php
 
 		-
-			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Model\\:\\:\\$period\\.$#"
-			count: 1
-			path: app/Filament/Resources/StrategyResource/Widgets/CostChart.php
-
-		-
 			message: "#^Call to an undefined method Illuminate\\\\Support\\\\Carbon\\:\\:subdays\\(\\)\\.$#"
 			count: 1
 			path: app/Filament/Widgets/ForecastChart.php

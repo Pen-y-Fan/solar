@@ -160,6 +160,8 @@ class ForecastChart extends ChartWidget
             return collect();
         }
 
+        // Using DB::raw creates dynamic properties that PHPStan can't detect
+        // We're selecting avg(consumption) as 'value'
         $averageConsumptions = Inverter::query()
             ->select(DB::raw('time(period) as `time`, avg(`consumption`) as `value`'))
             ->where(
@@ -185,7 +187,7 @@ class ForecastChart extends ChartWidget
             $importCosts = [];
 
             $forecastData->each(function ($forecast) use (&$importCosts) {
-                $importCost = $forecast->importCost?->value_inc_vat;
+                $importCost = $forecast->importCost ? $forecast->importCost->value_inc_vat : null;
 
                 if ($importCost !== null) {
                     $importCosts[] = $importCost;
@@ -206,13 +208,16 @@ class ForecastChart extends ChartWidget
         }
 
         foreach ($forecastData as $forecast) {
-            $importValueIncVat = $forecast->importCost?->value_inc_vat ?? 0;
-            $exportValueIncVat = $forecast->exportCost?->value_inc_vat ?? 0;
+            $importValueIncVat = $forecast->importCost ? $forecast->importCost->value_inc_vat : 0;
+            $exportValueIncVat = $forecast->exportCost ? $forecast->exportCost->value_inc_vat : 0;
 
-            $averageConsumption = $averageConsumptions->where(
+            $averageConsumptionRecord = $averageConsumptions->where(
                 'time',
                 $forecast->period_end->format('H:i:s')
-            )->first()?->value ?? 0;
+            )->first();
+
+            // Using array access for the dynamic property created by DB::raw
+            $averageConsumption = $averageConsumptionRecord ? (float)($averageConsumptionRecord['value'] ?? 0) : 0;
 
             $estimatePV = match ($this->filter) {
                 'yesterday10', 'today10', 'tomorrow10', => $forecast->pv_estimate10 / 2,

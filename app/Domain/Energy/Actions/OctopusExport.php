@@ -20,10 +20,11 @@ class OctopusExport
     {
         Log::info('Start running Octopus export action');
 
-        $lastExportStart = OctopusExportModel::query()
+        $result = OctopusExportModel::query()
             ->latest('interval_start')
-            ->first('interval_start')
-            ?->interval_start ?? now()->subDays(2);
+            ->first('interval_start');
+
+        $lastExportStart = $result ? $result->interval_start : now()->subDays(2);
 
         throw_if(
             $lastExportStart >= now()->subDay(),

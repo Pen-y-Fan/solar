@@ -83,7 +83,7 @@ class OctopusImportChart extends ChartWidget
         }
 
         $limit = 48;
-        $start = ($lastImport?->interval_start ?? now())->timezone('Europe/London')->subDay()
+        $start = ($lastImport ? $lastImport->interval_start : now())->timezone('Europe/London')->subDay()
             ->startOfDay()->timezone('UTC');
 
         $importData = OctopusImport::query()
@@ -100,7 +100,7 @@ class OctopusImportChart extends ChartWidget
         $accumulativeCost = 0;
         $result = [];
         foreach ($importData as $item) {
-            $importValueIncVat = $item->importCost?->value_inc_vat ?? 0;
+            $importValueIncVat = $item->importCost ? $item->importCost->value_inc_vat : 0;
 
             $cost = $importValueIncVat * $item->consumption;
             $accumulativeCost += ($cost / 100);
