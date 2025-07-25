@@ -5,20 +5,17 @@ This document provides guidelines for development on the Solar project. It inclu
 ## Build/Configuration Instructions
 
 ### Prerequisites
-- Docker and Docker Compose (for using Laravel Sail)
-- Composer (optional, can use Docker for Composer commands)
+- PHP 8.2 or higher (managed by Laravel Herd)
+- Composer (managed by Laravel Herd)
+- Laravel Herd installed on your Mac
 
-### Setup with Docker (Laravel Sail)
+### Setup with Laravel Herd
 
 1. Clone the repository
-2. If Composer is not installed locally, you can install dependencies using Docker:
+
+2. Install dependencies using Composer:
    ```shell
-   docker run --rm \
-       -u "$(id -u):$(id -g)" \
-       -v "$(pwd):/var/www/html" \
-       -w /var/www/html \
-       laravelsail/php83-composer:latest \
-       composer install --ignore-platform-reqs
+   composer install
    ```
 
 3. Copy the `.env.example` file to `.env` and configure your environment variables:
@@ -26,27 +23,22 @@ This document provides guidelines for development on the Solar project. It inclu
    cp .env.example .env
    ```
 
-4. Start the Docker containers:
+4. Generate an application key:
    ```shell
-   ./vendor/bin/sail up -d
+   php artisan key:generate
    ```
 
-5. Generate an application key:
+5. Run database migrations and seed the database:
    ```shell
-   ./vendor/bin/sail artisan key:generate
+   php artisan migrate --seed
    ```
 
-6. Run database migrations and seed the database:
-   ```shell
-   ./vendor/bin/sail artisan migrate --seed
-   ```
-   
    Or to refresh the database:
    ```shell
-   ./vendor/bin/sail artisan migrate:fresh --seed
+   php artisan migrate:fresh --seed
    ```
 
-7. Access the application at `https://solar.test` (requires local DNS configuration)
+6. Access the application at `https://solar.test` (requires local DNS configuration in Laravel Herd)
 
 ### Login Credentials
 - Email: `test@example.com`
@@ -66,17 +58,27 @@ The project uses PHPUnit for testing. The configuration is in `phpunit.xml` at t
 
 To run all tests:
 ```shell
-./vendor/bin/sail test
+composer test
+```
+
+To run tests with coverage report (HTML):
+```shell
+composer test-coverage
+```
+
+To run tests with coverage report (text output):
+```shell
+composer test-coverage-text
 ```
 
 To run a specific test file:
 ```shell
-./vendor/bin/sail test tests/path/to/TestFile.php
+php vendor/bin/phpunit tests/path/to/TestFile.php
 ```
 
 To run a specific test method:
 ```shell
-./vendor/bin/sail test --filter=methodName
+php vendor/bin/phpunit --filter=methodName
 ```
 
 ### Creating Tests
@@ -145,6 +147,45 @@ class ExampleTest extends TestCase
 }
 ```
 
+## Code Quality and Static Analysis
+
+The project uses several tools to maintain code quality:
+
+### PSR-12 Code Style
+
+The project follows PSR-12 coding standards, enforced through PHP_CodeSniffer.
+
+To check code style compliance:
+```shell
+composer cs
+```
+
+To automatically fix code style issues:
+```shell
+composer cs-fix
+```
+
+### Static Analysis
+
+PHPStan is used for static analysis to detect potential errors.
+
+To run static analysis:
+```shell
+composer phpstan
+```
+
+To generate a PHPStan baseline:
+```shell
+composer phpstan-baseline
+```
+
+### Run All Quality Checks
+
+To run code style check, static analysis, and test coverage in sequence:
+```shell
+composer all
+```
+
 ## Additional Development Information
 
 ### Project Structure
@@ -161,12 +202,8 @@ The project follows the standard Laravel structure with some additions:
 
 ### Development Tools
 
-- **Laravel Sail**: Docker-based development environment
+- **Laravel Herd**: Mac-based development environment for PHP and Laravel
 - **IDE Helper**: Provides better IDE auto-completion for Laravel
-
-### Code Style
-
-The project follows PSR-12 coding standards. While not currently enforced through automated tools, it's recommended to follow these standards for consistency.
 
 ### Debugging
 
@@ -179,13 +216,3 @@ dump($variable);
 // Dump and die
 dd($variable);
 ```
-
-### Docker Commands
-
-Common Docker commands for this project:
-
-- Start containers: `./vendor/bin/sail up -d`
-- Stop containers: `./vendor/bin/sail down`
-- Run Artisan commands: `./vendor/bin/sail artisan <command>`
-- Run Composer commands: `./vendor/bin/sail composer <command>`
-- Run NPM commands: `./vendor/bin/sail npm <command>`
