@@ -20,10 +20,11 @@ class OctopusImport
     {
         Log::info('Start running Octopus import action');
 
-        $lastImportStart = OctopusImportModel::query()
+        $result = OctopusImportModel::query()
             ->latest('interval_start')
-            ->first('interval_start')
-            ?->interval_start ?? now()->subDays(2);
+            ->first('interval_start');
+
+        $lastImportStart = $result ? $result->interval_start : now()->subDays(2);
 
         throw_if(
             $lastImportStart >= now()->subDay(),

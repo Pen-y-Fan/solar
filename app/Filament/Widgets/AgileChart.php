@@ -116,13 +116,19 @@ class AgileChart extends ChartWidget
             ->orderBy('valid_from', 'DESC')
             ->first();
 
-        if (is_null($lastImport) || now()->diffInUTCHours($lastImport?->valid_from ?? now()) < 7) {
+        if (is_null($lastImport)) {
+            // No import data, so update
+            $this->updateAgileImport();
+        } elseif (now()->diffInUTCHours($lastImport->valid_from) < 7) {
             // Don't download if we have more than 7 hours of data from now, data is normally available after 4 PM.
             // We should have data up to 11 PM, 4 PM is 7 hours before 11pm.
             $this->updateAgileImport();
         }
 
-        if (is_null($lastExport) || now()->diffInUTCHours($lastExport?->valid_from ?? now()) < 7) {
+        if (is_null($lastExport)) {
+            // No export data, so update
+            $this->updateAgileExport();
+        } elseif (now()->diffInUTCHours($lastExport->valid_from) < 7) {
             // Don't download if we have more than 7 hours of data from now, data is normally available after 4 PM.
             // We should have data up to 11 PM, 4 PM is 7 hours before 11pm.
             $this->updateAgileExport();
@@ -152,7 +158,7 @@ class AgileChart extends ChartWidget
         return $importData->map(fn ($item) => [
             'valid_from' => $item->valid_from,
             'import_value_inc_vat' => $item->value_inc_vat,
-            'export_value_inc_vat' => $item->exportCost?->value_inc_vat ?? 0,
+            'export_value_inc_vat' => $item->exportCost ? $item->exportCost->value_inc_vat : 0,
         ]);
     }
 

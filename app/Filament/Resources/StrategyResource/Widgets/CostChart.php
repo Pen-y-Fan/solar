@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\StrategyResource\Widgets;
 
+use App\Domain\Strategy\Models\Strategy;
 use App\Filament\Resources\StrategyResource\Pages\ListStrategies;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
@@ -101,9 +102,13 @@ class CostChart extends ChartWidget
     {
         $strategies = $this->getPageTableRecords();
 
-        $collection = $strategies->map(function ($strategy) {
+        /** @var \Illuminate\Database\Eloquent\Collection<int, Strategy> $strategies */
+        $collection = $strategies->map(function (Strategy $strategy): array {
+            /** @var \Carbon\CarbonImmutable|null $period */
+            $period = $strategy->period;
+
             return [
-                'valid_from' => $strategy->period,
+                'valid_from' => $period,
                 'import_value_inc_vat' => $strategy->import_value_inc_vat ?? 0,
                 'export_value_inc_vat' => $strategy->export_value_inc_vat ?? 0,
             ];

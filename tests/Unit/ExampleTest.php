@@ -8,9 +8,11 @@ class ExampleTest extends TestCase
 {
     /**
      * A basic test example.
+     * This demonstrates a simple assertion.
      */
-    public function testThatTrueIsTrue(): void
+    public function testBasicAssertion(): void
     {
-        $this->assertTrue(true);
+        $value = 1 + 1;
+        $this->assertEquals(2, $value);
     }
 }

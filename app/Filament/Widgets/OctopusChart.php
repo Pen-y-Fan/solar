@@ -139,9 +139,9 @@ class OctopusChart extends ChartWidget
         foreach ($data as $exportItem) {
             $exportValueIncVat = $exportItem->interval_start->isAfter($eighthJuly2025)
                 ? OutgoingOctopus::EXPORT_COST
-                : $exportItem->exportCost?->value_inc_vat ?? 0;
-            $importValueIncVat = $exportItem->importCost?->value_inc_vat ?? 0;
-            $importConsumption = $exportItem->octopusImport?->consumption ?? 0;
+                : ($exportItem->exportCost ? $exportItem->exportCost->value_inc_vat : 0);
+            $importValueIncVat = $exportItem->importCost ? $exportItem->importCost->value_inc_vat : 0;
+            $importConsumption = $exportItem->octopusImport ? $exportItem->octopusImport->consumption : 0;
 
             $exportCost = $exportValueIncVat * $exportItem->consumption;
             $exportAccumulativeCost += ($exportCost / 100);

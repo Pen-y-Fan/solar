@@ -100,8 +100,8 @@ class SolcastWithActualAndRealChart extends ChartWidget
         return $actualForecast->map(fn ($item) => [
             'period_end' => $item->period_end,
             'pv_estimate' => $item->pv_estimate / 2,
-            'inverter_yield' => $inverterData->where('period', '=', $item->period_end)
-                ->first()?->yield ?? 0,
+            'inverter_yield' => ($inverterYield = $inverterData->where('period', '=', $item->period_end)->first())
+                ? $inverterYield->yield : 0,
         ]);
     }
 

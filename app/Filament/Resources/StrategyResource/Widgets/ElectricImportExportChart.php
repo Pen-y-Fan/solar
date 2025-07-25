@@ -130,10 +130,10 @@ class ElectricImportExportChart extends ChartWidget
 
         $result = [];
         foreach ($data as $exportItem) {
-            $exportValueIncVat = $exportItem->strategy?->export_value_inc_vat ?? 0;
-            $importValueIncVat = $exportItem->importCost?->value_inc_vat ?? 0;
-            $importConsumption = $exportItem->octopusImport?->consumption ?? 0;
-            $battery = $exportItem->inverter?->battery_soc ?? 0;
+            $exportValueIncVat = $exportItem->strategy ? $exportItem->strategy->export_value_inc_vat : 0;
+            $importValueIncVat = $exportItem->importCost ? $exportItem->importCost->value_inc_vat : 0;
+            $importConsumption = $exportItem->octopusImport ? $exportItem->octopusImport->consumption : 0;
+            $battery = $exportItem->inverter ? $exportItem->inverter->battery_soc : 0;
 
             $exportCost = $exportValueIncVat * $exportItem->consumption;
             $exportAccumulativeCost += ($exportCost / 100);
