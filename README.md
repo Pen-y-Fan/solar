@@ -18,8 +18,8 @@ project, it requires a **Solis inverter** and energy supplied by **Octopus energ
 
 ## Requirements
 
-This is a Laravel 11 project. The requirements are the same as a
-new [Laravel 11 project](https://laravel.com/docs/11.x/installation).
+This is a Laravel 12 project. The requirements are the same as a
+new [Laravel 12 project](https://laravel.com/docs/12.x/installation).
 
 - PHP 8.2 or higher
 - Composer
@@ -81,7 +81,7 @@ OCTOPUS_EXPORT_SERIAL_NUMBER =
 OCTOPUS_IMPORT_SERIAL_NUMBER =
 ```
 
-This Laravel 11 project is configured to use **sqlite**, other databases are supported by Laravel.  
+This Laravel 12 project is configured to use **sqlite**, other databases are supported by Laravel.  
 The **2025_02_26_174701_add_auto_cost_calculator_to_strategies_table.php** migration is specific to sqlite, it will 
 need to be modified to use other databases.
 
@@ -165,7 +165,7 @@ Once the **.env** file and database have already been configured, the project ca
 ./vendor/bin/sail up -d
 ```
 
-Refer to the [Laravel sail documentation](https://laravel.com/docs/11.x/sail) for full details, generally `php` can be
+Refer to the [Laravel sail documentation](https://laravel.com/docs/12.x/sail) for full details, generally `php` can be
 replaced with `./vendor/bin/sail` in the commands below.
 
 ## Code Quality Tools
