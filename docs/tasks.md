@@ -38,16 +38,16 @@ This document provides a comprehensive checklist of improvement tasks for the So
        - [x] Add accessor and mutator methods in both models to convert between raw database values and the value object
        - [x] Update `ForecastAction` and `ActualForecastAction` to use the `PvEstimate` value object
        - [x] Update Filament forms in `ForecastResource` to work with the value object
-     - [ ]  app/Domain/Energy/ValueObjects/MonetaryValue.php
-       - [ ] Update `AgileImport` and `AgileExport` models to use `MonetaryValue` value object for value properties
-       - [ ] Add accessor and mutator methods in both models to convert between raw database values and the value object
-       - [ ] Update energy import/export actions to use the `MonetaryValue` value object
-       - [ ] Update any Filament forms that display or edit monetary values
-     - [ ]  app/Domain/Energy/ValueObjects/TimeInterval.php
-       - [ ] Update `AgileImport` and `AgileExport` models to use `TimeInterval` value object for `valid_from` and `valid_to` properties
-       - [ ] Add accessor and mutator methods in both models to convert between raw database values and the value object
-       - [ ] Update energy import/export actions to use the `TimeInterval` value object
-       - [ ] Update any Filament forms that display or edit time intervals
+     - [x]  app/Domain/Energy/ValueObjects/MonetaryValue.php
+       - [x] Update `AgileImport` and `AgileExport` models to use `MonetaryValue` value object for value properties
+       - [x] Add accessor and mutator methods in both models to convert between raw database values and the value object
+       - [x] Update energy import/export actions to use the `MonetaryValue` value object
+       - [x] Update any Filament forms that display or edit monetary values
+     - [x]  app/Domain/Energy/ValueObjects/TimeInterval.php
+       - [x] Update `AgileImport` and `AgileExport` models to use `TimeInterval` value object for `valid_from` and `valid_to` properties
+       - [x] Add accessor and mutator methods in both models to convert between raw database values and the value object
+       - [x] Update energy import/export actions to use the `TimeInterval` value object
+       - [x] Update any Filament forms that display or edit time intervals
      - [x]  app/Domain/User/ValueObjects/Email.php
        - [x] Update `User` model to use `Email` value object for email-related properties
        - [x] Add accessor and mutator methods in the `User` model to convert between raw database values and the value object
