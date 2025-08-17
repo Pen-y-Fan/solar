@@ -57,14 +57,6 @@ class ConsumptionData
     }
 
     /**
-     * Check if manual consumption is set
-     */
-    public function hasManualConsumption(): bool
-    {
-        return $this->manual !== null;
-    }
-
-    /**
      * Get the best consumption estimate (prioritizing manual, then last week, then average)
      */
     public function getBestEstimate(): ?float
@@ -78,13 +70,5 @@ class ConsumptionData
         }
 
         return $this->average;
-    }
-
-    /**
-     * Check if there is any consumption data available
-     */
-    public function hasData(): bool
-    {
-        return $this->lastWeek !== null || $this->average !== null || $this->manual !== null;
     }
 }

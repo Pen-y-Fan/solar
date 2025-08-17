@@ -5,20 +5,31 @@ declare(strict_types=1);
 namespace App\Domain\Forecasting\ValueObjects;
 
 /**
- * Value object representing photovoltaic (PV) estimates with different confidence levels
+ * Value object representing PV (photovoltaic) estimates for solar forecasting
  */
 class PvEstimate
 {
     /**
-     * @param float $estimate The median PV estimate (50% confidence)
-     * @param float|null $estimate10 The lower bound PV estimate (10% confidence)
-     * @param float|null $estimate90 The upper bound PV estimate (90% confidence)
+     * @param float|null $estimate Main PV estimate
+     * @param float|null $estimate10 Lower bound estimate (10th percentile)
+     * @param float|null $estimate90 Upper bound estimate (90th percentile)
      */
     public function __construct(
-        public readonly float $estimate,
+        public readonly ?float $estimate = null,
         public readonly ?float $estimate10 = null,
         public readonly ?float $estimate90 = null
     ) {
+        if ($estimate !== null && $estimate < 0) {
+            throw new \InvalidArgumentException('PV estimate cannot be negative');
+        }
+
+        if ($estimate10 !== null && $estimate10 < 0) {
+            throw new \InvalidArgumentException('PV estimate 10th percentile cannot be negative');
+        }
+
+        if ($estimate90 !== null && $estimate90 < 0) {
+            throw new \InvalidArgumentException('PV estimate 90th percentile cannot be negative');
+        }
     }
 
     /**
@@ -27,7 +38,7 @@ class PvEstimate
     public static function fromArray(array $data): self
     {
         return new self(
-            estimate: (float) $data['pv_estimate'],
+            estimate: isset($data['pv_estimate']) ? (float) $data['pv_estimate'] : null,
             estimate10: isset($data['pv_estimate10']) ? (float) $data['pv_estimate10'] : null,
             estimate90: isset($data['pv_estimate90']) ? (float) $data['pv_estimate90'] : null
         );
@@ -46,34 +57,24 @@ class PvEstimate
     }
 
     /**
-     * Get the range of the estimate (difference between upper and lower bounds)
+     * Convert to array with only the main estimate
+     * (for use with ActualForecast which only has pv_estimate)
      */
-    public function getRange(): ?float
+    public function toSingleArray(): array
     {
-        if ($this->estimate90 === null || $this->estimate10 === null) {
-            return null;
-        }
-
-        return $this->estimate90 - $this->estimate10;
+        return [
+            'pv_estimate' => $this->estimate,
+        ];
     }
 
     /**
-     * Get the uncertainty of the estimate as a percentage of the median estimate
+     * Create a simplified PvEstimate with only the main estimate
+     * (for use with ActualForecast which only has pv_estimate)
      */
-    public function getUncertaintyPercentage(): ?float
+    public static function fromSingleEstimate(?float $estimate): self
     {
-        if ($this->estimate === 0.0 || $this->getRange() === null) {
-            return null;
-        }
-
-        return $this->getRange() / $this->estimate * 100.0;
-    }
-
-    /**
-     * Check if the estimate has confidence bounds
-     */
-    public function hasConfidenceBounds(): bool
-    {
-        return $this->estimate10 !== null && $this->estimate90 !== null;
+        return new self(
+            estimate: $estimate
+        );
     }
 }

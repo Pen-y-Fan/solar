@@ -23,11 +23,70 @@ class ForecastResource extends Resource
             ->schema([
                 Forms\Components\DateTimePicker::make('period_end'),
                 Forms\Components\TextInput::make('pv_estimate')
-                    ->numeric(),
+                    ->label('PV Estimate')
+                    ->numeric()
+                    ->afterStateHydrated(function ($record, $state, $component) {
+                        // If we have a record, use the value object
+                        if ($record) {
+                            $pvEstimate = $record->getPvEstimateValueObject();
+                            $component->state($pvEstimate->estimate);
+                        }
+                    })
+                    ->dehydrateStateUsing(function ($state, $record) {
+                        // When saving, update the value object
+                        if ($record) {
+                            $pvEstimate = $record->getPvEstimateValueObject();
+                            $newPvEstimate = new \App\Domain\Forecasting\ValueObjects\PvEstimate(
+                                estimate: $state,
+                                estimate10: $pvEstimate->estimate10,
+                                estimate90: $pvEstimate->estimate90
+                            );
+                            $record->setPvEstimateValueObject($newPvEstimate);
+                        }
+                        return $state;
+                    }),
                 Forms\Components\TextInput::make('pv_estimate10')
-                    ->numeric(),
+                    ->label('PV Estimate (10th percentile)')
+                    ->numeric()
+                    ->afterStateHydrated(function ($record, $state, $component) {
+                        if ($record) {
+                            $pvEstimate = $record->getPvEstimateValueObject();
+                            $component->state($pvEstimate->estimate10);
+                        }
+                    })
+                    ->dehydrateStateUsing(function ($state, $record) {
+                        if ($record) {
+                            $pvEstimate = $record->getPvEstimateValueObject();
+                            $newPvEstimate = new \App\Domain\Forecasting\ValueObjects\PvEstimate(
+                                estimate: $pvEstimate->estimate,
+                                estimate10: $state,
+                                estimate90: $pvEstimate->estimate90
+                            );
+                            $record->setPvEstimateValueObject($newPvEstimate);
+                        }
+                        return $state;
+                    }),
                 Forms\Components\TextInput::make('pv_estimate90')
-                    ->numeric(),
+                    ->label('PV Estimate (90th percentile)')
+                    ->numeric()
+                    ->afterStateHydrated(function ($record, $state, $component) {
+                        if ($record) {
+                            $pvEstimate = $record->getPvEstimateValueObject();
+                            $component->state($pvEstimate->estimate90);
+                        }
+                    })
+                    ->dehydrateStateUsing(function ($state, $record) {
+                        if ($record) {
+                            $pvEstimate = $record->getPvEstimateValueObject();
+                            $newPvEstimate = new \App\Domain\Forecasting\ValueObjects\PvEstimate(
+                                estimate: $pvEstimate->estimate,
+                                estimate10: $pvEstimate->estimate10,
+                                estimate90: $state
+                            );
+                            $record->setPvEstimateValueObject($newPvEstimate);
+                        }
+                        return $state;
+                    }),
             ]);
     }
 
@@ -39,14 +98,20 @@ class ForecastResource extends Resource
                     ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('pv_estimate')
+                    ->label('PV Estimate')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->getStateUsing(fn ($record) => $record->getPvEstimateValueObject()->estimate),
                 Tables\Columns\TextColumn::make('pv_estimate10')
+                    ->label('PV Estimate (10th percentile)')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->getStateUsing(fn ($record) => $record->getPvEstimateValueObject()->estimate10),
                 Tables\Columns\TextColumn::make('pv_estimate90')
+                    ->label('PV Estimate (90th percentile)')
                     ->numeric()
-                    ->sortable(),
+                    ->sortable()
+                    ->getStateUsing(fn ($record) => $record->getPvEstimateValueObject()->estimate90),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

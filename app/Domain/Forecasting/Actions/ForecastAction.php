@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Forecasting\Actions;
 
+use App\Domain\Forecasting\ValueObjects\PvEstimate;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
@@ -78,12 +79,18 @@ class ForecastAction
 
         return collect($data['forecasts'])
             ->map(function ($item) {
-                return [
-                    'period_end' => Carbon::parse($item['period_end'])->timezone('UTC')->toDateTimeString(),
-                    'pv_estimate' => $item['pv_estimate'],
-                    'pv_estimate10' => $item['pv_estimate10'],
-                    'pv_estimate90' => $item['pv_estimate90'],
-                ];
+                // Create a PvEstimate value object
+                $pvEstimate = new PvEstimate(
+                    estimate: $item['pv_estimate'],
+                    estimate10: $item['pv_estimate10'],
+                    estimate90: $item['pv_estimate90']
+                );
+
+                // Convert to array and add period_end
+                return array_merge(
+                    ['period_end' => Carbon::parse($item['period_end'])->timezone('UTC')->toDateTimeString()],
+                    $pvEstimate->toArray()
+                );
             })->toArray();
     }
 }
