@@ -80,12 +80,6 @@ For each task:
 5. **Documentation**: Update documentation to reflect the changes
 6. **Review**: Mark the task as completed in `tasks.md`
 
-## Progress Tracking
-
-Progress will be tracked by updating the checkboxes in `tasks.md` as tasks are completed. Each completed task should be
-marked with [x] instead of [ ]. Run PHPUnit tests, PHPStan static analysis, and PHP_CodeSniffer code quality. All 
-tests, static analysis, and code quality should be good before marking a task as complete.
-
 ## Conclusion
 
 This phased approach ensures that improvements are implemented in a logical order, with each phase building on the

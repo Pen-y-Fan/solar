@@ -1,10 +1,12 @@
 # Solar Project Development Guidelines
 
-This document provides guidelines for development on the Solar project. It includes build/configuration instructions, testing information, and additional development details.
+This document provides guidelines for development on the Solar project. It includes build/configuration instructions,
+testing information, and additional development details.
 
 ## Build/Configuration Instructions
 
 ### Prerequisites
+
 - PHP 8.2 or higher (managed by Laravel Herd)
 - Composer (managed by Laravel Herd)
 - Laravel Herd installed on your Mac
@@ -41,6 +43,7 @@ This document provides guidelines for development on the Solar project. It inclu
 6. Access the application at `https://solar.test` (requires local DNS configuration in Laravel Herd)
 
 ### Login Credentials
+
 - Email: `test@example.com`
 - Password: `password`
 
@@ -48,7 +51,8 @@ This document provides guidelines for development on the Solar project. It inclu
 
 ### Testing Configuration
 
-The project uses PHPUnit for testing. The configuration is in `phpunit.xml` at the root of the project. Key configuration points:
+The project uses PHPUnit for testing. The configuration is in `phpunit.xml` at the root of the project. Key
+configuration points:
 
 - Tests are organized into two suites: Unit and Feature
 - Tests use an in-memory SQLite database for testing
@@ -57,26 +61,31 @@ The project uses PHPUnit for testing. The configuration is in `phpunit.xml` at t
 ### Running Tests
 
 To run all tests:
+
 ```shell
 composer test
 ```
 
 To run tests with coverage report (HTML):
+
 ```shell
 composer test-coverage
 ```
 
 To run tests with coverage report (text output):
+
 ```shell
 composer test-coverage-text
 ```
 
 To run a specific test file:
+
 ```shell
 php vendor/bin/phpunit tests/path/to/TestFile.php
 ```
 
 To run a specific test method:
+
 ```shell
 php vendor/bin/phpunit --filter=methodName
 ```
@@ -85,9 +94,11 @@ php vendor/bin/phpunit --filter=methodName
 
 #### Unit Tests
 
-Unit tests should be placed in the `tests/Unit` directory. They should extend `PHPUnit\Framework\TestCase` and focus on testing individual components in isolation.
+Unit tests should be placed in the `tests/Unit` directory. They should extend `PHPUnit\Framework\TestCase` and focus on
+testing individual components in isolation.
 
 Example:
+
 ```php
 <?php
 
@@ -111,9 +122,11 @@ class ExampleTest extends TestCase
 
 #### Feature Tests
 
-Feature tests should be placed in the `tests/Feature` directory. They should extend `Tests\TestCase` and focus on testing the application as a whole, including HTTP requests, database interactions, etc.
+Feature tests should be placed in the `tests/Feature` directory. They should extend `Tests\TestCase` and focus on
+testing the application as a whole, including HTTP requests, database interactions, etc.
 
 Example:
+
 ```php
 <?php
 
@@ -134,7 +147,8 @@ class ExampleTest extends TestCase
 
 ### Database Testing
 
-For tests that require database interactions, use the `RefreshDatabase` trait to ensure a clean database state for each test:
+For tests that require database interactions, use the `RefreshDatabase` trait to ensure a clean database state for each
+test:
 
 ```php
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -156,11 +170,13 @@ The project uses several tools to maintain code quality:
 The project follows PSR-12 coding standards, enforced through PHP_CodeSniffer.
 
 To check code style compliance:
+
 ```shell
 composer cs
 ```
 
 To automatically fix code style issues:
+
 ```shell
 composer cs-fix
 ```
@@ -170,11 +186,13 @@ composer cs-fix
 PHPStan is used for static analysis to detect potential errors.
 
 To run static analysis:
+
 ```shell
 composer phpstan
 ```
 
 To generate a PHPStan baseline:
+
 ```shell
 composer phpstan-baseline
 ```
@@ -182,6 +200,7 @@ composer phpstan-baseline
 ### Run All Quality Checks
 
 To run code style check, static analysis, and test coverage in sequence:
+
 ```shell
 composer all
 ```
@@ -197,7 +216,8 @@ The project follows the standard Laravel structure with some additions:
 
 ### Key Packages
 
-- **Filament Admin Panel**: Used for the admin interface. Documentation: https://filamentphp.com/docs/3.x/admin/installation
+- **Filament Admin Panel**: Used for the admin interface.
+  Documentation: https://filamentphp.com/docs/3.x/admin/installation
 - **Laravel Livewire**: Included with Filament for reactive components. Documentation: https://laravel-livewire.com/
 
 ### Development Tools
@@ -216,3 +236,11 @@ dump($variable);
 // Dump and die
 dd($variable);
 ```
+
+## Progress Tracking
+
+Run PHPUnit tests, PHPStan static analysis, and PHP_CodeSniffer code quality. All
+tests, static analysis, and code quality should be good before marking a task as complete.
+
+Progress will be tracked by updating the checkboxes in `docs/tasks.md` as tasks are completed and tested. Each completed
+task should be marked with [x] instead of [ ]. 
