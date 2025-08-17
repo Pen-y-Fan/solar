@@ -55,4 +55,20 @@ class ConsumptionData
             'consumption_manual' => $this->manual,
         ];
     }
+
+    /**
+     * Get the best consumption estimate (prioritizing manual, then last week, then average)
+     */
+    public function getBestEstimate(): ?float
+    {
+        if ($this->manual !== null) {
+            return $this->manual;
+        }
+
+        if ($this->lastWeek !== null) {
+            return $this->lastWeek;
+        }
+
+        return $this->average;
+    }
 }
