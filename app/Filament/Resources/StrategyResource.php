@@ -193,6 +193,7 @@ class StrategyResource extends Resource
                 Tables\Columns\TextColumn::make('consumption_last_week_cost')
                     ->label('Last Week Cost')
                     ->tooltip('Cost of last week\'s consumption')
+                    ->getStateUsing(fn ($record) => $record->getCostDataValueObject()->consumptionLastWeekCost)
                     ->numeric(2)
                     ->toggleable()
                     ->summarize(Sum::make()),
@@ -200,6 +201,7 @@ class StrategyResource extends Resource
                 Tables\Columns\TextColumn::make('consumption_average_cost')
                     ->label('Avg Cost')
                     ->tooltip('Cost of average consumption')
+                    ->getStateUsing(fn ($record) => $record->getCostDataValueObject()->consumptionAverageCost)
                     ->numeric(2)
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->summarize([Sum::make(), Range::make()]),
@@ -227,6 +229,7 @@ class StrategyResource extends Resource
 
                 Tables\Columns\TextColumn::make('import_value_inc_vat')
                     ->label('Import')
+                    ->getStateUsing(fn ($record) => $record->getCostDataValueObject()->importValueIncVat)
                     ->numeric(2)
                     ->sortable()
                     ->toggleable()
@@ -234,6 +237,7 @@ class StrategyResource extends Resource
 
                 Tables\Columns\TextColumn::make('export_value_inc_vat')
                     ->label('Export')
+                    ->getStateUsing(fn ($record) => $record->getCostDataValueObject()->exportValueIncVat)
                     ->numeric(2)
                     ->toggleable()
                     ->summarize([Average::make(), Range::make()]),

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Domain\Forecasting\Actions;
 
 use App\Domain\Forecasting\Models\ActualForecast;
+use App\Domain\Forecasting\ValueObjects\PvEstimate;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
@@ -75,10 +76,14 @@ class ActualForecastAction
 
         return collect($data['estimated_actuals'])
             ->map(function ($item) {
-                return [
-                    'period_end' => Carbon::parse($item['period_end'])->timezone('UTC')->toDateTimeString(),
-                    'pv_estimate' => $item['pv_estimate'],
-                ];
+                // Create a PvEstimate value object with only the main estimate
+                $pvEstimate = PvEstimate::fromSingleEstimate($item['pv_estimate']);
+
+                // Convert to array with only the main estimate and add period_end
+                return array_merge(
+                    ['period_end' => Carbon::parse($item['period_end'])->timezone('UTC')->toDateTimeString()],
+                    $pvEstimate->toSingleArray()
+                );
             })->toArray();
     }
 }

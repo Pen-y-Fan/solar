@@ -2,6 +2,7 @@
 
 namespace App\Domain\Forecasting\Models;
 
+use App\Domain\Forecasting\ValueObjects\PvEstimate;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -72,5 +73,27 @@ class Forecast extends Model
     public function strategy(): HasOne
     {
         return $this->hasOne(Strategy::class, 'period', 'period_end');
+    }
+
+    /**
+     * Get the PV estimate value object
+     */
+    public function getPvEstimateValueObject(): PvEstimate
+    {
+        return new PvEstimate(
+            estimate: $this->pv_estimate,
+            estimate10: $this->pv_estimate10,
+            estimate90: $this->pv_estimate90
+        );
+    }
+
+    /**
+     * Set the PV estimate from a value object
+     */
+    public function setPvEstimateValueObject(PvEstimate $pvEstimate): void
+    {
+        $this->pv_estimate = $pvEstimate->estimate;
+        $this->pv_estimate10 = $pvEstimate->estimate10;
+        $this->pv_estimate90 = $pvEstimate->estimate90;
     }
 }

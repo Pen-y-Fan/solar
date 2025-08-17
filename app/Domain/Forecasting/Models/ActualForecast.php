@@ -2,6 +2,7 @@
 
 namespace App\Domain\Forecasting\Models;
 
+use App\Domain\Forecasting\ValueObjects\PvEstimate;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -35,4 +36,20 @@ class ActualForecast extends Model
     protected $casts = [
         'period_end' => 'immutable_datetime',
     ];
+
+    /**
+     * Get the PV estimate value object
+     */
+    public function getPvEstimateValueObject(): PvEstimate
+    {
+        return PvEstimate::fromSingleEstimate($this->pv_estimate);
+    }
+
+    /**
+     * Set the PV estimate from a value object
+     */
+    public function setPvEstimateValueObject(PvEstimate $pvEstimate): void
+    {
+        $this->pv_estimate = $pvEstimate->estimate;
+    }
 }
