@@ -3,6 +3,7 @@
 namespace Tests\Feature\Filament;
 
 use App\Domain\Strategy\Models\Strategy;
+use App\Domain\Strategy\ValueObjects\CostData;
 use App\Domain\User\Models\User;
 use App\Filament\Resources\StrategyResource;
 use Filament\Actions\DeleteAction;
@@ -105,5 +106,61 @@ class StrategyResourceTest extends TestCase
         $this->assertDatabaseMissing('strategies', [
             'id' => $strategy->id,
         ]);
+    }
+
+    public function testCostDataIntegrationInForms(): void
+    {
+        // Create a strategy with cost-related properties
+        $importValue = 25.50;
+        $exportValue = 10.25;
+        $consumptionAverage = 5.0;
+        $consumptionLastWeek = 6.0;
+
+        $strategy = Strategy::factory()->create([
+            'period' => now()->startOfHour(),
+            'import_value_inc_vat' => $importValue,
+            'export_value_inc_vat' => $exportValue,
+            'consumption_average' => $consumptionAverage,
+            'consumption_last_week' => $consumptionLastWeek,
+            'consumption_average_cost' => $consumptionAverage * $importValue,
+            'consumption_last_week_cost' => $consumptionLastWeek * $importValue,
+        ]);
+
+        // Refresh to ensure all calculations are applied
+        $strategy->refresh();
+
+        // Test the edit form displays cost-related fields correctly
+        Livewire::actingAs($this->user)
+            ->test(StrategyResource\Pages\EditStrategy::class, [
+                'record' => $strategy->id,
+            ])
+            ->assertSuccessful()
+            ->assertFormSet([
+                'import_value_inc_vat' => $importValue,
+                'export_value_inc_vat' => $exportValue,
+                'consumption_average_cost' => $consumptionAverage * $importValue,
+                'consumption_last_week_cost' => $consumptionLastWeek * $importValue,
+            ]);
+
+        // Test the list table displays cost-related columns correctly
+        // Note: We can't directly test computed columns like net_cost and best_consumption_cost
+        // in the table assertion, but we can verify the base data is there
+        Livewire::actingAs($this->user)
+            ->test(StrategyResource\Pages\ListStrategies::class)
+            ->assertSuccessful()
+            ->assertCanSeeTableRecords([$strategy]);
+
+        // Verify that the CostData value object is working correctly
+        $costData = $strategy->getCostDataValueObject();
+        $this->assertInstanceOf(CostData::class, $costData);
+        $this->assertEquals($importValue, $costData->importValueIncVat);
+        $this->assertEquals($exportValue, $costData->exportValueIncVat);
+        $this->assertEquals($consumptionAverage * $importValue, $costData->consumptionAverageCost);
+        $this->assertEquals($consumptionLastWeek * $importValue, $costData->consumptionLastWeekCost);
+
+        // Verify utility methods
+        $this->assertEquals($importValue - $exportValue, $costData->getNetCost());
+        $this->assertTrue($costData->isImportCostHigher());
+        $this->assertEquals($consumptionLastWeek * $importValue, $costData->getBestConsumptionCostEstimate());
     }
 }
