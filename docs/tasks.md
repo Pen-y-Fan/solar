@@ -18,9 +18,9 @@ This document provides a comprehensive checklist of improvement tasks for the So
        - [x] Add accessor and mutator methods in the `Strategy` model to convert between raw database values and the value object
        - [x] Update `GenerateStrategyAction` to use the `StrategyType` value object
        - [x] Update Filament forms in `StrategyResource` to work with the value object
-     - [ ]  app/Domain/Strategy/ValueObjects/CostData.php
-       - [ ] Update `Strategy` model to use `CostData` value object for cost-related properties
-       - [ ] Add accessor and mutator methods in the `Strategy` model to convert between raw database values and the value object
+     - [x]  app/Domain/Strategy/ValueObjects/CostData.php
+       - [x] Update `Strategy` model to use `CostData` value object for cost-related properties
+       - [x] Add accessor and mutator methods in the `Strategy` model to convert between raw database values and the value object
        - [ ] Update actions that calculate or use cost data to work with the value object
        - [ ] Update Filament forms in `StrategyResource` to work with the value object
      - [x]  app/Domain/Strategy/ValueObjects/ConsumptionData.php

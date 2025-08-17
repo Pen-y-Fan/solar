@@ -8,6 +8,7 @@ use App\Domain\Energy\Models\AgileImport;
 use App\Domain\Forecasting\Models\Forecast;
 use App\Domain\Strategy\ValueObjects\BatteryState;
 use App\Domain\Strategy\ValueObjects\ConsumptionData;
+use App\Domain\Strategy\ValueObjects\CostData;
 use App\Domain\Strategy\ValueObjects\StrategyType;
 use Database\Factories\StrategyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -83,6 +84,11 @@ class Strategy extends Model
      * The StrategyType value object
      */
     private ?StrategyType $strategyTypeObject = null;
+
+    /**
+     * The CostData value object
+     */
+    private ?CostData $costDataObject = null;
 
     /**
      * Create a new factory instance for the model.
@@ -195,6 +201,23 @@ class Strategy extends Model
         }
 
         return $this->strategyTypeObject;
+    }
+
+    /**
+     * Get the CostData value object
+     */
+    public function getCostDataValueObject(): CostData
+    {
+        if ($this->costDataObject === null) {
+            $this->costDataObject = CostData::fromArray([
+                'import_value_inc_vat' => $this->attributes['import_value_inc_vat'] ?? null,
+                'export_value_inc_vat' => $this->attributes['export_value_inc_vat'] ?? null,
+                'consumption_average_cost' => $this->attributes['consumption_average_cost'] ?? null,
+                'consumption_last_week_cost' => $this->attributes['consumption_last_week_cost'] ?? null,
+            ]);
+        }
+
+        return $this->costDataObject;
     }
 
     /**
@@ -423,6 +446,106 @@ class Strategy extends Model
                 strategy1: $this->strategyTypeObject->strategy1,
                 strategy2: $this->strategyTypeObject->strategy2,
                 manualStrategy: $manualStrategy
+            );
+        }
+    }
+
+    /**
+     * Get the import value including VAT
+     */
+    public function getImportValueIncVatAttribute($value): ?float
+    {
+        return $this->getCostDataValueObject()->importValueIncVat;
+    }
+
+    /**
+     * Set the import value including VAT
+     */
+    public function setImportValueIncVatAttribute(?float $value): void
+    {
+        $this->attributes['import_value_inc_vat'] = $value;
+
+        if ($this->costDataObject !== null) {
+            $this->costDataObject = new CostData(
+                importValueIncVat: $value,
+                exportValueIncVat: $this->costDataObject->exportValueIncVat,
+                consumptionAverageCost: $this->costDataObject->consumptionAverageCost,
+                consumptionLastWeekCost: $this->costDataObject->consumptionLastWeekCost
+            );
+        }
+    }
+
+    /**
+     * Get the export value including VAT
+     */
+    public function getExportValueIncVatAttribute($value): ?float
+    {
+        return $this->getCostDataValueObject()->exportValueIncVat;
+    }
+
+    /**
+     * Set the export value including VAT
+     */
+    public function setExportValueIncVatAttribute(?float $value): void
+    {
+        $this->attributes['export_value_inc_vat'] = $value;
+
+        if ($this->costDataObject !== null) {
+            $this->costDataObject = new CostData(
+                importValueIncVat: $this->costDataObject->importValueIncVat,
+                exportValueIncVat: $value,
+                consumptionAverageCost: $this->costDataObject->consumptionAverageCost,
+                consumptionLastWeekCost: $this->costDataObject->consumptionLastWeekCost
+            );
+        }
+    }
+
+    /**
+     * Get the consumption average cost
+     */
+    public function getConsumptionAverageCostAttribute($value): ?float
+    {
+        return $this->getCostDataValueObject()->consumptionAverageCost;
+    }
+
+    /**
+     * Set the consumption average cost
+     */
+    public function setConsumptionAverageCostAttribute(?float $value): void
+    {
+        $this->attributes['consumption_average_cost'] = $value;
+
+        if ($this->costDataObject !== null) {
+            $this->costDataObject = new CostData(
+                importValueIncVat: $this->costDataObject->importValueIncVat,
+                exportValueIncVat: $this->costDataObject->exportValueIncVat,
+                consumptionAverageCost: $value,
+                consumptionLastWeekCost: $this->costDataObject->consumptionLastWeekCost
+            );
+        }
+    }
+
+    /**
+     * Get the consumption last week cost
+     */
+    public function getConsumptionLastWeekCostAttribute($value): ?float
+    {
+        return $this->getCostDataValueObject()->consumptionLastWeekCost;
+    }
+
+    /**
+     * Set the consumption last week cost
+     */
+    public function setConsumptionLastWeekCostAttribute(?float $value): void
+    {
+        $this->attributes['consumption_last_week_cost'] = $value;
+
+        if ($this->costDataObject !== null) {
+            $this->costDataObject = new CostData(
+                importValueIncVat: $this->costDataObject->importValueIncVat,
+                exportValueIncVat: $this->costDataObject->exportValueIncVat,
+                consumptionAverageCost: $this->costDataObject->consumptionAverageCost,
+                consumptionLastWeekCost: $value
             );
         }
     }

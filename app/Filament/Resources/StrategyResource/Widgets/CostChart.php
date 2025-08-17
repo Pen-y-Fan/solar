@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\StrategyResource\Widgets;
 
 use App\Domain\Strategy\Models\Strategy;
+use App\Domain\Strategy\ValueObjects\CostData;
 use App\Filament\Resources\StrategyResource\Pages\ListStrategies;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
@@ -45,6 +46,7 @@ class CostChart extends ChartWidget
 
         $averageExport = $data->sum('export_value_inc_vat') / $data->count();
         $averageImport = $data->sum('import_value_inc_vat') / $data->count();
+        $averageNetCost = $data->sum('net_cost') / $data->count();
 
         return [
             'datasets' => [
@@ -65,6 +67,14 @@ class CostChart extends ChartWidget
                     'stepped' => 'middle',
                 ],
                 [
+                    'label' => 'Net cost (Import - Export)',
+                    'data' => $data->map(fn ($item): string => $item['net_cost']),
+                    'fill' => false,
+                    'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
+                    'borderColor' => 'rgb(54, 162, 235)',
+                    'stepped' => 'middle',
+                ],
+                [
                     'label' => sprintf('Average export value (%0.02f)', $averageExport),
                     'data' => $data->map(fn ($item): string => number_format($averageExport, 2)),
                     'type' => 'line',
@@ -72,7 +82,6 @@ class CostChart extends ChartWidget
                     'pointRadius' => 0,
                     'borderColor' => 'rgb(75, 192, 192)',
                 ],
-
                 [
                     'label' => sprintf('Average import value (%0.02f)', $averageImport),
                     'data' => $data->map(fn ($item): string => number_format($averageImport, 2)),
@@ -80,6 +89,14 @@ class CostChart extends ChartWidget
                     'type' => 'line',
                     'pointRadius' => 0,
                     'borderColor' => 'rgb(255, 99, 132)',
+                ],
+                [
+                    'label' => sprintf('Average net cost (%0.02f)', $averageNetCost),
+                    'data' => $data->map(fn ($item): string => number_format($averageNetCost, 2)),
+                    'borderDash' => [5, 10],
+                    'type' => 'line',
+                    'pointRadius' => 0,
+                    'borderColor' => 'rgb(54, 162, 235)',
                 ],
             ],
             'labels' => $data->map(function ($item): string {
@@ -107,10 +124,16 @@ class CostChart extends ChartWidget
             /** @var \Carbon\CarbonImmutable|null $period */
             $period = $strategy->period;
 
+            // Get the CostData value object
+            $costData = $strategy->getCostDataValueObject();
+
+            // Use the value object to get cost values
             return [
                 'valid_from' => $period,
-                'import_value_inc_vat' => $strategy->import_value_inc_vat ?? 0,
-                'export_value_inc_vat' => $strategy->export_value_inc_vat ?? 0,
+                'import_value_inc_vat' => $costData->importValueIncVat ?? 0,
+                'export_value_inc_vat' => $costData->exportValueIncVat ?? 0,
+                // Add net cost from the value object
+                'net_cost' => $costData->getNetCost() ?? 0,
             ];
         });
 
@@ -140,7 +163,8 @@ class CostChart extends ChartWidget
     {
         $min = floor(min(
             $collection->min('import_value_inc_vat'),
-            $collection->min('export_value_inc_vat')
+            $collection->min('export_value_inc_vat'),
+            $collection->min('net_cost')
         ));
 
         $this->minValue = $min >= 0 ? 0 : floor($min / 5) * 5;

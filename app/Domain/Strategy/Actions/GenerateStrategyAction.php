@@ -8,6 +8,7 @@ use App\Domain\Energy\Models\OutgoingOctopus;
 use App\Domain\Energy\Repositories\InverterRepositoryInterface;
 use App\Domain\Forecasting\Models\Forecast;
 use App\Domain\Strategy\Models\Strategy;
+use App\Domain\Strategy\ValueObjects\CostData;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
@@ -122,11 +123,30 @@ class GenerateStrategyAction
         $eighthJuly2025 = Carbon::createFromFormat('Y-m-d', '2025-07-08', 'UTC');
 
         $forecastData->each(function ($forecast) use (&$strategies, $eighthJuly2025) {
-            $strategies[$forecast->period_end->format('Hi')]['export_value_inc_vat'] =
-                $forecast->period_end->isAfter($eighthJuly2025)
-                    ? OutgoingOctopus::EXPORT_COST
-                    : ($forecast->exportCost ? $forecast->exportCost->value_inc_vat : 0);
+            $exportValue = $forecast->period_end->isAfter($eighthJuly2025)
+                ? OutgoingOctopus::EXPORT_COST
+                : ($forecast->exportCost ? $forecast->exportCost->value_inc_vat : 0);
+
+            $strategies[$forecast->period_end->format('Hi')]['export_value_inc_vat'] = $exportValue;
             $strategies[$forecast->period_end->format('Hi')]['period'] = $forecast->period_end;
+
+            // Create CostData value object for each strategy
+            if (isset($strategies[$forecast->period_end->format('Hi')]['import_value_inc_vat'])) {
+                $importValue = $strategies[$forecast->period_end->format('Hi')]['import_value_inc_vat'];
+
+                // We'll store the raw values in the database, but we can use the value object
+                // to calculate any derived values if needed
+                $costData = new CostData(
+                    importValueIncVat: $importValue,
+                    exportValueIncVat: $exportValue,
+                    // We don't have consumption costs at this point
+                    consumptionAverageCost: null,
+                    consumptionLastWeekCost: null
+                );
+
+                // If we need to use any of the CostData methods, we can do so here
+                // For example: $netCost = $costData->getNetCost();
+            }
         });
 
         Strategy::upsert(
@@ -154,9 +174,18 @@ class GenerateStrategyAction
 
         foreach ($forecastData as $forecast) {
             $importValueIncVat = $forecast->importCost ? $forecast->importCost->value_inc_vat : 0;
+            $exportValueIncVat = $forecast->exportCost ? $forecast->exportCost->value_inc_vat : 0;
+
+            // Create a CostData value object for this forecast
+            $costData = new CostData(
+                importValueIncVat: $importValueIncVat,
+                exportValueIncVat: $exportValueIncVat,
+                consumptionAverageCost: null,
+                consumptionLastWeekCost: null
+            );
 
             Log::info('Charge at: ' . $forecast->period_end->format('H:i:s') . ' import cost '
-                . $importValueIncVat . ' battery ' . $battery);
+                . $costData->importValueIncVat . ' battery ' . $battery);
 
             $consumptionData = $consumptions->first(function ($item) use ($forecast) {
                 return $item->time === $forecast->period_end->format('H:i:s');
@@ -170,7 +199,8 @@ class GenerateStrategyAction
 
             $charging = false;
 
-            if ($this->charge && $importValueIncVat < $this->chargeStrategy) {
+            // Use the CostData value object to get the import value
+            if ($this->charge && $costData->importValueIncVat < $this->chargeStrategy) {
                 $charging = true;
 
                 $battery += self::BATTERY_MAX_STRATEGY_PER_HALF_HOUR;
@@ -191,7 +221,7 @@ class GenerateStrategyAction
 
             $result[$forecast->period_end->format('Hi')] = [
                 'period'               => $forecast->period_end,
-                'import_value_inc_vat' => $importValueIncVat,
+                'import_value_inc_vat' => $costData->importValueIncVat,
                 'charging'             => $charging,
                 'consumption'          => $consumption,
                 'battery_percentage'   => $battery * 25,

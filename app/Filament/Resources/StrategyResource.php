@@ -81,9 +81,25 @@ class StrategyResource extends Resource
                     ->numeric()
                     ->minValue(0),
                 Forms\Components\TextInput::make('import_value_inc_vat')
-                    ->numeric()->readOnly(),
+                    ->label('Import Value (inc. VAT)')
+                    ->helperText('Import cost including VAT')
+                    ->numeric()
+                    ->readOnly(),
                 Forms\Components\TextInput::make('export_value_inc_vat')
-                    ->numeric()->readOnly(),
+                    ->label('Export Value (inc. VAT)')
+                    ->helperText('Export value including VAT')
+                    ->numeric()
+                    ->readOnly(),
+                Forms\Components\TextInput::make('consumption_average_cost')
+                    ->label('Average Consumption Cost')
+                    ->helperText('Cost of average consumption')
+                    ->numeric()
+                    ->readOnly(),
+                Forms\Components\TextInput::make('consumption_last_week_cost')
+                    ->label('Last Week Consumption Cost')
+                    ->helperText('Cost of last week\'s consumption')
+                    ->numeric()
+                    ->readOnly(),
             ]);
     }
 
@@ -175,16 +191,32 @@ class StrategyResource extends Resource
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('consumption_last_week_cost')
-                    ->label('p')
+                    ->label('Last Week Cost')
+                    ->tooltip('Cost of last week\'s consumption')
                     ->numeric(2)
                     ->toggleable()
                     ->summarize(Sum::make()),
 
                 Tables\Columns\TextColumn::make('consumption_average_cost')
-                    ->label('p avg')
+                    ->label('Avg Cost')
+                    ->tooltip('Cost of average consumption')
                     ->numeric(2)
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->summarize([Sum::make(), Range::make()]),
+
+                Tables\Columns\TextColumn::make('best_consumption_cost')
+                    ->label('Best Cost Est.')
+                    ->tooltip('Best consumption cost estimate (prioritizes last week, then average)')
+                    ->getStateUsing(fn ($record) => $record->getCostDataValueObject()->getBestConsumptionCostEstimate())
+                    ->numeric(2)
+                    ->toggleable(),
+
+                Tables\Columns\TextColumn::make('net_cost')
+                    ->label('Net Cost')
+                    ->tooltip('Net cost (import cost minus export value)')
+                    ->getStateUsing(fn ($record) => $record->getCostDataValueObject()->getNetCost())
+                    ->numeric(2)
+                    ->toggleable(),
 
                 Tables\Columns\TextColumn::make('forecast.pv_estimate')
                     ->label('PV')
