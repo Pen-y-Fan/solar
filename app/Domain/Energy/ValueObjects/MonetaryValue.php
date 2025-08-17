@@ -5,18 +5,25 @@ declare(strict_types=1);
 namespace App\Domain\Energy\ValueObjects;
 
 /**
- * Value object representing a monetary value with and without VAT
+ * Value object representing monetary values for energy costs
  */
 class MonetaryValue
 {
     /**
-     * @param float $valueExcVat Value excluding VAT
-     * @param float $valueIncVat Value including VAT
+     * @param float|null $excVat Value excluding VAT
+     * @param float|null $incVat Value including VAT
      */
     public function __construct(
-        public readonly float $valueExcVat,
-        public readonly float $valueIncVat
+        public readonly ?float $excVat = null,
+        public readonly ?float $incVat = null
     ) {
+        if ($excVat !== null && $excVat < 0) {
+            throw new \InvalidArgumentException('Value excluding VAT cannot be negative');
+        }
+
+        if ($incVat !== null && $incVat < 0) {
+            throw new \InvalidArgumentException('Value including VAT cannot be negative');
+        }
     }
 
     /**
@@ -25,34 +32,8 @@ class MonetaryValue
     public static function fromArray(array $data): self
     {
         return new self(
-            valueExcVat: (float) $data['value_exc_vat'],
-            valueIncVat: (float) $data['value_inc_vat']
-        );
-    }
-
-    /**
-     * Create from a value excluding VAT and a VAT rate
-     */
-    public static function fromValueExcVat(float $valueExcVat, float $vatRate = 0.2): self
-    {
-        $valueIncVat = $valueExcVat * (1 + $vatRate);
-
-        return new self(
-            valueExcVat: $valueExcVat,
-            valueIncVat: $valueIncVat
-        );
-    }
-
-    /**
-     * Create from a value including VAT and a VAT rate
-     */
-    public static function fromValueIncVat(float $valueIncVat, float $vatRate = 0.2): self
-    {
-        $valueExcVat = $valueIncVat / (1 + $vatRate);
-
-        return new self(
-            valueExcVat: $valueExcVat,
-            valueIncVat: $valueIncVat
+            excVat: isset($data['value_exc_vat']) ? (float) $data['value_exc_vat'] : null,
+            incVat: isset($data['value_inc_vat']) ? (float) $data['value_inc_vat'] : null
         );
     }
 
@@ -62,28 +43,32 @@ class MonetaryValue
     public function toArray(): array
     {
         return [
-            'value_exc_vat' => $this->valueExcVat,
-            'value_inc_vat' => $this->valueIncVat,
+            'value_exc_vat' => $this->excVat,
+            'value_inc_vat' => $this->incVat,
         ];
     }
 
     /**
-     * Get the VAT amount
+     * Get the VAT amount (difference between incVat and excVat)
      */
-    public function getVatAmount(): float
+    public function getVatAmount(): ?float
     {
-        return $this->valueIncVat - $this->valueExcVat;
+        if ($this->incVat === null || $this->excVat === null) {
+            return null;
+        }
+
+        return $this->incVat - $this->excVat;
     }
 
     /**
-     * Get the VAT rate
+     * Get the VAT rate as a percentage
      */
-    public function getVatRate(): float
+    public function getVatRate(): ?float
     {
-        if ($this->valueExcVat === 0.0) {
-            return 0.0;
+        if ($this->incVat === null || $this->excVat === null || $this->excVat === 0.0) {
+            return null;
         }
 
-        return ($this->valueIncVat / $this->valueExcVat) - 1;
+        return (($this->incVat / $this->excVat) - 1) * 100;
     }
 }
