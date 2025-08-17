@@ -8,6 +8,7 @@ use App\Domain\Energy\Models\AgileImport;
 use App\Domain\Forecasting\Models\Forecast;
 use App\Domain\Strategy\ValueObjects\BatteryState;
 use App\Domain\Strategy\ValueObjects\ConsumptionData;
+use App\Domain\Strategy\ValueObjects\StrategyType;
 use Database\Factories\StrategyFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -77,6 +78,11 @@ class Strategy extends Model
      * The BatteryState value object
      */
     private ?BatteryState $batteryStateObject = null;
+
+    /**
+     * The StrategyType value object
+     */
+    private ?StrategyType $strategyTypeObject = null;
 
     /**
      * Create a new factory instance for the model.
@@ -160,6 +166,35 @@ class Strategy extends Model
         }
 
         return $this->batteryStateObject;
+    }
+
+    /**
+     * Get the StrategyType value object
+     */
+    public function getStrategyTypeValueObject(): StrategyType
+    {
+        if ($this->strategyTypeObject === null) {
+            // Convert boolean values to StrategyType constants
+            $strategy1 = isset($this->attributes['strategy1']) && $this->attributes['strategy1']
+                ? StrategyType::CHARGE
+                : StrategyType::NONE;
+
+            $strategy2 = isset($this->attributes['strategy2']) && $this->attributes['strategy2']
+                ? StrategyType::CHARGE
+                : StrategyType::NONE;
+
+            $manualStrategy = isset($this->attributes['strategy_manual'])
+                ? (int)$this->attributes['strategy_manual']
+                : null;
+
+            $this->strategyTypeObject = new StrategyType(
+                strategy1: $strategy1,
+                strategy2: $strategy2,
+                manualStrategy: $manualStrategy
+            );
+        }
+
+        return $this->strategyTypeObject;
     }
 
     /**
@@ -302,6 +337,92 @@ class Strategy extends Model
                 percentage: $this->batteryStateObject->percentage,
                 chargeAmount: $this->batteryStateObject->chargeAmount,
                 manualPercentage: $value
+            );
+        }
+    }
+
+    /**
+     * Get the strategy1 value
+     */
+    public function getStrategy1Attribute($value): bool
+    {
+        // Convert from StrategyType constant to boolean
+        return $this->getStrategyTypeValueObject()->strategy1 === StrategyType::CHARGE;
+    }
+
+    /**
+     * Set the strategy1 value
+     */
+    public function setStrategy1Attribute(bool $value): void
+    {
+        $this->attributes['strategy1'] = $value;
+
+        if ($this->strategyTypeObject !== null) {
+            // Convert from boolean to StrategyType constant
+            $strategy1 = $value ? StrategyType::CHARGE : StrategyType::NONE;
+
+            $this->strategyTypeObject = new StrategyType(
+                strategy1: $strategy1,
+                strategy2: $this->strategyTypeObject->strategy2,
+                manualStrategy: $this->strategyTypeObject->manualStrategy
+            );
+        }
+    }
+
+    /**
+     * Get the strategy2 value
+     */
+    public function getStrategy2Attribute($value): bool
+    {
+        // Convert from StrategyType constant to boolean
+        return $this->getStrategyTypeValueObject()->strategy2 === StrategyType::CHARGE;
+    }
+
+    /**
+     * Set the strategy2 value
+     */
+    public function setStrategy2Attribute(bool $value): void
+    {
+        $this->attributes['strategy2'] = $value;
+
+        if ($this->strategyTypeObject !== null) {
+            // Convert from boolean to StrategyType constant
+            $strategy2 = $value ? StrategyType::CHARGE : StrategyType::NONE;
+
+            $this->strategyTypeObject = new StrategyType(
+                strategy1: $this->strategyTypeObject->strategy1,
+                strategy2: $strategy2,
+                manualStrategy: $this->strategyTypeObject->manualStrategy
+            );
+        }
+    }
+
+    /**
+     * Get the strategy_manual value
+     */
+    public function getStrategyManualAttribute($value): ?bool
+    {
+        // For strategy_manual, we're just storing whether manual control is enabled
+        return $this->getStrategyTypeValueObject()->manualStrategy !== null
+            ? (bool)$this->getStrategyTypeValueObject()->manualStrategy
+            : null;
+    }
+
+    /**
+     * Set the strategy_manual value
+     */
+    public function setStrategyManualAttribute(?bool $value): void
+    {
+        $this->attributes['strategy_manual'] = $value;
+
+        if ($this->strategyTypeObject !== null) {
+            // For strategy_manual, we're just storing whether manual control is enabled
+            $manualStrategy = $value !== null ? (int)$value : null;
+
+            $this->strategyTypeObject = new StrategyType(
+                strategy1: $this->strategyTypeObject->strategy1,
+                strategy2: $this->strategyTypeObject->strategy2,
+                manualStrategy: $manualStrategy
             );
         }
     }

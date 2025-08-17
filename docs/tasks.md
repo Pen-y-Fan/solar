@@ -13,11 +13,11 @@ This document provides a comprehensive checklist of improvement tasks for the So
      - [x] User
    - [x] Create clear boundaries between different domains (e.g., Forecasting, Strategy, Energy Import/Export)
    - [ ] Define value objects for domain concepts
-     - [ ]  app/Domain/Strategy/ValueObjects/StrategyType.php
-       - [ ] Update `Strategy` model to use `StrategyType` value object for `strategy1`, `strategy2`, and `strategy_manual` properties
-       - [ ] Add accessor and mutator methods in the `Strategy` model to convert between raw database values and the value object
-       - [ ] Update `GenerateStrategyAction` to use the `StrategyType` value object
-       - [ ] Update Filament forms in `StrategyResource` to work with the value object
+     - [x]  app/Domain/Strategy/ValueObjects/StrategyType.php
+       - [x] Update `Strategy` model to use `StrategyType` value object for `strategy1`, `strategy2`, and `strategy_manual` properties
+       - [x] Add accessor and mutator methods in the `Strategy` model to convert between raw database values and the value object
+       - [x] Update `GenerateStrategyAction` to use the `StrategyType` value object
+       - [x] Update Filament forms in `StrategyResource` to work with the value object
      - [ ]  app/Domain/Strategy/ValueObjects/CostData.php
        - [ ] Update `Strategy` model to use `CostData` value object for cost-related properties
        - [ ] Add accessor and mutator methods in the `Strategy` model to convert between raw database values and the value object
