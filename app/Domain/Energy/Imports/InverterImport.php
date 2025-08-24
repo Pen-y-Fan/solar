@@ -81,7 +81,8 @@ class InverterImport implements ToCollection, WithHeadingRow
                     - $firstInPeriod['Total Energy from Grid(kWh)'],
                     consumption: max(
                         0.0,
-                        $lastInPeriod['Today Total Load Consumption(kWh)'] - $firstInPeriod['Today Total Load Consumption(kWh)']
+                        $lastInPeriod['Today Total Load Consumption(kWh)']
+                        - $firstInPeriod['Today Total Load Consumption(kWh)']
                     )
                 );
 
