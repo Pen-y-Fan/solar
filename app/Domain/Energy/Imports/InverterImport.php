@@ -73,13 +73,17 @@ class InverterImport implements ToCollection, WithHeadingRow
                     $lastInPeriod = $collection[$i - 2];
                 }
 
+
                 $energyFlow = new EnergyFlow(
                     yield: $lastInPeriod['Today Yield(kWh)'] - $firstInPeriod['Today Yield(kWh)'],
                     toGrid: $lastInPeriod['Total Energy to Grid(kWh)'] - $firstInPeriod['Total Energy to Grid(kWh)'],
                     fromGrid: $lastInPeriod['Total Energy from Grid(kWh)']
                     - $firstInPeriod['Total Energy from Grid(kWh)'],
-                    consumption: $lastInPeriod['Today Total Load Consumption(kWh)']
-                    - $firstInPeriod['Today Total Load Consumption(kWh)']
+                    consumption: max(
+                        0.0,
+                        $lastInPeriod['Today Total Load Consumption(kWh)']
+                        - $firstInPeriod['Today Total Load Consumption(kWh)']
+                    )
                 );
 
                 $batterySoc = isset($firstInPeriod['Battery SOC(%)'])
@@ -87,7 +91,7 @@ class InverterImport implements ToCollection, WithHeadingRow
                     : null;
 
                 $data[] = [
-                    'period' => $currentPeriod->toDateTimeString(),
+                    'period'      => $currentPeriod->toDateTimeString(),
                     ...$energyFlow->toArray(),
                     'battery_soc' => $batterySoc?->percentage,
                 ];
