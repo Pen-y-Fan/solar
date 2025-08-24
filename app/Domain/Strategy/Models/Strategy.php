@@ -148,10 +148,15 @@ class Strategy extends Model
     public function getConsumptionDataValueObject(): ConsumptionData
     {
         if ($this->consumptionDataObject === null) {
+            // Clamp any negative values to 0 to satisfy ConsumptionData invariants and avoid rendering exceptions
+            $lastWeek = $this->attributes['consumption_last_week'] ?? null;
+            $average = $this->attributes['consumption_average'] ?? null;
+            $manual = $this->attributes['consumption_manual'] ?? null;
+
             $this->consumptionDataObject = ConsumptionData::fromArray([
-                'consumption_last_week' => $this->attributes['consumption_last_week'] ?? null,
-                'consumption_average' => $this->attributes['consumption_average'] ?? null,
-                'consumption_manual' => $this->attributes['consumption_manual'] ?? null,
+                'consumption_last_week' => $lastWeek !== null ? max(0.0, (float) $lastWeek) : null,
+                'consumption_average' => $average !== null ? max(0.0, (float) $average) : null,
+                'consumption_manual' => $manual !== null ? max(0.0, (float) $manual) : null,
             ]);
         }
 
@@ -233,11 +238,12 @@ class Strategy extends Model
      */
     public function setConsumptionLastWeekAttribute(?float $value): void
     {
-        $this->attributes['consumption_last_week'] = $value;
+        $clamped = $value !== null ? max(0.0, (float) $value) : null;
+        $this->attributes['consumption_last_week'] = $clamped;
 
         if ($this->consumptionDataObject !== null) {
             $this->consumptionDataObject = new ConsumptionData(
-                lastWeek: $value,
+                lastWeek: $clamped,
                 average: $this->consumptionDataObject->average,
                 manual: $this->consumptionDataObject->manual
             );
@@ -257,12 +263,13 @@ class Strategy extends Model
      */
     public function setConsumptionAverageAttribute(?float $value): void
     {
-        $this->attributes['consumption_average'] = $value;
+        $clamped = $value !== null ? max(0.0, (float) $value) : null;
+        $this->attributes['consumption_average'] = $clamped;
 
         if ($this->consumptionDataObject !== null) {
             $this->consumptionDataObject = new ConsumptionData(
                 lastWeek: $this->consumptionDataObject->lastWeek,
-                average: $value,
+                average: $clamped,
                 manual: $this->consumptionDataObject->manual
             );
         }
@@ -281,13 +288,14 @@ class Strategy extends Model
      */
     public function setConsumptionManualAttribute(?float $value): void
     {
-        $this->attributes['consumption_manual'] = $value;
+        $clamped = $value !== null ? max(0.0, (float) $value) : null;
+        $this->attributes['consumption_manual'] = $clamped;
 
         if ($this->consumptionDataObject !== null) {
             $this->consumptionDataObject = new ConsumptionData(
                 lastWeek: $this->consumptionDataObject->lastWeek,
                 average: $this->consumptionDataObject->average,
-                manual: $value
+                manual: $clamped
             );
         }
     }

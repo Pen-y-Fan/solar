@@ -37,9 +37,13 @@ class EloquentInverterRepository implements InverterRepositoryInterface
             ->get();
 
         return $averageConsumptions->map(function ($item) {
+            $value = (float) $item->value;
+            // Guard against negative averages due to data glitches
+            $value = max(0.0, $value);
+
             return new InverterConsumptionData(
                 time: $item->time,
-                value: (float) $item->value
+                value: $value
             );
         });
     }
@@ -61,9 +65,13 @@ class EloquentInverterRepository implements InverterRepositoryInterface
             ->get();
 
         return $consumptions->map(function ($consumption) {
+            $value = (float) $consumption->consumption;
+            // Guard against any negative readings in the raw data
+            $value = max(0.0, $value);
+
             return new InverterConsumptionData(
                 time: $consumption->period->format('H:i:s'),
-                value: (float) $consumption->consumption
+                value: $value
             );
         });
     }
