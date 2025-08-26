@@ -56,7 +56,7 @@
         ],
         "cs": "phpcs --standard=PSR12 app tests",
         "cs-fix": "phpcbf --standard=PSR12 app tests",
-        "phpstan": "phpstan analyse --memory-limit 256M",
+        "phpstan": "phpstan analyse --memory-limit 512M",
         "phpstan-baseline": "phpstan analyse --generate-baseline",
         "test": "phpunit",
         "test-coverage": "XDEBUG_MODE=coverage phpunit --coverage-html coverage/html",
