@@ -16,8 +16,7 @@ class MonetaryValue
     public function __construct(
         public readonly ?float $excVat = null,
         public readonly ?float $incVat = null
-    )
-    {
+    ) {
     }
 
     /**
