@@ -16,14 +16,8 @@ class MonetaryValue
     public function __construct(
         public readonly ?float $excVat = null,
         public readonly ?float $incVat = null
-    ) {
-        if ($excVat !== null && $excVat < 0) {
-            throw new \InvalidArgumentException('Value excluding VAT cannot be negative');
-        }
-
-        if ($incVat !== null && $incVat < 0) {
-            throw new \InvalidArgumentException('Value including VAT cannot be negative');
-        }
+    )
+    {
     }
 
     /**
@@ -32,8 +26,8 @@ class MonetaryValue
     public static function fromArray(array $data): self
     {
         return new self(
-            excVat: isset($data['value_exc_vat']) ? (float) $data['value_exc_vat'] : null,
-            incVat: isset($data['value_inc_vat']) ? (float) $data['value_inc_vat'] : null
+            excVat: isset($data['value_exc_vat']) ? (float)$data['value_exc_vat'] : null,
+            incVat: isset($data['value_inc_vat']) ? (float)$data['value_inc_vat'] : null
         );
     }
 
