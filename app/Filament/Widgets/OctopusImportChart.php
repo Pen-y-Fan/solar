@@ -122,8 +122,14 @@ class OctopusImportChart extends ChartWidget
     private function updateOctopusImport(): void
     {
         try {
-            (new OctopusImportAction())->run();
-            Log::info('Successfully updated octopus import cost data');
+            /** @var OctopusImportAction $action */
+            $action = app(OctopusImportAction::class);
+            $result = $action->execute();
+            if ($result->isSuccess()) {
+                Log::info('Successfully updated octopus import cost data');
+            } else {
+                Log::warning('Octopus import cost update returned failure', ['message' => $result->getMessage()]);
+            }
         } catch (Throwable $th) {
             Log::error('Error running Octopus import cost action:', ['error message' => $th->getMessage()]);
         }

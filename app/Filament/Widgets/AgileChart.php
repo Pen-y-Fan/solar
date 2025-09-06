@@ -184,14 +184,22 @@ class AgileChart extends ChartWidget
         Log::info('Updating agile import chart data from API.');
 
         try {
-            (new AgileImportAction())->execute();
+            /** @var AgileImportAction $agileImport */
+            $agileImport = app(AgileImportAction::class);
+            $agileImport->execute();
         } catch (Throwable $th) {
             Log::error('Error running Octopus Agile import action:', ['error message' => $th->getMessage()]);
         }
 
         try {
-            (new OctopusImport())->run();
-            Log::info('Octopus import has been fetched!');
+            /** @var OctopusImport $octopusImport */
+            $octopusImport = app(OctopusImport::class);
+            $result = $octopusImport->execute();
+            if ($result->isSuccess()) {
+                Log::info('Octopus import has been fetched!');
+            } else {
+                Log::warning('Octopus import fetch returned failure', ['message' => $result->getMessage()]);
+            }
         } catch (Throwable $th) {
             Log::error('Error running Octopus import action:', ['error message' => $th->getMessage()]);
         }
@@ -202,13 +210,20 @@ class AgileChart extends ChartWidget
         Log::info('Updating agile export chart data from API.');
 
         try {
-            (new AgileExportAction())->execute();
+            /** @var AgileExportAction $agileExport */
+            $agileExport = app(AgileExportAction::class);
+            $agileExport->execute();
         } catch (Throwable $th) {
             Log::error('Error running Octopus Agile export action:', ['error message' => $th->getMessage()]);
         }
 
         try {
-            (new OctopusExport())->run();
+            /** @var OctopusExport $octopusExport */
+            $octopusExport = app(OctopusExport::class);
+            $result = $octopusExport->execute();
+            if (! $result->isSuccess()) {
+                Log::warning('Octopus export fetch returned failure', ['message' => $result->getMessage()]);
+            }
         } catch (Throwable $th) {
             Log::error('Error running Octopus export action:', ['error message' => $th->getMessage()]);
         }
