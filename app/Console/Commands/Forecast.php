@@ -29,8 +29,12 @@ class Forecast extends Command
     public function handle(ForecastAction $forecast, ActualForecastAction $actualForecast): void
     {
         try {
-            $forecast->run();
-            $this->info('Forecast has been fetched!');
+            $result = $forecast->execute();
+            if ($result->isSuccess()) {
+                $this->info('Forecast has been fetched!');
+            } else {
+                $this->warn('Forecast fetch failed: ' . ($result->getMessage() ?? 'unknown error'));
+            }
         } catch (\Throwable $th) {
             Log::error('Error running forecast import action', ['error message' => $th->getMessage()]);
             $this->error('Error running forecast import action:');
@@ -38,8 +42,12 @@ class Forecast extends Command
         }
 
         try {
-            $actualForecast->run();
-            $this->info('Actual forecast has been fetched!');
+            $result = $actualForecast->execute();
+            if ($result->isSuccess()) {
+                $this->info('Actual forecast has been fetched!');
+            } else {
+                $this->warn('Actual forecast fetch failed: ' . ($result->getMessage() ?? 'unknown error'));
+            }
         } catch (\Throwable $th) {
             Log::error('Error running actual forecast import action', ['error message' => $th->getMessage()]);
             $this->error('Error running actual forecast import action:');

@@ -9,41 +9,57 @@ use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Support\Actions\ActionResult;
+use App\Support\Actions\Contracts\ActionInterface;
 
-class AgileImport
+class AgileImport implements ActionInterface
 {
     /**
-     * @throws \Throwable
+     * @deprecated Use execute() returning ActionResult instead.
      */
     public function run(): void
     {
-        Log::info('Start running Agile import action');
+        $this->execute();
+    }
+    /**
+     * @throws \Throwable
+     */
+    public function execute(): ActionResult
+    {
+        try {
+            Log::info('Start running Agile import action');
 
         // normally released after 4PM and will have data up to 23:00 the next day!
-        $result = AgileImportModel::query()
+            $result = AgileImportModel::query()
             ->latest('valid_to')
             ->first('valid_to');
 
-        $lastImportValidTo = $result ? $result->valid_to : now()->subDay();
+            $lastImportValidTo = $result ? $result->valid_to : now()->subDay();
 
-        throw_if(
-            now()->diffInUTCHours($lastImportValidTo) > 7,
-            sprintf(
-                'Already have data until %s, try again after 4 PM %s',
-                $lastImportValidTo->timezone('Europe/London')->format('j F Y H:i'),
-                $lastImportValidTo->timezone('Europe/London')->format('D')
-            )
-        );
+            throw_if(
+                now()->diffInUTCHours($lastImportValidTo) > 7,
+                sprintf(
+                    'Already have data until %s, try again after 4 PM %s',
+                    $lastImportValidTo->timezone('Europe/London')->format('j F Y H:i'),
+                    $lastImportValidTo->timezone('Europe/London')->format('D')
+                )
+            );
 
         // fetch the latest import data
-        $data = $this->getImportData($lastImportValidTo);
+            $data = $this->getImportData($lastImportValidTo);
 
         // save it to the database
-        AgileImportModel::upsert(
-            $data,
-            uniqueBy: ['valid_from'],
-            update: ['value_exc_vat', 'value_inc_vat'],
-        );
+            AgileImportModel::upsert(
+                $data,
+                uniqueBy: ['valid_from'],
+                update: ['value_exc_vat', 'value_inc_vat'],
+            );
+
+            return ActionResult::success(['records' => count($data)], 'Agile import updated');
+        } catch (\Throwable $e) {
+            Log::warning('AgileImport failed', ['exception' => $e->getMessage()]);
+            return ActionResult::failure($e->getMessage());
+        }
     }
 
     /**

@@ -42,14 +42,38 @@ git clone git@github.com:Pen-y-Fan/solar.git
 
 ## Install
 
-Install all the dependencies using composer
+Install all the dependencies using Composer.
 
 ```sh
 cd solar
 composer install
 ```
 
-If `composer` is not installed locally see **Docker (optional)** below.
+If Composer is not installed locally see **Docker (optional)** below.
+
+### Local Setup with Laravel Herd
+
+If you use Laravel Herd (recommended on macOS):
+
+1. Install Laravel Herd from https://herd.laravel.com/
+2. Ensure PHP 8.2+ and Composer are enabled in Herd settings
+3. Map a site to this project directory with the domain solar.test
+4. Trust Herd’s certificate so https://solar.test works locally
+
+Quickstart (first time):
+
+```sh
+cp .env.example .env
+php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
+php artisan key:generate
+php artisan migrate --seed
+```
+
+Then open https://solar.test and login with:
+- Email: test@example.com
+- Password: password
+
+If you change the domain, update APP_URL in .env accordingly.
 
 ## Create .env
 

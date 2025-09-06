@@ -8,17 +8,29 @@ use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Support\Actions\ActionResult;
+use App\Support\Actions\Contracts\ActionInterface;
 
-class Account
+class Account implements ActionInterface
 {
     /**
-     * @throws \Throwable
+     * @deprecated Use execute() returning ActionResult instead.
      */
     public function run()
     {
-        Log::info('Start running Octopus account action');
+        $this->execute();
+    }
 
-        $this->getAccountData();
+    public function execute(): ActionResult
+    {
+        try {
+            Log::info('Start running Octopus account action');
+            $this->getAccountData();
+            return ActionResult::success(null, 'Octopus account fetched');
+        } catch (\Throwable $e) {
+            Log::warning('Account action failed', ['exception' => $e->getMessage()]);
+            return ActionResult::failure($e->getMessage());
+        }
     }
 
     /**

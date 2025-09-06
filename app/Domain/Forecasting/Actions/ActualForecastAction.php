@@ -6,41 +6,50 @@ namespace App\Domain\Forecasting\Actions;
 
 use App\Domain\Forecasting\Models\ActualForecast;
 use App\Domain\Forecasting\ValueObjects\PvEstimate;
+use App\Support\Actions\ActionResult;
+use App\Support\Actions\Contracts\ActionInterface;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class ActualForecastAction
+class ActualForecastAction implements ActionInterface
 {
-    public function run()
+    public function execute(): ActionResult
     {
-        Log::info('Start running Solcast actual forecast action');
+        try {
+            Log::info('Start running Solcast actual forecast action');
 
-        $lastForecast = ActualForecast::latest('updated_at')->first();
+            $lastForecast = ActualForecast::latest('updated_at')->first();
 
-        throw_if(
-            ! empty($lastForecast) && $lastForecast['updated_at'] >= now()->subHour(),
-            sprintf(
-                'Last updated in the hour, try again in %s',
-                $lastForecast['updated_at']->addHour()->diffForHumans()
-            )
-        );
+            throw_if(
+                ! empty($lastForecast) && $lastForecast->updated_at >= now()->subHour(),
+                sprintf(
+                    'Last updated in the hour, try again in %s',
+                    $lastForecast->updated_at->addHour()->diffForHumans()
+                )
+            );
 
-        $data = $this->getForecastData();
+            $data = $this->getForecastData();
 
-        ActualForecast::upsert(
-            $data,
-            uniqueBy: ['period_end'],
-            update: ['pv_estimate']
-        );
+            ActualForecast::upsert(
+                $data,
+                uniqueBy: ['period_end'],
+                update: ['pv_estimate']
+            );
+
+            return ActionResult::success(['records' => count($data)], 'Actual forecast updated');
+        } catch (\Throwable $e) {
+            Log::warning('ActualForecastAction failed', ['exception' => $e->getMessage()]);
+            return ActionResult::failure($e->getMessage());
+        }
     }
 
     /**
      * @throws \Throwable
      */
-    private function getForecastData()
+    private function getForecastData(): array
     {
         $api = Config::get('solcast.api_key');
         $resourceId = Config::get('solcast.resource_id');
