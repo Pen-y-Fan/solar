@@ -128,8 +128,14 @@ class OctopusExportChart extends ChartWidget
     private function updateOctopusExport(): void
     {
         try {
-            (new OctopusExportAction())->run();
-            Log::info('Successfully updated octopus export data');
+            /** @var OctopusExportAction $action */
+            $action = app(OctopusExportAction::class);
+            $result = $action->execute();
+            if ($result->isSuccess()) {
+                Log::info('Successfully updated octopus export data');
+            } else {
+                Log::warning('Octopus export update returned failure', ['message' => $result->getMessage()]);
+            }
         } catch (Throwable $th) {
             Log::error('Error running Octopus export action:', ['error message' => $th->getMessage()]);
         }

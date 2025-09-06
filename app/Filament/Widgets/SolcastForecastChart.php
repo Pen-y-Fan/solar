@@ -122,7 +122,9 @@ class SolcastForecastChart extends ChartWidget
     private function updateSolcast(): void
     {
         try {
-            (new ForecastAction())->execute();
+            /** @var ForecastAction $action */
+            $action = app(ForecastAction::class);
+            $action->execute();
         } catch (Throwable $th) {
             Log::error('Error running forecast import action', ['error message' => $th->getMessage()]);
         }

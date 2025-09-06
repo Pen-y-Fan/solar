@@ -83,7 +83,9 @@ class SolcastActualChart extends ChartWidget
     private function updateSolcast(): void
     {
         try {
-            (new ActualForecastAction())->execute();
+            /** @var ActualForecastAction $action */
+            $action = app(ActualForecastAction::class);
+            $action->execute();
         } catch (Throwable $th) {
             Log::error('Error running actual forecast import action', ['error message' => $th->getMessage()]);
         }

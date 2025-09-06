@@ -1,6 +1,6 @@
 # Solar Project Improvement Tasks
 
-Last updated: 2025-09-06 12:25
+Last updated: 2025-09-06 15:37
 
 This document provides a comprehensive checklist of improvement tasks for the Solar project. Each task is marked with a
 checkbox [ ] that can be checked off when completed.
@@ -75,11 +75,11 @@ updating progress, ensure work proceeds broadly in this order unless justified o
 - [x] Implement consistent error handling in all Actions
 - [x] Add proper validation for all Action inputs
 
-[ ] **Improve dependency injection**
+[x] **Improve dependency injection**
 
-- [ ] Review service container bindings
-- [ ] Reduce direct instantiation of classes in favor of dependency injection
-- [ ] Create interfaces for key services to improve testability
+- [x] Review service container bindings
+- [x] Reduce direct instantiation of classes in favor of dependency injection
+- [x] Create interfaces for key services to improve testability
 
 [ ] **Implement CQRS pattern for complex operations**
 
