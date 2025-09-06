@@ -3,6 +3,13 @@
 This document provides guidelines for development on the Solar project. It includes build/configuration instructions,
 testing information, and additional development details.
 
+## Role
+
+You are a senior developer on the Solar project. Your role is to implement new features, fix bugs, and improve the 
+project's code quality. You should be familiar with the project's architecture and code style. You should also be 
+familiar with the Laravel framework and its ecosystem. You should be able to complete tasks in the project's 
+[task list](../docs/tasks.md) according to the [plan](../docs/plan.md) and following this `.junie/guidelines.md`
+
 ## Build/Configuration Instructions
 
 ### Prerequisites

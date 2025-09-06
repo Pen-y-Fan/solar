@@ -6,14 +6,17 @@ namespace App\Domain\Strategy\Actions;
 
 use App\Domain\Energy\Models\OutgoingOctopus;
 use App\Domain\Energy\Repositories\InverterRepositoryInterface;
+use App\Domain\Energy\ValueObjects\InverterConsumptionData;
 use App\Domain\Forecasting\Models\Forecast;
 use App\Domain\Strategy\Models\Strategy;
 use App\Domain\Strategy\ValueObjects\CostData;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use App\Support\Actions\ActionResult;
+use App\Support\Actions\Contracts\ActionInterface;
 
-class GenerateStrategyAction
+class GenerateStrategyAction implements ActionInterface
 {
     private const BATTERY_MIN = 0.4;
 
@@ -29,13 +32,35 @@ class GenerateStrategyAction
 
     public function __construct(
         private readonly InverterRepositoryInterface $inverterRepository
-    ) {
+    )
+    {
     }
 
     /**
      * @throws \Throwable
      */
+    /**
+     * @deprecated Use execute() returning ActionResult instead.
+     */
     public function run(): bool
+    {
+        return $this->generate();
+    }
+
+    public function execute(): ActionResult
+    {
+        try {
+            $ok = $this->generate();
+            return $ok
+                ? ActionResult::success(null, 'Strategy generated')
+                : ActionResult::failure('No data available to generate strategy');
+        } catch (\Throwable $e) {
+            Log::warning('GenerateStrategyAction failed', ['exception' => $e->getMessage()]);
+            return ActionResult::failure($e->getMessage());
+        }
+    }
+
+    private function generate(): bool
     {
         Log::info('Start generation of strategy');
 
@@ -166,9 +191,10 @@ class GenerateStrategyAction
     }
 
     public function getConsumption(
-        Collection|array $forecastData,
+        Collection|array               $forecastData,
         \Illuminate\Support\Collection $consumptions,
-    ): \Illuminate\Support\Collection {
+    ): \Illuminate\Support\Collection
+    {
         $battery = self::BATTERY_MIN;
         $result = [];
 
@@ -187,6 +213,7 @@ class GenerateStrategyAction
             Log::info('Charge at: ' . $forecast->period_end->format('H:i:s') . ' import cost '
                 . $costData->importValueIncVat . ' battery ' . $battery);
 
+            /* @var InverterConsumptionData|null $consumptionData */
             $consumptionData = $consumptions->first(function ($item) use ($forecast) {
                 return $item->time === $forecast->period_end->format('H:i:s');
             });

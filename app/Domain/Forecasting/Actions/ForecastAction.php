@@ -11,33 +11,42 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use App\Domain\Forecasting\Models\Forecast;
+use App\Support\Actions\ActionResult;
+use App\Support\Actions\Contracts\ActionInterface;
 
-class ForecastAction
+class ForecastAction implements ActionInterface
 {
-    public function run()
+    public function execute(): ActionResult
     {
-        Log::info('Start running Solcast forecast action');
-        // check the last run (latest updated at), return if < 1 hour
-        $lastForecast = Forecast::latest('updated_at')->first();
+        try {
+            Log::info('Start running Solcast forecast action');
+            // check the last run (latest updated at), return if < 1 hour
+            $lastForecast = Forecast::latest('updated_at')->first();
 
-        throw_if(
-            ! empty($lastForecast) && $lastForecast->updated_at >= now()->subHour(),
-            sprintf(
-                'Last updated in the hour, try again in %s',
-                $lastForecast->updated_at->addHour()->diffForHumans()
-            )
-        );
+            throw_if(
+                ! empty($lastForecast) && $lastForecast->updated_at >= now()->subHour(),
+                sprintf(
+                    'Last updated in the hour, try again in %s',
+                    $lastForecast->updated_at->addHour()->diffForHumans()
+                )
+            );
 
-        // fetch the latest forecast data
-        $data = $this->getForecastData();
-        // $data = $this->getPreviousData();
+            // fetch the latest forecast data
+            $data = $this->getForecastData();
+            // $data = $this->getPreviousData();
 
-        // save it to the database
-        Forecast::upsert(
-            $data,
-            uniqueBy: ['period_end'],
-            update: ['pv_estimate', 'pv_estimate10', 'pv_estimate90']
-        );
+            // save it to the database
+            Forecast::upsert(
+                $data,
+                uniqueBy: ['period_end'],
+                update: ['pv_estimate', 'pv_estimate10', 'pv_estimate90']
+            );
+
+            return ActionResult::success(['records' => count($data)], 'Forecast updated');
+        } catch (\Throwable $e) {
+            Log::warning('ForecastAction failed', ['exception' => $e->getMessage()]);
+            return ActionResult::failure($e->getMessage());
+        }
     }
 
     /**

@@ -184,7 +184,7 @@ class AgileChart extends ChartWidget
         Log::info('Updating agile import chart data from API.');
 
         try {
-            (new AgileImportAction())->run();
+            (new AgileImportAction())->execute();
         } catch (Throwable $th) {
             Log::error('Error running Octopus Agile import action:', ['error message' => $th->getMessage()]);
         }
@@ -202,7 +202,7 @@ class AgileChart extends ChartWidget
         Log::info('Updating agile export chart data from API.');
 
         try {
-            (new AgileExportAction())->run();
+            (new AgileExportAction())->execute();
         } catch (Throwable $th) {
             Log::error('Error running Octopus Agile export action:', ['error message' => $th->getMessage()]);
         }

@@ -37,8 +37,12 @@ class Octopus extends Command
         $this->info('Running Octopus action!');
 
         try {
-            $octopusImport->run();
-            $this->info('Octopus import has been fetched!');
+            $result = $octopusImport->execute();
+            if ($result->isSuccess()) {
+                $this->info('Octopus import has been fetched!');
+            } else {
+                $this->warn('Octopus import fetch failed: ' . ($result->getMessage() ?? 'unknown error'));
+            }
         } catch (\Throwable $th) {
             Log::error('Error running Octopus import action:', ['error message' => $th->getMessage()]);
             $this->error('Error running Octopus import action:');
@@ -46,8 +50,12 @@ class Octopus extends Command
         }
 
         try {
-            $octopusExport->run();
-            $this->info('Octopus export has been fetched!');
+            $result = $octopusExport->execute();
+            if ($result->isSuccess()) {
+                $this->info('Octopus export has been fetched!');
+            } else {
+                $this->warn('Octopus export fetch failed: ' . ($result->getMessage() ?? 'unknown error'));
+            }
         } catch (\Throwable $th) {
             Log::error('Error running Octopus export action:', ['error message' => $th->getMessage()]);
             $this->error('Error running Octopus export action:');
@@ -55,8 +63,12 @@ class Octopus extends Command
         }
 
         try {
-            $agileImport->run();
-            $this->info('Octopus Agile import has been fetched!');
+            $result = $agileImport->execute();
+            if ($result->isSuccess()) {
+                $this->info('Octopus Agile import has been fetched!');
+            } else {
+                $this->warn('Octopus Agile import fetch failed: ' . ($result->getMessage() ?? 'unknown error'));
+            }
         } catch (\Throwable $th) {
             Log::error('Error running Octopus Agile import action:', ['error message' => $th->getMessage()]);
             $this->error('Error running Octopus Agile import action:');
@@ -64,8 +76,12 @@ class Octopus extends Command
         }
 
         try {
-            $agileExport->run();
-            $this->info('Octopus Agile export has been fetched!');
+            $result = $agileExport->execute();
+            if ($result->isSuccess()) {
+                $this->info('Octopus Agile export has been fetched!');
+            } else {
+                $this->warn('Octopus Agile export fetch failed: ' . ($result->getMessage() ?? 'unknown error'));
+            }
         } catch (\Throwable $th) {
             Log::error('Error running Octopus Agile export action:', ['error message' => $th->getMessage()]);
             $this->error('Error running Octopus Agile export action:');

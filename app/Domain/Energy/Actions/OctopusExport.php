@@ -10,39 +10,56 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Support\Actions\ActionResult;
+use App\Support\Actions\Contracts\ActionInterface;
 
-class OctopusExport
+class OctopusExport implements ActionInterface
 {
     /**
-     * @throws \Throwable
+     * @deprecated Use execute() returning ActionResult instead.
      */
     public function run()
     {
-        Log::info('Start running Octopus export action');
+        $this->execute();
+    }
 
-        $result = OctopusExportModel::query()
-            ->latest('interval_start')
-            ->first('interval_start');
+    /**
+     * @throws \Throwable
+     */
+    public function execute(): ActionResult
+    {
+        try {
+            Log::info('Start running Octopus export action');
 
-        $lastExportStart = $result ? $result->interval_start : now()->subDays(2);
+            $result = OctopusExportModel::query()
+                ->latest('interval_start')
+                ->first('interval_start');
 
-        throw_if(
-            $lastExportStart >= now()->subDay(),
-            sprintf(
-                'Last updated in the day, try again in %s',
-                $lastExportStart->addDay()->diffForHumans()
-            )
-        );
+            $lastExportStart = $result ? $result->interval_start : now()->subDays(2);
 
-        // fetch the latest export data
-        $data = $this->getExportData();
+            throw_if(
+                $lastExportStart >= now()->subDay(),
+                sprintf(
+                    'Last updated in the day, try again in %s',
+                    $lastExportStart->addDay()->diffForHumans()
+                )
+            );
 
-        // save it to the database
-        OctopusExportModel::upsert(
-            $data,
-            uniqueBy: ['interval_start'],
-            update: ['consumption']
-        );
+            // fetch the latest export data
+            $data = $this->getExportData();
+
+            // save it to the database
+            OctopusExportModel::upsert(
+                $data,
+                uniqueBy: ['interval_start'],
+                update: ['consumption']
+            );
+
+            return ActionResult::success(['records' => count($data)], 'Octopus export updated');
+        } catch (\Throwable $e) {
+            Log::warning('OctopusExport failed', ['exception' => $e->getMessage()]);
+            return ActionResult::failure($e->getMessage());
+        }
     }
 
     /**

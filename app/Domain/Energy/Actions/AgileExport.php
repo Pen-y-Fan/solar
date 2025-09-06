@@ -9,41 +9,57 @@ use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use App\Support\Actions\ActionResult;
+use App\Support\Actions\Contracts\ActionInterface;
 
-class AgileExport
+class AgileExport implements ActionInterface
 {
     /**
-     * @throws \Throwable
+     * @deprecated Use execute() returning ActionResult instead.
      */
     public function run(): void
     {
-        Log::info('Start running Agile export action');
+        $this->execute();
+    }
+    /**
+     * @throws \Throwable
+     */
+    public function execute(): ActionResult
+    {
+        try {
+            Log::info('Start running Agile export action');
 
         // normally released after 4PM and will have data up to 23:00 the next day!
-        $result = AgileExportModel::query()
+            $result = AgileExportModel::query()
             ->latest('valid_to')
             ->first('valid_to');
 
-        $lastExportValidTo = $result ? $result->valid_to : now()->subDay();
+            $lastExportValidTo = $result ? $result->valid_to : now()->subDay();
 
-        throw_if(
-            now()->diffInUTCHours($lastExportValidTo) > 7,
-            sprintf(
-                'Already have data until %s, try again after 4 PM %s',
-                $lastExportValidTo->timezone('Europe/London')->format('j F Y H:i'),
-                $lastExportValidTo->timezone('Europe/London')->format('D')
-            )
-        );
+            throw_if(
+                now()->diffInUTCHours($lastExportValidTo) > 7,
+                sprintf(
+                    'Already have data until %s, try again after 4 PM %s',
+                    $lastExportValidTo->timezone('Europe/London')->format('j F Y H:i'),
+                    $lastExportValidTo->timezone('Europe/London')->format('D')
+                )
+            );
 
         // fetch the latest export data
-        $data = $this->getExportData($lastExportValidTo);
+            $data = $this->getExportData($lastExportValidTo);
 
         // save it to the database
-        AgileExportModel::upsert(
-            $data,
-            uniqueBy: ['valid_from'],
-            update: ['value_exc_vat', 'value_inc_vat'],
-        );
+            AgileExportModel::upsert(
+                $data,
+                uniqueBy: ['valid_from'],
+                update: ['value_exc_vat', 'value_inc_vat'],
+            );
+
+            return ActionResult::success(['records' => count($data)], 'Agile export updated');
+        } catch (\Throwable $e) {
+            Log::warning('AgileExport failed', ['exception' => $e->getMessage()]);
+            return ActionResult::failure($e->getMessage());
+        }
     }
 
     /**

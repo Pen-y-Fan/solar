@@ -30,8 +30,12 @@ class OctopusAccount extends Command
         $this->info('Running Octopus account action!');
 
         try {
-            $account->run();
-            $this->info('Octopus account has been fetched!');
+            $result = $account->execute();
+            if ($result->isSuccess()) {
+                $this->info('Octopus account has been fetched!');
+            } else {
+                $this->warn('Octopus account fetch failed: ' . ($result->getMessage() ?? 'unknown error'));
+            }
         } catch (\Throwable $th) {
             Log::error('Error running Octopus account action:', ['error message' => $th->getMessage()]);
             $this->error('Error running Octopus account action:');
