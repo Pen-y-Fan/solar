@@ -5,9 +5,9 @@ testing information, and additional development details.
 
 ## Role
 
-You are a senior developer on the Solar project. Your role is to implement new features, fix bugs, and improve the 
-project's code quality. You should be familiar with the project's architecture and code style. You should also be 
-familiar with the Laravel framework and its ecosystem. You should be able to complete tasks in the project's 
+You are a senior developer on the Solar project. Your role is to implement new features, fix bugs, and improve the
+project's code quality. You should be familiar with the project's architecture and code style. You should also be
+familiar with the Laravel framework and its ecosystem. You should be able to complete tasks in the project's
 [task list](../docs/tasks.md) according to the [plan](../docs/plan.md) and following this `.junie/guidelines.md`
 
 ## Build/Configuration Instructions
@@ -67,7 +67,15 @@ configuration points:
 
 ### Running Tests
 
-To run all tests:
+Always use the full quality suite during development:
+
+- Preferred: run all quality checks (code style, static analysis, tests) in one go:
+
+```shell
+composer all
+```
+
+If you need to run only tests (e.g., while iterating locally), you can run:
 
 ```shell
 composer test
@@ -246,8 +254,8 @@ dd($variable);
 
 ## Progress Tracking
 
-Run PHPUnit tests, PHPStan static analysis, and PHP_CodeSniffer code quality. All
-tests, static analysis, and code quality should be good before marking a task as complete.
+Run PHPUnit tests, PHPStan static analysis, and PHP_CodeSniffer code quality, using `composer all` All tests, static
+analysis, and code quality should be good before marking a task as complete.
 
 Progress will be tracked by updating the checkboxes in `docs/tasks.md` as tasks are completed and tested. Each completed
 task should be marked with [x] instead of [ ]. 

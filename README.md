@@ -250,7 +250,13 @@ composer phpstan-baseline
 
 The project uses PHPUnit for testing. The configuration is in `phpunit.xml` at the root of the project.
 
-To run all tests:
+Preferred during development: run the full quality suite (code style, static analysis, and tests) in one go:
+
+```shell
+composer all
+```
+
+If you need to run only tests:
 
 ```shell
 composer test

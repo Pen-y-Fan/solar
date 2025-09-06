@@ -1,9 +1,5 @@
 parameters:
 	ignoreErrors:
-		-
-			message: "#^Parameter \\#1 \\$callback of method Illuminate\\\\Support\\\\Collection\\<int,Illuminate\\\\Database\\\\Eloquent\\\\Model\\>\\:\\:each\\(\\) expects callable\\(Illuminate\\\\Database\\\\Eloquent\\\\Model, int\\)\\: mixed, Closure\\(App\\\\Domain\\\\Strategy\\\\Models\\\\Strategy\\)\\: void given\\.$#"
-			count: 1
-			path: app/Domain/Strategy/Actions/CalculateBatteryAction.php
 
 		-
 			message: "#^Access to an undefined property App\\\\Domain\\\\Energy\\\\Models\\\\Inverter\\:\\:\\$time\\.$#"

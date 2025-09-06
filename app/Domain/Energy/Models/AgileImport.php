@@ -36,6 +36,11 @@ class AgileImport extends Model
 {
     use HasFactory;
 
+    protected static function newFactory()
+    {
+        return \Database\Factories\AgileImportFactory::new();
+    }
+
     /**
      * The MonetaryValue value object
      */

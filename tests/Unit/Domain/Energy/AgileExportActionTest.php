@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Domain\Energy;
 
-use App\Domain\Energy\Actions\AgileExport;
+use App\Application\Commands\Bus\CommandBus;
+use App\Application\Commands\Energy\ExportAgileRatesCommand;
 use App\Support\Actions\ActionResult;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -32,7 +33,9 @@ class AgileExportActionTest extends TestCase
             ], 200),
         ]);
 
-        $result = (new AgileExport())->execute();
+        /** @var CommandBus $bus */
+        $bus = app(CommandBus::class);
+        $result = $bus->dispatch(new ExportAgileRatesCommand());
 
         $this->assertInstanceOf(ActionResult::class, $result);
     }

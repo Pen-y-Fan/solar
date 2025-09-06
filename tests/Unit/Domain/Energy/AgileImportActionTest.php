@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Domain\Energy;
 
-use App\Domain\Energy\Actions\AgileImport;
+use App\Application\Commands\Bus\CommandBus;
+use App\Application\Commands\Energy\ImportAgileRatesCommand;
 use App\Support\Actions\ActionResult;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
@@ -32,7 +33,9 @@ class AgileImportActionTest extends TestCase
             ], 200),
         ]);
 
-        $result = (new AgileImport())->execute();
+        /** @var CommandBus $bus */
+        $bus = app(CommandBus::class);
+        $result = $bus->dispatch(new ImportAgileRatesCommand());
 
         $this->assertInstanceOf(ActionResult::class, $result);
     }

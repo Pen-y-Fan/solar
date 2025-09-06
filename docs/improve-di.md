@@ -37,7 +37,8 @@ Acceptance criteria:
 
 - [x] Tests and quality gates
   - [x] Add/adjust unit tests for DI changes where needed
-  - [x] `composer test` passes
+  - [x] Preferred: `composer all` passes (runs cs, phpstan, tests)
+  - [x] If iterating, `composer test` passes
   - [x] `composer phpstan` reports no new issues
   - [x] `composer cs` is clean
 

@@ -2,10 +2,10 @@
 
 namespace App\Filament\Widgets;
 
-use App\Domain\Energy\Actions\AgileExport as AgileExportAction;
-use App\Domain\Energy\Actions\AgileImport as AgileImportAction;
-use App\Domain\Energy\Actions\OctopusExport;
-use App\Domain\Energy\Actions\OctopusImport;
+use App\Application\Commands\Bus\CommandBus;
+use App\Application\Commands\Energy\ExportAgileRatesCommand;
+use App\Application\Commands\Energy\ImportAgileRatesCommand;
+use App\Application\Queries\Energy\AgileImportExportSeriesQuery;
 use App\Domain\Energy\Models\AgileExport;
 use App\Domain\Energy\Models\AgileImport;
 use Filament\Widgets\ChartWidget;
@@ -98,16 +98,8 @@ class AgileChart extends ChartWidget
         $limit = 96;
         $start = now()->timezone('Europe/London')->startOfDay()->timezone('UTC');
 
+        // TODO: convert to a command
         $lastImport = AgileImport::query()
-            ->where(
-                'valid_from',
-                '>=',
-                $start
-            )
-            ->orderBy('valid_from', 'DESC')
-            ->first();
-
-        $lastExport = AgileExport::query()
             ->where(
                 'valid_from',
                 '>=',
@@ -125,6 +117,16 @@ class AgileChart extends ChartWidget
             $this->updateAgileImport();
         }
 
+        // TODO: convert to a command
+        $lastExport = AgileExport::query()
+            ->where(
+                'valid_from',
+                '>=',
+                $start
+            )
+            ->orderBy('valid_from', 'DESC')
+            ->first();
+
         if (is_null($lastExport)) {
             // No export data, so update
             $this->updateAgileExport();
@@ -134,18 +136,9 @@ class AgileChart extends ChartWidget
             $this->updateAgileExport();
         }
 
-        $importData = AgileImport::query()
-            ->with('exportCost')
-            ->where(
-                'valid_from',
-                '>=',
-                $start
-            )
-            ->orderBy('valid_from')
-            ->limit($limit)
-            ->get();
+        $series = app(AgileImportExportSeriesQuery::class)->run($start, $limit);
 
-        $min = floor($importData->min('value_inc_vat') ?? 1) - 1;
+        $min = floor(collect($series)->min('import_value_inc_vat') ?? 1) - 1;
 
         if ($min < 0) {
             $this->minValue = floor($min / 5) * 5;
@@ -154,12 +147,7 @@ class AgileChart extends ChartWidget
             $this->minValue = 0;
         }
 
-        // combine the data for the chart
-        return $importData->map(fn ($item) => [
-            'valid_from' => $item->valid_from,
-            'import_value_inc_vat' => $item->value_inc_vat,
-            'export_value_inc_vat' => $item->exportCost ? $item->exportCost->value_inc_vat : 0,
-        ]);
+        return $series;
     }
 
     protected function getType(): string
@@ -184,24 +172,11 @@ class AgileChart extends ChartWidget
         Log::info('Updating agile import chart data from API.');
 
         try {
-            /** @var AgileImportAction $agileImport */
-            $agileImport = app(AgileImportAction::class);
-            $agileImport->execute();
+            /** @var CommandBus $bus */
+            $bus = app(CommandBus::class);
+            $bus->dispatch(new ImportAgileRatesCommand());
         } catch (Throwable $th) {
-            Log::error('Error running Octopus Agile import action:', ['error message' => $th->getMessage()]);
-        }
-
-        try {
-            /** @var OctopusImport $octopusImport */
-            $octopusImport = app(OctopusImport::class);
-            $result = $octopusImport->execute();
-            if ($result->isSuccess()) {
-                Log::info('Octopus import has been fetched!');
-            } else {
-                Log::warning('Octopus import fetch returned failure', ['message' => $result->getMessage()]);
-            }
-        } catch (Throwable $th) {
-            Log::error('Error running Octopus import action:', ['error message' => $th->getMessage()]);
+            Log::error('Error dispatching ImportAgileRatesCommand:', ['error message' => $th->getMessage()]);
         }
     }
 
@@ -210,22 +185,11 @@ class AgileChart extends ChartWidget
         Log::info('Updating agile export chart data from API.');
 
         try {
-            /** @var AgileExportAction $agileExport */
-            $agileExport = app(AgileExportAction::class);
-            $agileExport->execute();
+            /** @var CommandBus $bus */
+            $bus = app(CommandBus::class);
+            $bus->dispatch(new ExportAgileRatesCommand());
         } catch (Throwable $th) {
-            Log::error('Error running Octopus Agile export action:', ['error message' => $th->getMessage()]);
-        }
-
-        try {
-            /** @var OctopusExport $octopusExport */
-            $octopusExport = app(OctopusExport::class);
-            $result = $octopusExport->execute();
-            if (! $result->isSuccess()) {
-                Log::warning('Octopus export fetch returned failure', ['message' => $result->getMessage()]);
-            }
-        } catch (Throwable $th) {
-            Log::error('Error running Octopus export action:', ['error message' => $th->getMessage()]);
+            Log::error('Error dispatching ExportAgileRatesCommand:', ['error message' => $th->getMessage()]);
         }
     }
 }

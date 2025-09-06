@@ -2,13 +2,12 @@
 
 namespace App\Domain\Strategy\Actions;
 
-use App\Helpers\CalculateBatteryPercentage;
-use App\Domain\Strategy\Models\Strategy;
-use App\Domain\Strategy\ValueObjects\BatteryState;
+use App\Application\Commands\Bus\CommandBus;
+use App\Application\Commands\Strategy\CalculateBatteryCommand;
 use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\App;
 
 class CalculateBatteryAction extends Action
 {
@@ -37,53 +36,34 @@ class CalculateBatteryAction extends Action
 
         $this->action(function (): void {
             $this->process(function (Table $table) {
+                // Dispatch the CQRS command instead of calculating here
+                /** @var CommandBus $bus */
+                $bus = App::make(CommandBus::class);
 
-                $strategies = $table->getQuery()->get();
+                // Try to infer the selected date from the table filter if provided
+                $date = null;
+                try {
+                    $filtersForm = $table->getFiltersForm();
+                    /** @var array<string,mixed> $state */
+                    $state = $filtersForm->getState();
+                    /** @var string|null $selected */
+                    $selected = $state['period']['value'] ?? null;
+                    if (is_string($selected) && $selected !== '') {
+                        $date = $selected;
+                    }
+                } catch (\Throwable) {
+                    // Ignore and let the command default to 'today'
+                }
 
-                $batteryCalculator = new CalculateBatteryPercentage();
+                $result = $bus->dispatch(new CalculateBatteryCommand(date: $date));
+                $this->result = $result->isSuccess();
 
-                $currentBattery = 10;
-
-                $batteryCalculator->startBatteryPercentage($currentBattery);
-
-                $strategies->each(function (Strategy $strategy) use ($batteryCalculator) {
-                    Log::debug('strategy', $strategy->toArray());
-
-                    // Get consumption data from the value object
-                    $consumptionData = $strategy->getConsumptionDataValueObject();
-                    $manualConsumption = $consumptionData->manual;
-
-                    // Calculate battery values
-                    [
-                        $batteryPercentage,
-                        $chargeAmount,
-                        $importAmount,
-                        $exportAmount
-                    ] = $batteryCalculator
-                        ->isCharging($strategy->strategy_manual ?? false)
-                        ->consumption($manualConsumption ?? 0.0)
-                        ->estimatePVkWh($strategy->forecast->pv_estimate)
-                        ->calculate();
-
-                    // Create a BatteryState value object with the calculated values
-                    $batteryState = new BatteryState(
-                        percentage: $batteryPercentage,
-                        chargeAmount: $chargeAmount,
-                        manualPercentage: $batteryPercentage // Using calculated percentage as manual
-                    );
-
-                    // Update the strategy using the value object's properties
-                    $strategy->battery_percentage1 = $batteryState->percentage;
-                    $strategy->battery_charge_amount = $batteryState->chargeAmount;
-                    $strategy->battery_percentage_manual = $batteryState->manualPercentage;
-
-                    // Set other calculated values
-                    $strategy->import_amount = $importAmount;
-                    $strategy->export_amount = $exportAmount;
-
-                    $strategy->save();
-                });
-                $this->result = true;
+                if ($result->isSuccess()) {
+                    $this->successNotificationTitle($result->getMessage() ?? 'Calculated');
+                } else {
+                    $this->failure();
+                    $this->failureNotificationTitle($result->getMessage() ?? 'Battery calculation failed');
+                }
             });
 
             if ($this->result) {

@@ -21,6 +21,7 @@ class AgileImport implements ActionInterface
     {
         $this->execute();
     }
+
     /**
      * @throws \Throwable
      */
@@ -29,10 +30,10 @@ class AgileImport implements ActionInterface
         try {
             Log::info('Start running Agile import action');
 
-        // normally released after 4PM and will have data up to 23:00 the next day!
+            // normally released after 4PM and will have data up to 23:00 the next day!
             $result = AgileImportModel::query()
-            ->latest('valid_to')
-            ->first('valid_to');
+                ->latest('valid_to')
+                ->first('valid_to');
 
             $lastImportValidTo = $result ? $result->valid_to : now()->subDay();
 
@@ -45,10 +46,10 @@ class AgileImport implements ActionInterface
                 )
             );
 
-        // fetch the latest import data
+            // fetch the latest import data
             $data = $this->getImportData($lastImportValidTo);
 
-        // save it to the database
+            // save it to the database
             AgileImportModel::upsert(
                 $data,
                 uniqueBy: ['valid_from'],
@@ -97,7 +98,7 @@ class AgileImport implements ActionInterface
             'Agile import action',
             [
                 'successful' => $response->successful(),
-                'json' => $data,
+                'json'       => $data,
             ]
         );
 
@@ -109,8 +110,8 @@ class AgileImport implements ActionInterface
                     // {"value_exc_vat":18.04,"value_inc_vat":18.942,"valid_from":"2024-06-20T21:30:00Z","valid_to":"2024-06-20T22:00:00Z","payment_method":null}
                     'value_exc_vat' => $item['value_exc_vat'],
                     'value_inc_vat' => $item['value_inc_vat'],
-                    'valid_from' => Carbon::parse($item['valid_from'])->timezone('UTC')->toDateTimeString(),
-                    'valid_to' => Carbon::parse($item['valid_to'])->timezone('UTC')->toDateTimeString(),
+                    'valid_from'    => Carbon::parse($item['valid_from'])->timezone('UTC')->toDateTimeString(),
+                    'valid_to'      => Carbon::parse($item['valid_to'])->timezone('UTC')->toDateTimeString(),
                 ];
             })->toArray();
     }

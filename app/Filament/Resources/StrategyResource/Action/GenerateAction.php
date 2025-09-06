@@ -2,7 +2,8 @@
 
 namespace App\Filament\Resources\StrategyResource\Action;
 
-use App\Domain\Strategy\Actions\GenerateStrategyAction;
+use App\Application\Commands\Bus\CommandBus;
+use App\Application\Commands\Strategy\GenerateStrategyCommand;
 use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
@@ -46,11 +47,13 @@ class GenerateAction extends Action
                 }
 
                 Log::info('Generating strategy for: ' . $periodValue);
-                /** @var GenerateStrategyAction $action */
-                $action = app(GenerateStrategyAction::class);
-                $action->filter = $periodValue;
-                $result = $action->execute();
+                /** @var CommandBus $bus */
+                $bus = app(CommandBus::class);
+                $result = $bus->dispatch(new GenerateStrategyCommand(period: $periodValue));
                 $this->result = $result->isSuccess();
+                if (!$this->result) {
+                    $this->failureNotificationTitle($result->getMessage() ?? 'Failed');
+                }
             });
 
             if ($this->result) {
