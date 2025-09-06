@@ -32,8 +32,7 @@ class GenerateStrategyAction implements ActionInterface
 
     public function __construct(
         private readonly InverterRepositoryInterface $inverterRepository
-    )
-    {
+    ) {
     }
 
     /**
@@ -191,10 +190,9 @@ class GenerateStrategyAction implements ActionInterface
     }
 
     public function getConsumption(
-        Collection|array               $forecastData,
+        Collection|array $forecastData,
         \Illuminate\Support\Collection $consumptions,
-    ): \Illuminate\Support\Collection
-    {
+    ): \Illuminate\Support\Collection {
         $battery = self::BATTERY_MIN;
         $result = [];
 
