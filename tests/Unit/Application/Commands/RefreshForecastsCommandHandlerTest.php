@@ -9,15 +9,12 @@ use App\Application\Commands\Forecasting\RefreshForecastsCommandHandler;
 use App\Domain\Forecasting\Actions\ActualForecastAction;
 use App\Domain\Forecasting\Actions\ForecastAction;
 use App\Support\Actions\ActionResult;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
 use Mockery as m;
 use Tests\TestCase;
 
 final class RefreshForecastsCommandHandlerTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function testSuccessRunsActualThenForecastAndAggregates(): void
     {
         Log::spy();

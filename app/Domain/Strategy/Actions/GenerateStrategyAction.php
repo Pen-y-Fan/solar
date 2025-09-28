@@ -208,8 +208,16 @@ class GenerateStrategyAction implements ActionInterface
                 consumptionLastWeekCost: null
             );
 
-            Log::info('Charge at: ' . $forecast->period_end->format('H:i:s') . ' import cost '
-                . $costData->importValueIncVat . ' battery ' . $battery);
+            try {
+                Log::info(
+                    'Charge at: ' . $forecast->period_end->format('H:i:s') .
+                    ' import cost ' . $costData->importValueIncVat .
+                    ' battery ' . $battery
+                );
+            } catch (\Throwable $e) {
+                // Ignore logging errors in contexts where the Laravel app container isn't bootstrapped
+                // (e.g., pure unit tests)
+            }
 
             /* @var InverterConsumptionData|null $consumptionData */
             $consumptionData = $consumptions->first(function ($item) use ($forecast) {
