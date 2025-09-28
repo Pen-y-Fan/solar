@@ -56,11 +56,11 @@ final class StrategyDailySummaryQuery
         return [
             'date' => $start->timezone('Europe/London')->format('Y-m-d'),
             'count' => $count,
-            'total_import_kwh' => round($totalImportKwh, 4),
-            'total_export_kwh' => round($totalExportKwh, 4),
-            'avg_import_value_inc_vat' => round($avgImportValue, 4),
-            'avg_export_value_inc_vat' => round($avgExportValue, 4),
-            'net_cost_estimate' => round($netCostEstimate, 4),
+            'total_import_kwh' => $totalImportKwh,
+            'total_export_kwh' => $totalExportKwh,
+            'avg_import_value_inc_vat' => $avgImportValue,
+            'avg_export_value_inc_vat' => $avgExportValue,
+            'net_cost_estimate' => $netCostEstimate,
         ];
     }
 }

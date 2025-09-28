@@ -13,8 +13,6 @@ class CalculateBatteryAction extends Action
 {
     use CanCustomizeProcess;
 
-    private bool $result = false;
-
     public static function getDefaultName(): ?string
     {
         return 'Calculate battery';
@@ -56,19 +54,15 @@ class CalculateBatteryAction extends Action
                 }
 
                 $result = $bus->dispatch(new CalculateBatteryCommand(date: $date));
-                $this->result = $result->isSuccess();
 
                 if ($result->isSuccess()) {
                     $this->successNotificationTitle($result->getMessage() ?? 'Calculated');
+                    $this->success();
                 } else {
-                    $this->failure();
                     $this->failureNotificationTitle($result->getMessage() ?? 'Battery calculation failed');
+                    $this->failure();
                 }
             });
-
-            if ($this->result) {
-                $this->success();
-            }
         });
     }
 }

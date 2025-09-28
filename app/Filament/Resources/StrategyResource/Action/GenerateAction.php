@@ -53,6 +53,7 @@ class GenerateAction extends Action
                 $this->result = $result->isSuccess();
                 if (!$this->result) {
                     $this->failureNotificationTitle($result->getMessage() ?? 'Failed');
+                    $this->failure();
                 }
             });
 

@@ -36,10 +36,10 @@ class ElectricImportExportChart extends ChartWidget
 
         self::$heading = sprintf(
             'Actual electric export and import from %s to %s cost £%0.2f',
-            Carbon::parse($rawData->first()['interval_start'], 'London/Europe')
+            Carbon::parse($rawData->first()['interval_start'], 'Europe/London')
                 ->timezone('UTC')
                 ->format('D jS M Y H:i'),
-            Carbon::parse($rawData->last()['interval_end'], 'London/Europe')
+            Carbon::parse($rawData->last()['interval_end'], 'Europe/London')
                 ->timezone('UTC')
                 ->format('jS M H:i'),
             -$rawData->last()['net_accumulative_cost']
@@ -109,56 +109,10 @@ class ElectricImportExportChart extends ChartWidget
 
         $limit = 48;
 
-        $data = OctopusExport::query()
-            ->with(['importCost', 'strategy', 'octopusImport', 'inverter'])
-            ->where(
-                'interval_start',
-                '>=',
-                $start
-            )
-            ->where(
-                'interval_start',
-                '<=',
-                $start->copy()->timezone('Europe/London')->endOfDay()->timezone('UTC')
-            )
-            ->orderBy('interval_start')
-            ->limit($limit)
-            ->get();
+        /** @var \App\Application\Queries\Energy\ElectricImportExportSeriesQuery $query */
+        $query = app(\App\Application\Queries\Energy\ElectricImportExportSeriesQuery::class);
 
-        $exportAccumulativeCost = 0;
-        $importAccumulativeCost = 0;
-
-        $result = [];
-        foreach ($data as $exportItem) {
-            $exportValueIncVat = $exportItem->strategy ? $exportItem->strategy->export_value_inc_vat : 0;
-            $importValueIncVat = $exportItem->importCost ? $exportItem->importCost->value_inc_vat : 0;
-            $importConsumption = $exportItem->octopusImport ? $exportItem->octopusImport->consumption : 0;
-            $battery = $exportItem->inverter ? $exportItem->inverter->battery_soc : 0;
-
-            $exportCost = $exportValueIncVat * $exportItem->consumption;
-            $exportAccumulativeCost += ($exportCost / 100);
-
-            $importCost = -$importValueIncVat * $importConsumption;
-            $importAccumulativeCost += ($importCost / 100);
-
-            $result[] = [
-                'interval_start' => $exportItem->interval_start,
-                'interval_end' => $exportItem->interval_end,
-                'updated_at' => $exportItem->updated_at,
-                'export_consumption' => $exportItem->consumption,
-                'import_consumption' => $importConsumption,
-                'export_value_inc_vat' => $exportValueIncVat,
-                'import_value_inc_vat' => $importValueIncVat,
-                'export_cost' => $exportCost,
-                'import_cost' => $importCost,
-                'export_accumulative_cost' => $exportAccumulativeCost,
-                'import_accumulative_cost' => $importAccumulativeCost,
-                'net_accumulative_cost' => $exportAccumulativeCost + $importAccumulativeCost,
-                'battery_percent' => $battery,
-            ];
-        }
-
-        return collect($result);
+        return $query->run($start, $limit);
     }
 
     protected function getOptions(): array

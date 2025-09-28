@@ -2,17 +2,16 @@
 
 namespace App\Domain\Strategy\Actions;
 
-use App\Domain\Strategy\Models\Strategy;
-use App\Domain\Strategy\ValueObjects\ConsumptionData;
+use App\Application\Commands\Bus\CommandBus;
+use App\Application\Commands\Strategy\CopyConsumptionWeekAgoCommand;
 use Filament\Actions\Concerns\CanCustomizeProcess;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\App;
 
 class CopyConsumptionWeekAgoAction extends Action
 {
     use CanCustomizeProcess;
-
-    private int $result = 0;
 
     public static function getDefaultName(): ?string
     {
@@ -35,38 +34,34 @@ class CopyConsumptionWeekAgoAction extends Action
 
         $this->action(function (): void {
             $this->process(function (Table $table) {
-                $strategies = $table->getQuery()->get();
+                /** @var CommandBus $bus */
+                $bus = App::make(CommandBus::class);
 
-                foreach ($strategies as $strategy) {
-                    // Ensure we're working with a Strategy model
-                    if (!$strategy instanceof Strategy) {
-                        continue;
+                // Infer selected date from the table filter if provided
+                $date = null;
+                try {
+                    $filtersForm = $table->getFiltersForm();
+                    /** @var array<string,mixed> $state */
+                    $state = $filtersForm->getState();
+                    /** @var string|null $selected */
+                    $selected = $state['period']['value'] ?? null;
+                    if (is_string($selected) && $selected !== '') {
+                        $date = $selected;
                     }
+                } catch (\Throwable) {
+                    // Ignore
+                }
 
-                    // Get the consumption data value object
-                    $consumptionData = $strategy->getConsumptionDataValueObject();
+                $result = $bus->dispatch(new CopyConsumptionWeekAgoCommand(date: $date));
 
-                    // Only update if there's last week data available
-                    if ($consumptionData->lastWeek !== null) {
-                        // Create a new consumption data object with the last week value as manual
-                        $newConsumptionData = new ConsumptionData(
-                            lastWeek: $consumptionData->lastWeek,
-                            average: $consumptionData->average,
-                            manual: $consumptionData->lastWeek
-                        );
-
-                        // Update the strategy's consumption_manual attribute
-                        $strategy->consumption_manual = $newConsumptionData->manual;
-                        $strategy->save();
-
-                        $this->result++;
-                    }
+                if ($result->isSuccess()) {
+                    $this->successNotificationTitle($result->getMessage() ?? 'Copied');
+                    $this->success();
+                } else {
+                    $this->failureNotificationTitle($result->getMessage() ?? 'Copy failed');
+                    $this->failure();
                 }
             });
-
-            if ($this->result > 0) {
-                $this->success();
-            }
         });
     }
 }

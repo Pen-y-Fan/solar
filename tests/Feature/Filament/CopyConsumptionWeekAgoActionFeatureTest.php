@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Filament;
 
 use App\Application\Commands\Bus\CommandBus;
-use App\Application\Commands\Strategy\GenerateStrategyCommand;
+use App\Application\Commands\Strategy\CopyConsumptionWeekAgoCommand;
 use App\Domain\Strategy\Models\Strategy;
 use App\Domain\User\Models\User;
 use App\Filament\Resources\StrategyResource;
@@ -15,35 +15,34 @@ use Livewire\Livewire;
 use Mockery as m;
 use Tests\TestCase;
 
-final class GenerateActionFeatureTest extends TestCase
+final class CopyConsumptionWeekAgoActionFeatureTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function testGenerateActionShowsErrorToastOnFailure(): void
+    public function testCopyConsumptionWeekAgoActionShowsErrorToastOnFailure(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        // Seed one strategy record for the current day so the table has rows
+        // Ensure the table has at least one row
         Strategy::factory()->create(['period' => now()->timezone('UTC')->startOfDay()->addHours(12)]);
 
         /** @var m\MockInterface&CommandBus $bus */
         $bus = m::mock(CommandBus::class);
-        // Expect dispatch of GenerateStrategyCommand and return failure with message
         // @phpstan-ignore-next-line Mockery dynamic expectation count method
         $bus->shouldReceive('dispatch')
             ->once()
-            ->with(m::on(fn ($cmd) => $cmd instanceof GenerateStrategyCommand))
-            ->andReturn(ActionResult::failure('Strategy generation failed'));
+            ->with(m::on(fn ($cmd) => $cmd instanceof CopyConsumptionWeekAgoCommand))
+            ->andReturn(ActionResult::failure('Copy failed'));
         $this->app->instance(CommandBus::class, $bus);
 
         Livewire::actingAs($user)
             ->test(StrategyResource\Pages\ListStrategies::class)
-            ->callTableAction('Generate strategy')
-            ->assertNotified('Strategy generation failed');
+            ->callTableAction('Copy week ago')
+            ->assertNotified('Copy failed');
     }
 
-    public function testGenerateActionShowsSuccessToastOnSuccess(): void
+    public function testCopyConsumptionWeekAgoActionShowsSuccessToastOnSuccess(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -55,13 +54,13 @@ final class GenerateActionFeatureTest extends TestCase
         // @phpstan-ignore-next-line Mockery dynamic expectation count method
         $bus->shouldReceive('dispatch')
             ->once()
-            ->with(m::on(fn ($cmd) => $cmd instanceof GenerateStrategyCommand))
-            ->andReturn(ActionResult::success(null, 'Generated'));
+            ->with(m::on(fn ($cmd) => $cmd instanceof CopyConsumptionWeekAgoCommand))
+            ->andReturn(ActionResult::success(null, 'Copied'));
         $this->app->instance(CommandBus::class, $bus);
 
         Livewire::actingAs($user)
             ->test(StrategyResource\Pages\ListStrategies::class)
-            ->callTableAction('Generate strategy')
-            ->assertNotified('Generated');
+            ->callTableAction('Copy week ago')
+            ->assertNotified('Copied');
     }
 }
