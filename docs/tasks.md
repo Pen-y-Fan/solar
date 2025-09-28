@@ -1,6 +1,6 @@
 # Solar Project Improvement Tasks
 
-Last updated: 2025-09-06 21:31
+Last updated: 2025-09-28 20:04
 
 This document provides a comprehensive checklist of improvement tasks for the Solar project. Each task is marked with a
 checkbox [ ] that can be checked off when completed.
@@ -94,14 +94,66 @@ Details and the full checklist have been moved to docs/cqrs-tasks.md.
 
 [ ] Foundation and Security (Phase 1 alignment)
 
-- Ensure security and initial QA items are prioritized per docs/plan.md.
+- Ensure security and initial QA items are prioritized per `docs/plan.md`.
 
 [ ] **Increase test coverage**
 
-- [ ] Add unit tests for all Models
-- [ ] Add unit tests for all Actions
+- [x] Add unit tests for all Models
+  - [x] Strategy domain: Strategy model VO mapping (ConsumptionData, BatteryState, StrategyType, CostData)
+  - [x] Forecasting domain: Forecast model VO mapping (PvEstimate)
+  - [x] Forecasting domain: ActualForecast model VO mapping (PvEstimate)
+  - [x] Energy domain: AgileImport model VO mapping (MonetaryValue, TimeInterval)
+  - [x] Energy domain: AgileExport model VO mapping (MonetaryValue, TimeInterval)
+  - [x] Energy domain: OctopusImport model VO mapping (TimeInterval)
+  - [x] Energy domain: OctopusExport model VO mapping (TimeInterval)
+  - [x] Energy domain: Inverter model VO mapping (EnergyFlow, BatteryStateOfCharge)
+  - [x] User domain: User model VO mapping (Email)
+- [x] Add unit tests for all Actions
+  - [x] Strategy: GenerateStrategyAction uses VOs consistently
+  - [x] Forecasting: ForecastAction uses PvEstimate VO
+  - [x] Forecasting: ActualForecastAction uses PvEstimate VO
+  - [x] Energy: AgileImport, AgileExport, OctopusImport, OctopusExport actions use MonetaryValue/TimeInterval VOs
+- [x] Add unit tests for Repositories
+  - [x] Energy: EloquentInverterRepository returns InverterConsumptionData with correct averages, clamping, and time periods
+
+Note: Progress — repository-level VO mapping tests added for EloquentInverterRepository. VO edge-case unit tests added for Energy VOs (MonetaryValue VAT helpers; TimeInterval invalid ranges/overlaps/contains). Feature tests for key Filament resources (StrategyResource, ForecastResource) implemented exercising VO-backed forms and lists. Unit-testing milestone for VO mapping and core Actions is now complete and passing `composer all`. Next step — proceed with integration tests for critical flows and plan E2E coverage.
+- [x] Relocated DB-coupled Energy Action tests from Unit to Feature (tests/Feature/Domain/Energy/*ActionTest.php)
+- [x] Relocated DB-coupled Application Queries tests from Unit to Feature (tests/Feature/Application/Queries/*)
+- [x] Review CommandHandler tests and relocate only DB-coupled ones to Feature
+  - [x] CalculateBatteryCommandHandlerTest moved to tests/Feature/Application/Commands/
+  - [x] CopyConsumptionWeekAgoCommandHandlerTest moved to tests/Feature/Application/Commands/
+  - [x] RefreshForecastsCommandHandlerTest remains in Unit (mock-only, no DB coupling)
+  - [x] RecalculateStrategyCostsCommandHandlerTest moved to tests/Feature/Application/Commands/
+  - [x] ImportAgileRatesCommandHandlerTest remains in Unit (mock-only, no DB coupling)
+  - [x] ExportAgileRatesCommandHandlerTest remains in Unit (mock-only, no DB coupling)
+  - [x] SyncOctopusAccountCommandHandlerTest remains in Unit (mock-only, no DB coupling)
 - [ ] Add feature tests for all Filament resources
+  - [x] StrategyResource: list/edit/delete and VO-backed form fields
+  - [x] ForecastResource: list/create/edit/delete and PvEstimate VO in form/table
+  - [ ] Additional resources (add tests when new resources are introduced)
 - [ ] Add integration tests for critical user flows
+  - [ ] Strategy generation end-to-end: from command dispatch to persisted Strategy with correct VO states
+  - [ ] Energy import/export cost calculation daily summary end-to-end
+
+- [ ] Coverage improvement (Domain min 80%) — identified under-covered classes
+  - Strategy Value Objects
+    - [x] StrategyType — add unit tests for flags mapping, manual state, effective strategy helpers, edge-cases
+    - [x] CostData — add tests for VAT-inclusive/exclusive helpers, arithmetic helpers, zero/negative handling
+    - [x] ConsumptionData — add tests for clamping negatives, null safety, derived totals where applicable
+    - [x] BatteryState — add tests for bounds [0..100], manual vs calculated percentage, charge/discharge helpers
+  - Energy Value Objects
+    - [x] BatteryStateOfCharge — add tests for percent/Wh conversions, bounds, add/subtract operations, edge cases
+    - [x] EnergyFlow — add tests for import/export sign conventions, derived metrics, and zero-consumption case
+    - [x] InverterConsumptionData — unit tests added for VO helpers; repository Feature tests cover bucketing/averaging/clamping
+  - Forecasting Value Object
+  - [x] PvEstimate — unit tests added for fromSingleEstimate path, array round-trips, and zero/negative handling
+  - Actions (Domain)
+    - [x] GenerateStrategyAction — add unit tests to hit branching logic without DB
+  - Filament Widgets
+    - [x] StrategyResource\Widgets\StrategyChart — add feature tests for dataset building and label ranges
+    - [x] Filament\Widgets\AgileChart — add feature tests for series construction and time windows
+  - Console Commands
+    - [ ] Forecast, Inverter, Octopus console commands — add smoke tests asserting dispatch and options parsing
 
 [x] **Implement automated code quality tools**
 
