@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\StrategyResource\Widgets;
 
+use App\Application\Queries\Strategy\StrategyManualSeriesQuery;
 use App\Domain\Strategy\Models\Strategy;
 use App\Filament\Resources\StrategyResource\Pages\ListStrategies;
 use Filament\Widgets\ChartWidget;
@@ -99,43 +100,21 @@ class StrategyChart extends ChartWidget
 
     private function getDatabaseData(): Collection
     {
-
+        /** @var \Illuminate\Contracts\Pagination\Paginator|\Illuminate\Database\Eloquent\Collection<int, Strategy> $tableData */
         $tableData = $this->getPageTableRecords();
 
-        $accumulativeCost = 0;
-        $exportAccumulativeCost = 0;
-        $importAccumulativeCost = 0;
-        $data = [];
-
-        /** @var Strategy $strategy */
-        foreach ($tableData as $strategy) {
-            $import = $strategy->import_amount + $strategy->battery_charge_amount;
-            $export = $strategy->export_amount;
-
-            $importCost = $import * $strategy->import_value_inc_vat / 100;
-            $exportCost = $export * $strategy->export_value_inc_vat / 100;
-
-            $cost = ($importCost - $exportCost);
-            $accumulativeCost += $cost;
-
-            $importAccumulativeCost += $importCost;
-            $exportAccumulativeCost += $exportCost;
-
-            $data[] = [
-                'period_end' => $strategy->period,
-                'import' => $import,
-                'export' => $export,
-                'cost' => $cost,
-                'acc_cost' => $accumulativeCost,
-                'charging' => $strategy->strategy_manual,
-                'battery_percent' => $strategy->battery_percentage_manual,
-                'import_accumulative_cost' => $importAccumulativeCost,
-                'export_accumulative_cost' => $exportAccumulativeCost,
-
-            ];
+        // Ensure we pass a Collection into the query, similar to CostChart
+        if ($tableData instanceof \Illuminate\Contracts\Pagination\Paginator) {
+            /** @var Collection<int, Strategy> $strategyCollection */
+            $strategyCollection = collect($tableData->items());
+        } else {
+            /** @var Collection<int, Strategy> $strategyCollection */
+            $strategyCollection = $tableData;
         }
 
-        return collect($data);
+        /** @var StrategyManualSeriesQuery $query */
+        $query = app(StrategyManualSeriesQuery::class);
+        return $query->run($strategyCollection);
     }
 
     protected function getTablePage(): string

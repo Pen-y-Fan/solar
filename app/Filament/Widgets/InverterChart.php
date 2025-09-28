@@ -2,10 +2,10 @@
 
 namespace App\Filament\Widgets;
 
-use App\Domain\Energy\Models\Inverter;
+use App\Application\Queries\Energy\InverterConsumptionRangeQuery;
 use Filament\Widgets\ChartWidget;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class InverterChart extends ChartWidget
 {
@@ -17,52 +17,45 @@ class InverterChart extends ChartWidget
 
     protected function getData(): array
     {
-        $data = $this->getDatabaseData();
+        $data = $this->getQueryData();
+
+        // Determine start and end range based on current time in London
+        $endLondon = Carbon::now('Europe/London');
+        $startLondon = $endLondon->copy()->subDay()->startOfDay();
 
         self::$heading = sprintf(
             'Consumption from %s to %s was %0.2f kWh',
-            Carbon::parse($data->first()['period'], 'UTC')
-                ->timezone('Europe/London')
-                ->format('D jS M Y H:i'),
-            Carbon::parse($data->last()['period'], 'UTC')
-                ->timezone('Europe/London')
-                ->format('jS M H:i'),
-            $data->sum('consumption')
+            $startLondon->format('D jS M Y H:i'),
+            $endLondon->format('jS M H:i'),
+            $data->sum(fn ($item) => (float) $item['value'])
         );
 
         return [
             'datasets' => [
                 [
                     'label' => 'Consumption',
-                    'data' => $data->map(fn ($item): string => $item['consumption']),
+                    'data' => $data->map(fn ($item): float => (float) $item['value']),
                     'fill' => true,
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
                     'borderColor' => 'rgb(75, 192, 192)',
                     'stepped' => 'middle',
                 ],
             ],
-            'labels' => $data->map(fn ($item): string => Carbon::parse($item['period'], 'UTC')
+            'labels' => $data->map(fn ($item): string => Carbon::createFromFormat('H:i:s', $item['time'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('H:i')),
         ];
     }
 
-    private function getDatabaseData(): Collection
+    private function getQueryData(): Collection
     {
-        $lastExport = Inverter::query()
-            ->latest('period')
-            ->first() ?? now();
+        $endUtc = Carbon::now('Europe/London')->timezone('UTC');
+        $startUtc = Carbon::now('Europe/London')->subDay()->startOfDay()->timezone('UTC');
 
-        return Inverter::query()
-            ->where(
-                'period',
-                '>=',
-                $lastExport->period->timezone('Europe/London')->subDay()
-                    ->startOfDay()->timezone('UTC')
-            )
-            ->orderBy('period')
-            ->limit(48)
-            ->get();
+        /** @var InverterConsumptionRangeQuery $query */
+        $query = app(InverterConsumptionRangeQuery::class);
+
+        return $query->run($startUtc, $endUtc, 48);
     }
 
     protected function getType(): string

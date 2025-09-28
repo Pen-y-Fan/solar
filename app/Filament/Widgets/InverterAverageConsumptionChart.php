@@ -2,10 +2,9 @@
 
 namespace App\Filament\Widgets;
 
-use App\Domain\Energy\Models\Inverter;
+use App\Application\Queries\Energy\InverterConsumptionByTimeQuery;
 use Filament\Widgets\ChartWidget;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 class InverterAverageConsumptionChart extends ChartWidget
@@ -50,19 +49,13 @@ class InverterAverageConsumptionChart extends ChartWidget
 
     private function getDatabaseData(): Collection
     {
-        $this->startDate = now()->timezone('Europe/London')->startOfDay()->subDays(21)->timezone('UTC');
+        // Determine the start date for the average window (last 21 days from start of today in Europe/London)
+        $this->startDate = now()->timezone('Europe/London')->startOfDay();
 
-        return Inverter::query()
-            ->select(DB::raw('time(period) as `time`, avg(`consumption`) as `value`'))
-            ->where(
-                'period',
-                '>',
-                $this->startDate
-                    ->startOfDay()
-                    ->timezone('UTC')
-            )
-            ->groupBy('time')
-            ->get();
+        /** @var InverterConsumptionByTimeQuery $query */
+        $query = app(InverterConsumptionByTimeQuery::class);
+
+        return $query->run($this->startDate);
     }
 
     protected function getType(): string

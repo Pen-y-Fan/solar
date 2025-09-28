@@ -62,6 +62,7 @@ class EloquentInverterRepository implements InverterRepositoryInterface
                 $startDate,
                 $endDate,
             ])
+            ->orderBy('period')
             ->get();
 
         return $consumptions->map(function ($consumption) {

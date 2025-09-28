@@ -15,6 +15,10 @@ use App\Application\Commands\Energy\SyncOctopusAccountCommand;
 use App\Application\Commands\Energy\SyncOctopusAccountCommandHandler;
 use App\Application\Commands\Strategy\GenerateStrategyCommand;
 use App\Application\Commands\Strategy\GenerateStrategyCommandHandler;
+use App\Application\Commands\Forecasting\RefreshForecastsCommand;
+use App\Application\Commands\Forecasting\RefreshForecastsCommandHandler;
+use App\Application\Commands\Strategy\RecalculateStrategyCostsCommand;
+use App\Application\Commands\Strategy\RecalculateStrategyCostsCommandHandler;
 use App\Support\Actions\ActionResult;
 use Tests\TestCase;
 
@@ -36,6 +40,8 @@ final class CommandBusMappingsTest extends TestCase
         $this->app->instance(ImportAgileRatesCommandHandler::class, $fakeHandler);
         $this->app->instance(ExportAgileRatesCommandHandler::class, $fakeHandler);
         $this->app->instance(SyncOctopusAccountCommandHandler::class, $fakeHandler);
+        $this->app->instance(RefreshForecastsCommandHandler::class, $fakeHandler);
+        $this->app->instance(RecalculateStrategyCostsCommandHandler::class, $fakeHandler);
 
         /** @var CommandBus $bus */
         $bus = app(CommandBus::class);
@@ -46,6 +52,8 @@ final class CommandBusMappingsTest extends TestCase
         $result2 = $bus->dispatch(new ImportAgileRatesCommand());
         $result3 = $bus->dispatch(new ExportAgileRatesCommand());
         $result4 = $bus->dispatch(new SyncOctopusAccountCommand());
+        $result5 = $bus->dispatch(new RefreshForecastsCommand());
+        $result6 = $bus->dispatch(new RecalculateStrategyCostsCommand());
 
         $this->assertInstanceOf(ActionResult::class, $result1);
         $this->assertInstanceOf(ActionResult::class, $result2);
@@ -56,5 +64,7 @@ final class CommandBusMappingsTest extends TestCase
         $this->assertTrue($result2->isSuccess());
         $this->assertTrue($result3->isSuccess());
         $this->assertTrue($result4->isSuccess());
+        $this->assertTrue($result5->isSuccess());
+        $this->assertTrue($result6->isSuccess());
     }
 }

@@ -60,7 +60,7 @@
         "phpstan-baseline": "phpstan analyse --generate-baseline",
         "test": "phpunit --no-coverage",
         "test-coverage": "XDEBUG_MODE=coverage phpunit --coverage-html coverage/html",
-        "test-coverage-text": "XDEBUG_MODE=coverage phpunit --coverage-text",
+        "test-coverage-text": "XDEBUG_MODE=coverage phpunit --coverage-text --colors=never > coverage/coverage.txt",
         "all": [
             "@cs",
             "@phpstan",

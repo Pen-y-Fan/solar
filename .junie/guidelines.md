@@ -228,6 +228,28 @@ The project follows the standard Laravel structure with some additions:
 
 - `app/Filament`: Contains Filament admin panel resources and widgets
 - `tests/Fixtures`: Contains test fixtures
+- `app/Application`: CQRS application layer
+  - `Commands/*`: Command DTOs and their Handlers; `Commands/Bus/*` has the `CommandBus` and its implementation
+  - `Queries/*`: Read-side query classes used by widgets/controllers
+- `app/Domain`: Domain layer (by bounded context, e.g., Energy, Strategy)
+  - Domain actions/use-cases, repositories, entities/value objects
+
+See also:
+- `docs/cqrs-tasks.md` — details and acceptance criteria for the CQRS rollout (Phase 1)
+- `docs/future-cqrs-tasks.md` — planned follow-ups and future tasks
+
+### Architecture: CQRS & Domain-Driven Design
+
+- Use Commands for complex write operations (state changes) and dispatch them via the `CommandBus`.
+  - Map Command => Handler pairs in `App\Providers\AppServiceProvider`.
+- Use Query classes for read operations consumed by widgets/controllers.
+- Keep domain logic under `app/Domain` and call it from handlers/queries.
+
+Testing expectations:
+- Domain code (under `app/Domain`) must have automated tests.
+- Command Handlers: unit tests for happy/unhappy paths; feature tests for UI actions dispatching commands and surfacing messages.
+- Query classes: unit tests covering data shape/edge-cases.
+- Maintain a convention test to assert CommandBus mappings (see `tests/Unit/Application/Commands/CommandBusMappingsTest.php`).
 
 ### Key Packages
 
@@ -256,6 +278,12 @@ dd($variable);
 
 Run PHPUnit tests, PHPStan static analysis, and PHP_CodeSniffer code quality, using `composer all` All tests, static
 analysis, and code quality should be good before marking a task as complete.
+
+Additional requirement for Domain code:
+- Any new code added under the `app/Domain` directory must be covered by automated tests before marking a task as complete.
+- Check test coverage using:
+  - Full suite coverage (text): `composer test-coverage-text`
+  - Filtered coverage for a specific test run, for example: `composer test-coverage-text -- --filter=EloquentInverterRepositoryTest`
 
 Progress will be tracked by updating the checkboxes in `docs/tasks.md` as tasks are completed and tested. Each completed
 task should be marked with [x] instead of [ ]. 

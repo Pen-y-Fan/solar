@@ -3,10 +3,11 @@
 namespace App\Filament\Resources\StrategyResource\Widgets;
 
 use App\Domain\Strategy\Models\Strategy;
-use App\Domain\Strategy\ValueObjects\CostData;
+use App\Application\Queries\Energy\EnergyCostBreakdownByDayQuery;
 use App\Filament\Resources\StrategyResource\Pages\ListStrategies;
 use Filament\Widgets\ChartWidget;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
+use Illuminate\Contracts\Pagination\Paginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -117,25 +118,20 @@ class CostChart extends ChartWidget
 
     private function getDatabaseData(): Collection
     {
+        /** @var Paginator|\Illuminate\Database\Eloquent\Collection<int, Strategy> $strategies */
         $strategies = $this->getPageTableRecords();
 
-        /** @var \Illuminate\Database\Eloquent\Collection<int, Strategy> $strategies */
-        $collection = $strategies->map(function (Strategy $strategy): array {
-            /** @var \Carbon\CarbonImmutable|null $period */
-            $period = $strategy->period;
+        // Ensure we pass a Collection to the query, even if the page table returns a paginator
+        if ($strategies instanceof Paginator) {
+            /** @var Collection<int, Strategy> $strategyCollection */
+            $strategyCollection = collect($strategies->items());
+        } else {
+            /** @var Collection<int, Strategy> $strategyCollection */
+            $strategyCollection = $strategies;
+        }
 
-            // Get the CostData value object
-            $costData = $strategy->getCostDataValueObject();
-
-            // Use the value object to get cost values
-            return [
-                'valid_from' => $period,
-                'import_value_inc_vat' => $costData->importValueIncVat ?? 0,
-                'export_value_inc_vat' => $costData->exportValueIncVat ?? 0,
-                // Add net cost from the value object
-                'net_cost' => $costData->getNetCost() ?? 0,
-            ];
-        });
+        $query = app(EnergyCostBreakdownByDayQuery::class);
+        $collection = $query->run($strategyCollection);
 
         $this->setMinimumValueFrom($collection);
 

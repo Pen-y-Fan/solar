@@ -165,6 +165,41 @@ The following packages have been used:
   users.
 - [Laravel Livewire](https://laravel-livewire.com/) - Included with Filament.
 
+## Architecture: CQRS and Domain-Driven Design
+
+This project uses a pragmatic CQRS (Command Query Responsibility Segregation) approach alongside Domain-Driven Design (DDD) for complex operations. In short:
+- Writes (state-changing operations) go through Commands handled by dedicated Handlers via a CommandBus.
+- Reads (reporting/queries) are executed by Query classes returning read-optimized data structures.
+- Domain logic (entities, repositories, value objects, and actions/use-cases) lives under app/Domain and is exercised from Commands/Queries.
+
+Key locations:
+- Commands & Bus:
+  - app/Application/Commands/* (Command objects and Handlers)
+  - app/Application/Commands/Bus/* (CommandBus interfaces/implementation)
+  - Handler mappings are registered in App\Providers\AppServiceProvider.
+- Queries (read side):
+  - app/Application/Queries/* (query classes grouped by feature area)
+- Domain (DDD):
+  - app/Domain/* (by bounded context, e.g., Energy, Strategy), including Actions, Repositories, and supporting classes
+
+Usage example (dispatching a command):
+
+```php
+use App\Application\Commands\Bus\CommandBus;
+use App\Application\Commands\Strategy\GenerateStrategyCommand;
+
+$bus = app(CommandBus::class);
+$result = $bus->dispatch(new GenerateStrategyCommand($strategyId, $dateFrom, $dateTo));
+
+if ($result->failed()) {
+    // handle error message(s)
+}
+```
+
+Further reading and task history:
+- docs/cqrs-tasks.md — details and acceptance criteria for the CQRS rollout (Phase 1)
+- docs/future-cqrs-tasks.md — planned follow-ups and future commands/queries
+
 ### Development Tools
 
 - [Laravel Herd](https://herd.laravel.com/) - Mac-based development environment for PHP and Laravel
@@ -268,7 +303,7 @@ To run tests with a coverage report (HTML):
 composer test-coverage
 ```
 
-To run tests with a coverage report (text output):
+To run tests with a coverage report, in text format, which is saved to coverage/coverage.txt
 
 ```shell
 composer test-coverage-text
