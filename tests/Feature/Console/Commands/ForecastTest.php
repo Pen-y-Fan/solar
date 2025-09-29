@@ -43,17 +43,17 @@ class ForecastTest extends TestCase
 
         $estimate = fake()->randomFloat(4);
         $forecast = new Forecast();
-        $forecast->period_end = now()->subHours(3)->startOfHour();
+        $forecast->period_end = now()->subHours(6)->startOfHour();
         $forecast->pv_estimate = $estimate;
         $forecast->pv_estimate10 = $estimate * 0.1;
         $forecast->pv_estimate90 = $estimate * 1.1;
-        $forecast->updated_at = now()->subHours(3)->startOfHour();
+        $forecast->updated_at = now()->subHours(6)->startOfHour();
         $forecast->save();
 
         $actualForecast = new ActualForecast();
-        $actualForecast->period_end = now()->subHours(3)->startOfHour();
+        $actualForecast->period_end = now()->subHours(6)->startOfHour();
         $actualForecast->pv_estimate = $estimate;
-        $actualForecast->updated_at = now()->subHours(3)->startOfHour();
+        $actualForecast->updated_at = now()->subHours(6)->startOfHour();
         $actualForecast->save();
 
         // Act & Assert

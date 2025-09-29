@@ -25,7 +25,7 @@ class ForecastAction implements ActionInterface
                 ->first('updated_at');
 
             throw_if(
-                ! empty($lastForecast) && $lastForecast->updated_at >= now()->subHours(4),
+                !empty($lastForecast) && $lastForecast->updated_at >= now()->subHours(4),
                 sprintf(
                     'Last updated within 4 hours, try again in %s to avoid rate limiting',
                     $lastForecast->updated_at->addHours(4)->diffForHumans()
@@ -60,13 +60,14 @@ class ForecastAction implements ActionInterface
 
         // Validate configuration
         throw_if(empty($api), 'Solcast API key is not configured. Please set SOLCAST_API_KEY in your environment.');
-        throw_if(empty($resourceId), 'Solcast resource ID is not configured. Please set SOLCAST_RESOURCE_ID in your environment.');
+        throw_if(
+            empty($resourceId),
+            'Solcast resource ID is not configured. Please set SOLCAST_RESOURCE_ID in your environment.'
+        );
 
         Log::info('Solcast Configuration', [
-            'api_key_set' => !empty($api),
-            'api_key_length' => strlen($api ?? ''),
-            'resource_id_set' => !empty($resourceId),
-            'resource_id' => $resourceId,
+            'api_key_length'  => strlen($api),
+            'resource_id'     => $resourceId,
         ]);
 
         $url = sprintf(
@@ -93,28 +94,29 @@ class ForecastAction implements ActionInterface
         Log::info(
             'Solcast Forecast Action v2',
             [
-                'successful' => $response->successful(),
+                'successful'  => $response->successful(),
                 'status_code' => $response->status(),
-                'headers' => $response->headers(),
-                'json' => $data,
-                'body' => $response->body(),
-                'url' => $url,
+                'headers'     => $response->headers(),
+                'json'        => $data,
+                'body'        => $response->body(),
+                'url'         => $url,
             ]
         );
 
         if ($response->failed()) {
             // Handle rate limiting specifically
             if ($response->status() === 429) {
-                $errorMessage = 'Solcast API rate limit exceeded. You have made too many requests today. Please wait until tomorrow or reduce the frequency of forecast updates.';
+                $errorMessage = 'Solcast API rate limit exceeded. You have made too many requests today. ' .
+                    'Please wait until tomorrow or reduce the frequency of forecast updates.';
 
                 $lastForecast = Forecast::latest('updated_at')->first();
                 assert($lastForecast instanceof Forecast);
 
                 Log::error('Solcast Rate Limit Exceeded', [
-                    'status_code' => $response->status(),
-                    'message' => 'Daily API limit reached',
-                    'last_forecast_update' => $lastForecast?->updated_at?->toDateTimeString(),
-                    'url' => $url,
+                    'status_code'          => $response->status(),
+                    'message'              => 'Daily API limit reached',
+                    'last_forecast_update' => $lastForecast->updated_at?->toDateTimeString(),
+                    'url'                  => $url,
                 ]);
 
                 $lastForecast->updated_at = now(); // Update the last forecast update time to force a backoff
@@ -130,10 +132,10 @@ class ForecastAction implements ActionInterface
             );
 
             Log::error('Solcast API Error', [
-                'status_code' => $response->status(),
+                'status_code'   => $response->status(),
                 'response_body' => $response->body(),
-                'url' => $url,
-                'headers_sent' => $headers,
+                'url'           => $url,
+                'headers_sent'  => $headers,
             ]);
 
             throw new \RuntimeException($errorMessage);
@@ -141,7 +143,9 @@ class ForecastAction implements ActionInterface
 
         // Validate response structure
         if (!is_array($data) || !isset($data['forecasts'])) {
-            throw new \RuntimeException('Invalid response structure from Solcast API. Expected "forecasts" key in response.');
+            throw new \RuntimeException(
+                'Invalid response structure from Solcast API. Expected "forecasts" key in response.'
+            );
         }
 
         if (empty($data['forecasts'])) {
