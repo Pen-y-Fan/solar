@@ -17,6 +17,12 @@ class ForecastTest extends TestCase
     public function testForecastConsoleCommand(): void
     {
         // Arrange
+        // Mock Solcast configuration to provide required API credentials
+        config([
+            'solcast.api_key' => 'test-api-key',
+            'solcast.resource_id' => 'test-resource-id'
+        ]);
+
         Http::fake([
             'https://api.solcast.com.au/rooftop_sites/*/forecasts/*' => Http::response([
                 'forecasts' => [
