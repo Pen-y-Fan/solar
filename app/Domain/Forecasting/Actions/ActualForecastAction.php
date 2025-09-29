@@ -21,7 +21,8 @@ class ActualForecastAction implements ActionInterface
         try {
             Log::info('Start running Solcast actual forecast action');
 
-            $lastForecast = ActualForecast::latest('updated_at')->first();
+            $lastForecast = ActualForecast::latest('updated_at')
+                ->first('updated_at');
 
             throw_if(
                 ! empty($lastForecast) && $lastForecast->updated_at >= now()->subHour(),
@@ -54,8 +55,19 @@ class ActualForecastAction implements ActionInterface
         $api = Config::get('solcast.api_key');
         $resourceId = Config::get('solcast.resource_id');
 
+        // Validate configuration
+        throw_if(empty($api), 'Solcast API key is not configured. Please set SOLCAST_API_KEY in your environment.');
+        throw_if(empty($resourceId), 'Solcast resource ID is not configured. Please set SOLCAST_RESOURCE_ID in your environment.');
+
+        Log::info('Solcast Configuration', [
+            'api_key_set' => !empty($api),
+            'api_key_length' => strlen($api ?? ''),
+            'resource_id_set' => !empty($resourceId),
+            'resource_id' => $resourceId,
+        ]);
+
         $url = sprintf(
-            'https://api.solcast.com.au/rooftop_sites/%s/estimated_actuals?format=json&hours=24',
+            'https://api.solcast.com.au/rooftop_sites/%s/estimated_actuals?format=json&hours=72',
             $resourceId
         );
 
@@ -73,16 +85,67 @@ class ActualForecastAction implements ActionInterface
         }
 
         $data = $response->json();
+
+        // Enhanced logging with more details
         Log::info(
-            'Solcast Actual Forecast Action',
+            'Solcast Actual Forecast Action detail',
             [
                 'successful' => $response->successful(),
+                'status_code' => $response->status(),
+                'headers' => $response->headers(),
                 'json' => $data,
+                'body' => $response->body(),
+                'url' => $url,
             ]
         );
 
-        throw_if($response->failed(), 'Unsuccessful actual forecast, check the log file for more details.');
+        if ($response->failed()) {
+            // Handle rate limiting specifically
+            if ($response->status() === 429) {
+                $errorMessage = 'Solcast API rate limit exceeded. You have made too many requests today. Please wait until tomorrow or reduce the frequency of actual forecast updates.';
 
+                $lastActualForecast = ActualForecast::latest('updated_at')->first('updated_at');
+                assert($lastActualForecast instanceof ActualForecast);
+
+                Log::error('Solcast Rate Limit Exceeded', [
+                    'status_code' => $response->status(),
+                    'message' => 'Daily API limit reached',
+                    'last_forecast_update' => $lastActualForecast?->updated_at?->toDateTimeString(),
+                    'url' => $url,
+                ]);
+
+                // Update the last forecast update time to force a backoff
+                $lastActualForecast->updated_at = now();
+                $lastActualForecast->save();
+
+                throw new \RuntimeException($errorMessage);
+            }
+
+            $errorMessage = sprintf(
+                'Solcast API request failed with status %d. Response: %s',
+                $response->status(),
+                $response->body()
+            );
+
+            Log::error('Solcast API Error', [
+                'status_code' => $response->status(),
+                'response_body' => $response->body(),
+                'url' => $url,
+                'headers_sent' => $headers,
+            ]);
+
+            throw new \RuntimeException($errorMessage);
+        }
+
+        // Validate response structure
+        if (!is_array($data) || !isset($data['estimated_actuals'])) {
+            throw new \RuntimeException('Invalid response structure from Solcast API. Expected "estimated_actuals" key in response.');
+        }
+
+        if (empty($data['estimated_actuals'])) {
+            Log::warning('Solcast API returned empty forecasts array');
+            return [];
+        }
         return collect($data['estimated_actuals'])
             ->map(function ($item) {
                 // Create a PvEstimate value object with only the main estimate
