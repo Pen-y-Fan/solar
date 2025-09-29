@@ -17,6 +17,12 @@ class ForecastTest extends TestCase
     public function testForecastConsoleCommand(): void
     {
         // Arrange
+        // Mock Solcast configuration to provide required API credentials
+        config([
+            'solcast.api_key' => 'test-api-key',
+            'solcast.resource_id' => 'test-resource-id'
+        ]);
+
         Http::fake([
             'https://api.solcast.com.au/rooftop_sites/*/forecasts/*' => Http::response([
                 'forecasts' => [
@@ -43,17 +49,17 @@ class ForecastTest extends TestCase
 
         $estimate = fake()->randomFloat(4);
         $forecast = new Forecast();
-        $forecast->period_end = now()->subHours(3)->startOfHour();
+        $forecast->period_end = now()->subDay()->startOfHour();
         $forecast->pv_estimate = $estimate;
         $forecast->pv_estimate10 = $estimate * 0.1;
         $forecast->pv_estimate90 = $estimate * 1.1;
-        $forecast->updated_at = now()->subHours(3)->startOfHour();
+        $forecast->updated_at = now()->subDay()->startOfHour();
         $forecast->save();
 
         $actualForecast = new ActualForecast();
-        $actualForecast->period_end = now()->subHours(3)->startOfHour();
+        $actualForecast->period_end = now()->subDay()->startOfHour();
         $actualForecast->pv_estimate = $estimate;
-        $actualForecast->updated_at = now()->subHours(3)->startOfHour();
+        $actualForecast->updated_at = now()->subDay()->startOfHour();
         $actualForecast->save();
 
         // Act & Assert

@@ -123,14 +123,14 @@ use PHPUnit\Framework\TestCase;
 
 class ExampleTest extends TestCase
 {
-    public function test_string_concatenation(): void
+    public function testStringConcatenation(): void
     {
         $string1 = "Hello";
         $string2 = "World";
         
         $result = $string1 . " " . $string2;
         
-        $this->assertEquals("Hello World", $result);
+        $this->assertSame("Hello World", $result);
     }
 }
 ```
@@ -151,7 +151,7 @@ use Tests\TestCase;
 
 class ExampleTest extends TestCase
 {
-    public function test_the_application_returns_a_successful_response(): void
+    public function testTheApplicationReturnsASuccessfulResponse(): void
     {
         $response = $this->get('/welcome');
 
@@ -282,7 +282,7 @@ analysis, and code quality should be good before marking a task as complete.
 Additional requirement for Domain code:
 - Any new code added under the `app/Domain` directory must be covered by automated tests before marking a task as complete.
 - Check test coverage using:
-  - Full suite coverage (text): `composer test-coverage-text`
+  - Full suite coverage (text): `composer test-coverage-text`, output is saved to `coverage/coverage.txt`
   - Filtered coverage for a specific test run, for example: `composer test-coverage-text -- --filter=EloquentInverterRepositoryTest`
 
 Progress will be tracked by updating the checkboxes in `docs/tasks.md` as tasks are completed and tested. Each completed
