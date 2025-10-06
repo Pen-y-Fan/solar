@@ -321,6 +321,26 @@ To run a specific test method:
 php vendor/bin/phpunit --filter=methodName
 ```
 
+#### Browser Tests (Laravel Dusk)
+
+Laravel Dusk provides browser automation for end-to-end testing.
+
+Setup (once per machine/project):
+- Install Dusk: `composer require --dev laravel/dusk`
+- Scaffold: `php artisan dusk:install`
+- Create `.env.dusk.local` with `APP_URL=https://solar.test` (or your local domain) and a suitable test DB.
+- Ensure Chrome/Chromedriver are available (Herd provides a compatible Chrome). Use headless by default.
+
+Run Dusk:
+- All browser tests (headless): `php artisan dusk`
+- Specific test: `php artisan dusk tests/Browser/StrategyGenerationTest.php`
+- Filter by name: `php artisan dusk --filter=StrategyGenerationTest`
+- On failure, screenshots and console logs are in `tests/Browser/screenshots` and `tests/Browser/console`.
+
+Notes:
+- Prefer headless runs. To run with a visible browser, set `DUSK_HEADFUL=1` or adjust options in `DuskTestCase`.
+- Keep tests deterministic: seed minimal data, fake external services, and use `Carbon::setTestNow()` if needed.
+
 ### Run All Quality Checks
 
 To run code style check, static analysis, and test coverage in sequence:

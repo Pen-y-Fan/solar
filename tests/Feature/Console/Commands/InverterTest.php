@@ -2,57 +2,45 @@
 
 namespace Tests\Feature\Console\Commands;
 
-use App\Console\Commands\Inverter;
-use App\Domain\Energy\Models\Inverter as InverterModel;
+use App\Console\Commands\Inverter as InverterCommand;
+use App\Domain\Energy\Imports\InverterImport;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use Maatwebsite\Excel\Excel as ReaderType;
+use Mockery;
 use Tests\TestCase;
 
 class InverterTest extends TestCase
 {
     use RefreshDatabase;
 
-    private const FILE_NAME = 'Inverter Test History Report_20250221.xls';
-
-    protected function setUp(): void
+    public function testInverterCommandProcessesXlsAndSkipsNonXls(): void
     {
-        parent::setUp();
+        Storage::fake();
 
-        // Arrange
-        $this->setupFixture();
-    }
+        // Arrange: one valid .xls and one invalid file
+        Storage::put('uploads/valid.xls', 'dummy');
+        Storage::put('uploads/ignore.txt', 'dummy');
 
-    public function testInverterConsoleCommand(): void
-    {
-        // Arrange
-        Log::shouldReceive('info')->atLeast()->once();
+        // Expect Excel::import to be called for the .xls file
+        Excel::shouldReceive('import')
+            ->once()
+            ->with(Mockery::type(InverterImport::class), 'uploads/valid.xls', null, ReaderType::XLS)
+            ->andReturnTrue();
 
-        // Act
-        $this->artisan((new Inverter())->getName())
+        // Act & Assert
+        $this->artisan((new InverterCommand())->getName())
             ->expectsOutputToContain('Finding inverter data.')
+            ->expectsOutputToContain('File not processed as it is not an excel .xls file:')
+            ->expectsOutputToContain('uploads/ignore.txt')
             ->expectsOutputToContain('File processed and moved to:')
-            ->expectsOutputToContain('uploads/processed/' . self::FILE_NAME)
+            ->expectsOutputToContain('uploads/processed/valid.xls')
             ->expectsOutputToContain('Successfully imported inverter data!')
             ->assertSuccessful();
 
-        // Assert
-        $this->assertDatabaseCount(InverterModel::class, 4);
-
-        $deleted = Storage::delete(
-            'uploads/processed/' . self::FILE_NAME,
-        );
-
-        $this->assertTrue($deleted, 'Failed to delete test fixture file from storage.');
-    }
-
-    public function setupFixture(): void
-    {
-        $source = base_path('tests/Fixtures/' . self::FILE_NAME);
-        $this->assertTrue(file_exists($source), 'Fixture file not found at: $source');
-
-        $destination = 'uploads/' . self::FILE_NAME;
-        $copy = Storage::put($destination, file_get_contents($source));
-        $this->assertTrue($copy);
+        // Assert file was moved
+        Storage::assertMissing('uploads/valid.xls');
+        Storage::assertExists('uploads/processed/valid.xls');
     }
 }

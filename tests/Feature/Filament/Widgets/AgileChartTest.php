@@ -14,7 +14,7 @@ use Tests\TestCase;
 use Tests\Unit\Filament\Widgets\AgileChartTestWidget;
 use Tests\Unit\Filament\Widgets\FakeAgileImportExportSeriesQuery;
 
-final class AgileChartFeatureTest extends TestCase
+final class AgileChartTest extends TestCase
 {
     use DatabaseMigrations;
 

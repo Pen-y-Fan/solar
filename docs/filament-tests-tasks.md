@@ -8,7 +8,7 @@ Coverage Filament tests for the following domains:
 - App\Filament\Resources\ForecastResource\*
 - App\Filament\Widgets
 
-Last updated: 2025-09-28 20:48
+Last updated: 2025-10-06 19:49
 
 Conventions
 
@@ -49,19 +49,30 @@ Completed:
   - tests/Feature/Filament/Widgets/CostChartFeatureTest.php — renders ListStrategies with mocked EnergyCostBreakdownByDayQuery.
 
 Planned (to add):
-- [ ] ElectricImportExportChart (StrategyResource\\Widgets\\ElectricImportExportChart) — bind fake ElectricImportExportSeriesQuery and assert render.
-- [ ] StrategyOverview (StrategyResource\\Widgets\\StrategyOverview) — bind fake StrategyPerformanceSummaryQuery and assert metrics presence.
-- [ ] ForecastChartWidget (ForecastResource\\Widgets\\ForecastChartWidget) — bind fake query/action or seed minimal forecasts and assert render.
-- [ ] InverterChart (App\\Filament\\Widgets\\InverterChart) — bind fake InverterConsumptionRangeQuery and assert datasets.
-- [ ] InverterAverageConsumptionChart (App\\Filament\\Widgets\\InverterAverageConsumptionChart) — bind fake InverterConsumptionByTimeQuery and assert datasets.
-- [ ] OctopusImportChart (App\\Filament\\Widgets\\OctopusImportChart) — bind fake OctopusImportAction and assert render without external calls.
-- [ ] OctopusExportChart (App\\Filament\\Widgets\\OctopusExportChart) — bind fake OctopusExportAction and assert render.
-- [ ] SolcastForecastChart (App\\Filament\\Widgets\\SolcastForecastChart) — bind fake ForecastAction and assert render.
-- [ ] SolcastActualChart (App\\Filament\\Widgets\\SolcastActualChart) — bind fake ActualForecastAction and assert render.
-- [ ] SolcastWithActualAndRealChart (App\\Filament\\Widgets\\SolcastWithActualAndRealChart) — bind fake actions and assert merged datasets.
-- [ ] ForecastChart (App\\Filament\\Widgets\\ForecastChart) — seed minimal forecasts or fake source, assert labels.
-- [ ] OctopusChart (App\\Filament\\Widgets\\OctopusChart) — base chart behaviors with faked actions.
+- [x] ElectricImportExportChart (StrategyResource\\Widgets\\ElectricImportExportChart) — bind fake ElectricImportExportSeriesQuery and assert render.
+  - tests/Feature/Filament/Widgets/ElectricImportExportChartFeatureTest.php — renders ListStrategies with mocked ElectricImportExportSeriesQuery.
+- [x] StrategyOverview (StrategyResource\\Widgets\\StrategyOverview) — bind fake StrategyPerformanceSummaryQuery and assert metrics presence.
+  - tests/Feature/Filament/Widgets/StrategyOverviewFeatureTest.php — renders ListStrategies with mocked StrategyPerformanceSummaryQuery.
+- [x] ForecastChartWidget (ForecastResource\\Widgets\\ForecastChartWidget) — bind fake query/action or seed minimal forecasts and assert render.
+  - tests/Feature/Filament/Widgets/ForecastChartWidgetFeatureTest.php — renders ListForecasts with seeded Forecasts.
+- [x] InverterChart (App\\Filament\\Widgets\\InverterChart) — bind fake InverterConsumptionRangeQuery and assert datasets.
+  - tests/Feature/Filament/Widgets/InverterChartFeatureTest.php — renders widget with mocked InverterConsumptionRangeQuery.
+- [x] InverterAverageConsumptionChart (App\\Filament\\Widgets\\InverterAverageConsumptionChart) — bind fake InverterConsumptionByTimeQuery and assert datasets.
+  - tests/Feature/Filament/Widgets/InverterAverageConsumptionChartFeatureTest.php — renders widget with mocked InverterConsumptionByTimeQuery.
+- [x] OctopusImportChart (App\\Filament\\Widgets\\OctopusImportChart) — bind fake OctopusImportAction and assert render without external calls.
+  - tests/Feature/Filament/Widgets/OctopusImportChartFeatureTest.php — builds datasets and labels using seeded imports and rates.
+- [x] OctopusExportChart (App\\Filament\\Widgets\\OctopusExportChart) — bind fake OctopusExportAction and assert render.
+  - tests/Feature/Filament/Widgets/OctopusExportChartFeatureTest.php — renders widget with mocked OctopusExportAction and seeded export rates.
+- [x] SolcastForecastChart (App\\Filament\\Widgets\\SolcastForecastChart) — bind fake ForecastAction and assert render.
+- [x] SolcastActualChart (App\\Filament\\Widgets\\SolcastActualChart) — bind fake ActualForecastAction and assert render.
+  - tests/Feature/Filament/Widgets/SolcastActualChartFeatureTest.php — renders widget; asserts update is triggered when stale and not called when fresh.
+- [x] SolcastWithActualAndRealChart (App\\Filament\\Widgets\\SolcastWithActualAndRealChart) — bind fake actions and assert merged datasets.
+- [x] ForecastChart (App\\Filament\\Widgets\\ForecastChart) — seed minimal forecasts or fake source, assert labels.
+- [x] OctopusChart (App\\Filament\\Widgets\\OctopusChart) — base chart behaviors with faked actions.
 
+Next step:
+- Proceed to integration tests per docs/tasks.md. Start with Strategy generation end-to-end: from command dispatch to persisted Strategy with correct VO states.
+    
 Notes:
 - Reuse existing Unit helper shims under tests/Unit/Filament/Widgets/* for accessing protected widget methods when needed.
 - Keep tests fast; avoid external HTTP. Prefer container-bound fakes.
