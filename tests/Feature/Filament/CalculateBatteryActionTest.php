@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Feature\Filament;
 
 use App\Application\Commands\Bus\CommandBus;
-use App\Application\Commands\Strategy\CopyConsumptionWeekAgoCommand;
+use App\Application\Commands\Strategy\CalculateBatteryCommand;
 use App\Domain\Strategy\Models\Strategy;
 use App\Domain\User\Models\User;
 use App\Filament\Resources\StrategyResource;
@@ -15,11 +15,11 @@ use Livewire\Livewire;
 use Mockery as m;
 use Tests\TestCase;
 
-final class CopyConsumptionWeekAgoActionFeatureTest extends TestCase
+final class CalculateBatteryActionTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function testCopyConsumptionWeekAgoActionShowsErrorToastOnFailure(): void
+    public function testCalculateBatteryActionShowsErrorToastOnFailure(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -32,17 +32,17 @@ final class CopyConsumptionWeekAgoActionFeatureTest extends TestCase
         // @phpstan-ignore-next-line Mockery dynamic expectation count method
         $bus->shouldReceive('dispatch')
             ->once()
-            ->with(m::on(fn ($cmd) => $cmd instanceof CopyConsumptionWeekAgoCommand))
-            ->andReturn(ActionResult::failure('Copy failed'));
+            ->with(m::on(fn ($cmd) => $cmd instanceof CalculateBatteryCommand))
+            ->andReturn(ActionResult::failure('Battery calculation failed'));
         $this->app->instance(CommandBus::class, $bus);
 
         Livewire::actingAs($user)
             ->test(StrategyResource\Pages\ListStrategies::class)
-            ->callTableAction('Copy week ago')
-            ->assertNotified('Copy failed');
+            ->callTableAction('Calculate battery')
+            ->assertNotified('Battery calculation failed');
     }
 
-    public function testCopyConsumptionWeekAgoActionShowsSuccessToastOnSuccess(): void
+    public function testCalculateBatteryActionShowsSuccessToastOnSuccess(): void
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -54,13 +54,13 @@ final class CopyConsumptionWeekAgoActionFeatureTest extends TestCase
         // @phpstan-ignore-next-line Mockery dynamic expectation count method
         $bus->shouldReceive('dispatch')
             ->once()
-            ->with(m::on(fn ($cmd) => $cmd instanceof CopyConsumptionWeekAgoCommand))
-            ->andReturn(ActionResult::success(null, 'Copied'));
+            ->with(m::on(fn ($cmd) => $cmd instanceof CalculateBatteryCommand))
+            ->andReturn(ActionResult::success(null, 'Calculated'));
         $this->app->instance(CommandBus::class, $bus);
 
         Livewire::actingAs($user)
             ->test(StrategyResource\Pages\ListStrategies::class)
-            ->callTableAction('Copy week ago')
-            ->assertNotified('Copied');
+            ->callTableAction('Calculate battery')
+            ->assertNotified('Calculated');
     }
 }

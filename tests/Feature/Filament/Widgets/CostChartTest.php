@@ -13,7 +13,7 @@ use Livewire\Livewire;
 use Tests\TestCase;
 use App\Filament\Resources\StrategyResource\Pages\ListStrategies;
 
-final class CostChartFeatureTest extends TestCase
+final class CostChartTest extends TestCase
 {
     use DatabaseMigrations;
 

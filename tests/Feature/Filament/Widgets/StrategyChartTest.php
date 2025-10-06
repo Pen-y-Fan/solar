@@ -15,7 +15,7 @@ use Tests\TestCase;
 use Tests\Unit\Filament\Widgets\FakeStrategyManualSeriesQuery;
 use App\Filament\Resources\StrategyResource\Pages\ListStrategies;
 
-final class StrategyChartFeatureTest extends TestCase
+final class StrategyChartTest extends TestCase
 {
     use DatabaseMigrations;
 

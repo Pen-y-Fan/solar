@@ -15,7 +15,7 @@ use Livewire\Livewire;
 use Mockery as m;
 use Tests\TestCase;
 
-final class GenerateActionFeatureTest extends TestCase
+final class GenerateActionTest extends TestCase
 {
     use RefreshDatabase;
 

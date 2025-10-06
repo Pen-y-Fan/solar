@@ -1,6 +1,6 @@
 # Solar Project Improvement Tasks
 
-Last updated: 2025-09-28 20:04
+Last updated: 2025-10-06 19:49
 
 This document provides a comprehensive checklist of improvement tasks for the Solar project. Each task is marked with a
 checkbox [ ] that can be checked off when completed.
@@ -90,7 +90,7 @@ updating progress, ensure work proceeds broadly in this order unless justified o
 
 Details and the full checklist have been moved to docs/cqrs-tasks.md.
 
-## 2. Testing and Quality Assurance
+    ## 2. Testing and Quality Assurance
 
 [ ] Foundation and Security (Phase 1 alignment)
 
@@ -152,8 +152,20 @@ Note: Progress — repository-level VO mapping tests added for EloquentInverterR
   - Filament Widgets
     - [x] StrategyResource\Widgets\StrategyChart — add feature tests for dataset building and label ranges
     - [x] Filament\Widgets\AgileChart — add feature tests for series construction and time windows
+    - [x] StrategyResource\\Widgets\\ElectricImportExportChart — add feature test ensuring render with faked ElectricImportExportSeriesQuery
+    - [x] StrategyResource\\Widgets\\StrategyOverview — add feature test ensuring render with faked StrategyPerformanceSummaryQuery
+    - [x] ForecastResource\\Widgets\\ForecastChartWidget — add feature test ensuring render with seeded Forecasts
+    - [x] Filament\\Widgets\\InverterChart — add feature test ensuring render with faked InverterConsumptionRangeQuery
+    - [x] Filament\\Widgets\\InverterAverageConsumptionChart — add feature test ensuring render with faked InverterConsumptionByTimeQuery
+    - [x] Filament\\Widgets\\OctopusImportChart — add feature test ensuring render with faked OctopusImportAction and seeded rates/imports
+    - [x] Filament\\Widgets\\SolcastActualChart — add feature test ensuring render; triggers update when stale and not when fresh
+    - [x] Filament\\Widgets\\SolcastWithActualAndRealChart — add feature test ensuring merged datasets with faked actions
+    - [x] Filament\\Widgets\\ForecastChart — add feature test asserting labels from minimal seeded forecasts or faked source
+    - [x] Filament\\Widgets\\OctopusChart — add base chart behavior tests with faked actions
+
+  Next step: Filament widget coverage complete. Review remaining Filament resource tests or proceed to integration tests per this document.
   - Console Commands
-    - [ ] Forecast, Inverter, Octopus console commands — add smoke tests asserting dispatch and options parsing
+    - [x] Forecast, Inverter, Octopus console commands — add smoke tests asserting dispatch and options parsing
 
 [x] **Implement automated code quality tools**
 
