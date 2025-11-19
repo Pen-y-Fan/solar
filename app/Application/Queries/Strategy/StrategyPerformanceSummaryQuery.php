@@ -7,6 +7,7 @@ namespace App\Application\Queries\Strategy;
 use App\Domain\Strategy\Models\Strategy;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Read-side query producing KPI summaries for strategies over a date range.
@@ -42,8 +43,74 @@ final class StrategyPerformanceSummaryQuery
         $start = $startUtc->copy()->startOfDay();
         $end = $endUtc->copy()->endOfDay();
 
+        $enabled = (bool) config('perf.feature_cache_strat_summary', false);
+        $ttl = (int) config('perf.strat_summary_ttl', 120);
+        if ($enabled) {
+            $key = sprintf(
+                'strat_summary:%s:%s',
+                $start->timezone('UTC')->format('Y-m-d'),
+                $end->timezone('UTC')->format('Y-m-d')
+            );
+
+            /** @var array<int, array{
+            *     date: string,
+            *     total_import_kwh: float,
+            *     import_cost_pence: float,
+            *     total_battery_kwh: float,
+            *     battery_cost_pence: float,
+            *     export_kwh: float,
+            *     export_revenue_pence: float,
+            *     self_consumption_kwh: float,
+            *     net_cost_pence: float,
+            * }> $cached */
+            $cached = Cache::remember($key, $ttl, function () use ($start, $end): array {
+                return $this->compute($start, $end)->all();
+            });
+
+            /** @var Collection<int, array{
+            *     date: string,
+            *     total_import_kwh: float,
+            *     import_cost_pence: float,
+            *     total_battery_kwh: float,
+            *     battery_cost_pence: float,
+            *     export_kwh: float,
+            *     export_revenue_pence: float,
+            *     self_consumption_kwh: float,
+            *     net_cost_pence: float,
+            * }> $result */
+            $result = collect($cached);
+
+            return $result;
+        }
+
+        return $this->compute($start, $end);
+    }
+
+    /**
+     * @return Collection<int, array{
+     *     date: string,
+     *     total_import_kwh: float,
+     *     import_cost_pence: float,
+     *     total_battery_kwh: float,
+     *     battery_cost_pence: float,
+     *     export_kwh: float,
+     *     export_revenue_pence: float,
+     *     self_consumption_kwh: float,
+     *     net_cost_pence: float,
+     * }>
+     */
+    private function compute(Carbon $start, Carbon $end): Collection
+    {
         /** @var Collection<int, Strategy> $rows */
         $rows = Strategy::query()
+            ->select([
+                'period',
+                'import_amount',
+                'battery_charge_amount',
+                'export_amount',
+                'import_value_inc_vat',
+                'export_value_inc_vat',
+            ])
             ->whereBetween('period', [$start, $end])
             ->orderBy('period')
             ->get();

@@ -49,6 +49,26 @@ cd solar
 composer install
 ```
 
+## Performance Testing
+
+See the performance testing plan and quick-start instructions:
+
+- `docs/performance-testing.md` — overarching plan, scenarios, CI gate, and thresholds
+- `tests/Performance/README.md` — how to run k6 locally or via Docker
+- `docs/perf-profiling.md` — developer guide for SQL query logging, Telescope/Clockwork, and caching checks
+
+Quick smoke example (Docker):
+
+```sh
+docker run --rm -i -e APP_URL=https://solar.test grafana/k6 run - < tests/Performance/dashboard.k6.js
+```
+
+Seed a realistic dataset before running perf scenarios:
+
+```sh
+php artisan migrate:fresh --seed --seeder=PerformanceSeeder
+```
+
 If Composer is not installed locally see **Docker (optional)** below.
 
 ### Local Setup with Laravel Herd
@@ -70,6 +90,7 @@ php artisan migrate --seed
 ```
 
 Then open https://solar.test and login with:
+
 - Email: test@example.com
 - Password: password
 
@@ -106,7 +127,7 @@ OCTOPUS_IMPORT_SERIAL_NUMBER =
 ```
 
 This Laravel 12 project is configured to use **sqlite**, other databases are supported by Laravel.  
-The **2025_02_26_174701_add_auto_cost_calculator_to_strategies_table.php** migration is specific to sqlite, it will 
+The **2025_02_26_174701_add_auto_cost_calculator_to_strategies_table.php** migration is specific to sqlite, it will
 need to be modified to use other databases.
 
 ## Create the database
@@ -167,20 +188,24 @@ The following packages have been used:
 
 ## Architecture: CQRS and Domain-Driven Design
 
-This project uses a pragmatic CQRS (Command Query Responsibility Segregation) approach alongside Domain-Driven Design (DDD) for complex operations. In short:
+This project uses a pragmatic CQRS (Command Query Responsibility Segregation) approach alongside Domain-Driven Design (
+DDD) for complex operations. In short:
+
 - Writes (state-changing operations) go through Commands handled by dedicated Handlers via a CommandBus.
 - Reads (reporting/queries) are executed by Query classes returning read-optimized data structures.
-- Domain logic (entities, repositories, value objects, and actions/use-cases) lives under app/Domain and is exercised from Commands/Queries.
+- Domain logic (entities, repositories, value objects, and actions/use-cases) lives under app/Domain and is exercised
+  from Commands/Queries.
 
 Key locations:
+
 - Commands & Bus:
-  - app/Application/Commands/* (Command objects and Handlers)
-  - app/Application/Commands/Bus/* (CommandBus interfaces/implementation)
-  - Handler mappings are registered in App\Providers\AppServiceProvider.
+    - app/Application/Commands/* (Command objects and Handlers)
+    - app/Application/Commands/Bus/* (CommandBus interfaces/implementation)
+    - Handler mappings are registered in App\Providers\AppServiceProvider.
 - Queries (read side):
-  - app/Application/Queries/* (query classes grouped by feature area)
+    - app/Application/Queries/* (query classes grouped by feature area)
 - Domain (DDD):
-  - app/Domain/* (by bounded context, e.g., Energy, Strategy), including Actions, Repositories, and supporting classes
+    - app/Domain/* (by bounded context, e.g., Energy, Strategy), including Actions, Repositories, and supporting classes
 
 Usage example (dispatching a command):
 
@@ -197,6 +222,7 @@ if ($result->failed()) {
 ```
 
 Further reading and task history:
+
 - docs/cqrs-tasks.md — details and acceptance criteria for the CQRS rollout (Phase 1)
 - docs/future-cqrs-tasks.md — planned follow-ups and future commands/queries
 
@@ -321,26 +347,6 @@ To run a specific test method:
 php vendor/bin/phpunit --filter=methodName
 ```
 
-#### Browser Tests (Laravel Dusk)
-
-Laravel Dusk provides browser automation for end-to-end testing.
-
-Setup (once per machine/project):
-- Install Dusk: `composer require --dev laravel/dusk`
-- Scaffold: `php artisan dusk:install`
-- Create `.env.dusk.local` with `APP_URL=https://solar.test` (or your local domain) and a suitable test DB.
-- Ensure Chrome/Chromedriver are available (Herd provides a compatible Chrome). Use headless by default.
-
-Run Dusk:
-- All browser tests (headless): `php artisan dusk`
-- Specific test: `php artisan dusk tests/Browser/StrategyGenerationTest.php`
-- Filter by name: `php artisan dusk --filter=StrategyGenerationTest`
-- On failure, screenshots and console logs are in `tests/Browser/screenshots` and `tests/Browser/console`.
-
-Notes:
-- Prefer headless runs. To run with a visible browser, set `DUSK_HEADFUL=1` or adjust options in `DuskTestCase`.
-- Keep tests deterministic: seed minimal data, fake external services, and use `Carbon::setTestNow()` if needed.
-
 ### Run All Quality Checks
 
 To run code style check, static analysis, and test coverage in sequence:
@@ -363,7 +369,7 @@ dd($variable);
 
 ## Contributing
 
-This is a **personal project**. Contributions are **not** required. Anyone interested is welcome to fork or clone for 
+This is a **personal project**. Contributions are **not** required. Anyone interested is welcome to fork or clone for
 your own use.
 
 ## Credits

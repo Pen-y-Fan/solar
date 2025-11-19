@@ -1,6 +1,6 @@
 # Solar Project Improvement Tasks
 
-Last updated: 2025-10-06 19:49
+Last updated: 2025-11-19 22:01
 
 This document provides a comprehensive checklist of improvement tasks for the Solar project. Each task is marked with a
 checkbox [ ] that can be checked off when completed.
@@ -90,7 +90,7 @@ updating progress, ensure work proceeds broadly in this order unless justified o
 
 Details and the full checklist have been moved to docs/cqrs-tasks.md.
 
-    ## 2. Testing and Quality Assurance
+## 2. Testing and Quality Assurance
 
 [ ] Foundation and Security (Phase 1 alignment)
 
@@ -99,73 +99,89 @@ Details and the full checklist have been moved to docs/cqrs-tasks.md.
 [ ] **Increase test coverage**
 
 - [x] Add unit tests for all Models
-  - [x] Strategy domain: Strategy model VO mapping (ConsumptionData, BatteryState, StrategyType, CostData)
-  - [x] Forecasting domain: Forecast model VO mapping (PvEstimate)
-  - [x] Forecasting domain: ActualForecast model VO mapping (PvEstimate)
-  - [x] Energy domain: AgileImport model VO mapping (MonetaryValue, TimeInterval)
-  - [x] Energy domain: AgileExport model VO mapping (MonetaryValue, TimeInterval)
-  - [x] Energy domain: OctopusImport model VO mapping (TimeInterval)
-  - [x] Energy domain: OctopusExport model VO mapping (TimeInterval)
-  - [x] Energy domain: Inverter model VO mapping (EnergyFlow, BatteryStateOfCharge)
-  - [x] User domain: User model VO mapping (Email)
+    - [x] Strategy domain: Strategy model VO mapping (ConsumptionData, BatteryState, StrategyType, CostData)
+    - [x] Forecasting domain: Forecast model VO mapping (PvEstimate)
+    - [x] Forecasting domain: ActualForecast model VO mapping (PvEstimate)
+    - [x] Energy domain: AgileImport model VO mapping (MonetaryValue, TimeInterval)
+    - [x] Energy domain: AgileExport model VO mapping (MonetaryValue, TimeInterval)
+    - [x] Energy domain: OctopusImport model VO mapping (TimeInterval)
+    - [x] Energy domain: OctopusExport model VO mapping (TimeInterval)
+    - [x] Energy domain: Inverter model VO mapping (EnergyFlow, BatteryStateOfCharge)
+    - [x] User domain: User model VO mapping (Email)
 - [x] Add unit tests for all Actions
-  - [x] Strategy: GenerateStrategyAction uses VOs consistently
-  - [x] Forecasting: ForecastAction uses PvEstimate VO
-  - [x] Forecasting: ActualForecastAction uses PvEstimate VO
-  - [x] Energy: AgileImport, AgileExport, OctopusImport, OctopusExport actions use MonetaryValue/TimeInterval VOs
+    - [x] Strategy: GenerateStrategyAction uses VOs consistently
+    - [x] Forecasting: ForecastAction uses PvEstimate VO
+    - [x] Forecasting: ActualForecastAction uses PvEstimate VO
+    - [x] Energy: AgileImport, AgileExport, OctopusImport, OctopusExport actions use MonetaryValue/TimeInterval VOs
 - [x] Add unit tests for Repositories
-  - [x] Energy: EloquentInverterRepository returns InverterConsumptionData with correct averages, clamping, and time periods
+    - [x] Energy: EloquentInverterRepository returns InverterConsumptionData with correct averages, clamping, and time
+      periods
 
-Note: Progress — repository-level VO mapping tests added for EloquentInverterRepository. VO edge-case unit tests added for Energy VOs (MonetaryValue VAT helpers; TimeInterval invalid ranges/overlaps/contains). Feature tests for key Filament resources (StrategyResource, ForecastResource) implemented exercising VO-backed forms and lists. Unit-testing milestone for VO mapping and core Actions is now complete and passing `composer all`. Next step — proceed with integration tests for critical flows and plan E2E coverage.
+Note: Progress — repository-level VO mapping tests added for EloquentInverterRepository. VO edge-case unit tests added
+for Energy VOs (MonetaryValue VAT helpers; TimeInterval invalid ranges/overlaps/contains). Feature tests for key
+Filament resources (StrategyResource, ForecastResource) implemented exercising VO-backed forms and lists. Unit-testing
+milestone for VO mapping and core Actions is now complete and passing `composer all`. Next step — proceed with
+integration tests for critical flows and plan E2E coverage.
+
 - [x] Relocated DB-coupled Energy Action tests from Unit to Feature (tests/Feature/Domain/Energy/*ActionTest.php)
 - [x] Relocated DB-coupled Application Queries tests from Unit to Feature (tests/Feature/Application/Queries/*)
 - [x] Review CommandHandler tests and relocate only DB-coupled ones to Feature
-  - [x] CalculateBatteryCommandHandlerTest moved to tests/Feature/Application/Commands/
-  - [x] CopyConsumptionWeekAgoCommandHandlerTest moved to tests/Feature/Application/Commands/
-  - [x] RefreshForecastsCommandHandlerTest remains in Unit (mock-only, no DB coupling)
-  - [x] RecalculateStrategyCostsCommandHandlerTest moved to tests/Feature/Application/Commands/
-  - [x] ImportAgileRatesCommandHandlerTest remains in Unit (mock-only, no DB coupling)
-  - [x] ExportAgileRatesCommandHandlerTest remains in Unit (mock-only, no DB coupling)
-  - [x] SyncOctopusAccountCommandHandlerTest remains in Unit (mock-only, no DB coupling)
+    - [x] CalculateBatteryCommandHandlerTest moved to tests/Feature/Application/Commands/
+    - [x] CopyConsumptionWeekAgoCommandHandlerTest moved to tests/Feature/Application/Commands/
+    - [x] RefreshForecastsCommandHandlerTest remains in Unit (mock-only, no DB coupling)
+    - [x] RecalculateStrategyCostsCommandHandlerTest moved to tests/Feature/Application/Commands/
+    - [x] ImportAgileRatesCommandHandlerTest remains in Unit (mock-only, no DB coupling)
+    - [x] ExportAgileRatesCommandHandlerTest remains in Unit (mock-only, no DB coupling)
+    - [x] SyncOctopusAccountCommandHandlerTest remains in Unit (mock-only, no DB coupling)
 - [ ] Add feature tests for all Filament resources
-  - [x] StrategyResource: list/edit/delete and VO-backed form fields
-  - [x] ForecastResource: list/create/edit/delete and PvEstimate VO in form/table
-  - [ ] Additional resources (add tests when new resources are introduced)
+    - [x] StrategyResource: list/edit/delete and VO-backed form fields
+    - [x] ForecastResource: list/create/edit/delete and PvEstimate VO in form/table
+    - [ ] Additional resources (add tests when new resources are introduced)
 - [ ] Add integration tests for critical user flows
-  - [ ] Strategy generation end-to-end: from command dispatch to persisted Strategy with correct VO states
-  - [ ] Energy import/export cost calculation daily summary end-to-end
+    - [ ] Strategy generation end-to-end: from command dispatch to persisted Strategy with correct VO states
+    - [ ] Energy import/export cost calculation daily summary end-to-end
 
 - [ ] Coverage improvement (Domain min 80%) — identified under-covered classes
-  - Strategy Value Objects
-    - [x] StrategyType — add unit tests for flags mapping, manual state, effective strategy helpers, edge-cases
-    - [x] CostData — add tests for VAT-inclusive/exclusive helpers, arithmetic helpers, zero/negative handling
-    - [x] ConsumptionData — add tests for clamping negatives, null safety, derived totals where applicable
-    - [x] BatteryState — add tests for bounds [0..100], manual vs calculated percentage, charge/discharge helpers
-  - Energy Value Objects
-    - [x] BatteryStateOfCharge — add tests for percent/Wh conversions, bounds, add/subtract operations, edge cases
-    - [x] EnergyFlow — add tests for import/export sign conventions, derived metrics, and zero-consumption case
-    - [x] InverterConsumptionData — unit tests added for VO helpers; repository Feature tests cover bucketing/averaging/clamping
-  - Forecasting Value Object
-  - [x] PvEstimate — unit tests added for fromSingleEstimate path, array round-trips, and zero/negative handling
-  - Actions (Domain)
-    - [x] GenerateStrategyAction — add unit tests to hit branching logic without DB
-  - Filament Widgets
-    - [x] StrategyResource\Widgets\StrategyChart — add feature tests for dataset building and label ranges
-    - [x] Filament\Widgets\AgileChart — add feature tests for series construction and time windows
-    - [x] StrategyResource\\Widgets\\ElectricImportExportChart — add feature test ensuring render with faked ElectricImportExportSeriesQuery
-    - [x] StrategyResource\\Widgets\\StrategyOverview — add feature test ensuring render with faked StrategyPerformanceSummaryQuery
-    - [x] ForecastResource\\Widgets\\ForecastChartWidget — add feature test ensuring render with seeded Forecasts
-    - [x] Filament\\Widgets\\InverterChart — add feature test ensuring render with faked InverterConsumptionRangeQuery
-    - [x] Filament\\Widgets\\InverterAverageConsumptionChart — add feature test ensuring render with faked InverterConsumptionByTimeQuery
-    - [x] Filament\\Widgets\\OctopusImportChart — add feature test ensuring render with faked OctopusImportAction and seeded rates/imports
-    - [x] Filament\\Widgets\\SolcastActualChart — add feature test ensuring render; triggers update when stale and not when fresh
-    - [x] Filament\\Widgets\\SolcastWithActualAndRealChart — add feature test ensuring merged datasets with faked actions
-    - [x] Filament\\Widgets\\ForecastChart — add feature test asserting labels from minimal seeded forecasts or faked source
-    - [x] Filament\\Widgets\\OctopusChart — add base chart behavior tests with faked actions
+    - Strategy Value Objects
+        - [x] StrategyType — add unit tests for flags mapping, manual state, effective strategy helpers, edge-cases
+        - [x] CostData — add tests for VAT-inclusive/exclusive helpers, arithmetic helpers, zero/negative handling
+        - [x] ConsumptionData — add tests for clamping negatives, null safety, derived totals where applicable
+        - [x] BatteryState — add tests for bounds [0..100], manual vs calculated percentage, charge/discharge helpers
+    - Energy Value Objects
+        - [x] BatteryStateOfCharge — add tests for percent/Wh conversions, bounds, add/subtract operations, edge cases
+        - [x] EnergyFlow — add tests for import/export sign conventions, derived metrics, and zero-consumption case
+        - [x] InverterConsumptionData — unit tests added for VO helpers; repository Feature tests cover
+          bucketing/averaging/clamping
+    - Forecasting Value Object
+    - [x] PvEstimate — unit tests added for fromSingleEstimate path, array round-trips, and zero/negative handling
+    - Actions (Domain)
+        - [x] GenerateStrategyAction — add unit tests to hit branching logic without DB
+    - Filament Widgets
+        - [x] StrategyResource\Widgets\StrategyChart — add feature tests for dataset building and label ranges
+        - [x] Filament\Widgets\AgileChart — add feature tests for series construction and time windows
+        - [x] StrategyResource\\Widgets\\ElectricImportExportChart — add feature test ensuring render with faked
+          ElectricImportExportSeriesQuery
+        - [x] StrategyResource\\Widgets\\StrategyOverview — add feature test ensuring render with faked
+          StrategyPerformanceSummaryQuery
+        - [x] ForecastResource\\Widgets\\ForecastChartWidget — add feature test ensuring render with seeded Forecasts
+        - [x] Filament\\Widgets\\InverterChart — add feature test ensuring render with faked
+          InverterConsumptionRangeQuery
+        - [x] Filament\\Widgets\\InverterAverageConsumptionChart — add feature test ensuring render with faked
+          InverterConsumptionByTimeQuery
+        - [x] Filament\\Widgets\\OctopusImportChart — add feature test ensuring render with faked OctopusImportAction
+          and seeded rates/imports
+        - [x] Filament\\Widgets\\SolcastActualChart — add feature test ensuring render; triggers update when stale and
+          not when fresh
+        - [x] Filament\\Widgets\\SolcastWithActualAndRealChart — add feature test ensuring merged datasets with faked
+          actions
+        - [x] Filament\\Widgets\\ForecastChart — add feature test asserting labels from minimal seeded forecasts or
+          faked source
+        - [x] Filament\\Widgets\\OctopusChart — add base chart behavior tests with faked actions
 
-  Next step: Filament widget coverage complete. Review remaining Filament resource tests or proceed to integration tests per this document.
-  - Console Commands
-    - [x] Forecast, Inverter, Octopus console commands — add smoke tests asserting dispatch and options parsing
+  Next step: Filament widget coverage complete. Begin performance testing as outlined in docs/performance-testing.md.
+  After establishing baselines and CI smoke checks, proceed to integration tests per this document.
+    - Console Commands
+        - [x] Forecast, Inverter, Octopus console commands — add smoke tests asserting dispatch and options parsing
 
 [x] **Implement automated code quality tools**
 
@@ -174,21 +190,54 @@ Note: Progress — repository-level VO mapping tests added for EloquentInverterR
 - [x] Add Larastan for Laravel-specific static analysis
 - [x] Set up GitHub Actions for CI/CD
 
-[ ] **Implement end-to-end testing**
+[x] **Add performance testing** 
+ 
+See `docs/performance-testing.md` for full details and scripts
 
-- [ ] Set up Laravel Dusk for browser testing
-- [ ] Create test scenarios for critical user journeys
-- [ ] Add visual regression testing
+Next step (updated 2025‑11‑19 21:43): Entered Maintenance cadence. Medium/Large runs are not required today. On relevant changes, re‑seed Medium and run perf suite; refresh baselines only when two consecutive runs are within tolerance and record justification. Monthly Large advisory remains local/docs‑only on the first Monday (UTC). CI PR smoke remains informational‑only. Quality suite (`composer all`) green as of 21:43.
+- Status: Baselines unchanged; no remediation open. DB index verification completed based on recent profiling (no new indexes required).
+- [x] Medium re‑seed and local k6 runs completed for Dashboard, Forecasts, Inverter, Strategies, and Strategy‑Generation (VUS=5, 30s)
+- [x] Committed new `tests/Performance/baselines/dashboard.medium.baseline.json`
+- [x] Updated `tests/Performance/baselines/strategies.medium.baseline.json` (improved p95; error rate 0%)
+- [x] Updated `tests/Performance/baselines/inverter.medium.baseline.json` (p95 stable within tolerance across two runs; error rate 0%)
+- [x] Validated `forecasts.medium.baseline.json` and `strategy-generation.medium.baseline.json` against Tolerance Policy via two Medium runs; both within tolerance and left unchanged by policy (0% error rate)
+- [x] Perf maintenance SOP established — Champion: Michael Pritchard; cadence: Medium re‑baseline on relevant merges (24–48h) and monthly Large advisory (local, docs‑only).
 
-[ ] **Add performance testing**
-
-- [ ] Benchmark database queries
-- [ ] Test application under load
+- [x] Benchmark database queries
+- [x] Test application under load
+  - CI k6 smoke test in place (non-blocking) with PR comment summaries — see `.github/workflows/performance.yml`
+  - Local scenarios documented in `tests/Performance/README.md`
+- [x] Create remediation tasks for top 3 bottlenecks (forecasts, inverter, strategies) — tracked below and in `docs/performance-testing.md`
 - [ ] Identify and fix performance bottlenecks
+  - [ ] Forecasts scenario — profile queries; eliminate N+1 in chart/summary queries; add/select indices on time/user foreign keys; consider caching hot aggregates
+    - [x] Task: Enable DB query logging per `docs/perf-profiling.md` and capture slow queries
+    - [x] Task: Add/verify indexes on `forecasts(valid_from)`, `forecasts(user_id)` (schema uses `forecasts.period_end` UNIQUE; no `user_id`/`valid_from` columns — no additional indexes needed)
+    - [x] Task: Add eager loading in Forecast widgets/queries to remove N+1 (reviewed: no N+1 observed; no change needed)
+    - [x] Task: Consider caching aggregated series for hot windows (e.g., last 24h) (assessed; feature cache behind flags, off by default)
+    - [ ] Task: Medium p95 regression follow‑up — re‑profile with query logging, verify no local interference (browser tabs, background load), re‑run Medium once; if still high, file targeted remediation (e.g., pre‑aggregations)
+  - [ ] Inverter scenario — profile widget/JSON endpoints; eager-load relations; verify indices on timestamps and device IDs; consider downsampling for charts
+    - [x] Task: Profile JSON endpoints; record SQL count and worst queries
+    - [x] Task: Verify/ add indexes on `inverters(timestamp)`, `inverters(device_id)` (schema uses `inverters.period` UNIQUE; no `device_id` column — no additional indexes needed)
+    - [x] Task: Eager-load related device/metrics where applicable (reviewed: no N+1 observed on current paths)
+    - [x] Task: Evaluate downsampling for long-range charts (toggles added; measured impact locally)
+    - [x] Task: Medium p95 regression follow‑up — re‑profile inverter widget endpoints; confirm downsampling toggles remain OFF; re‑run Medium; consider tightening select columns if needed (stable across two runs; baseline updated)
+  - [x] Strategies scenario — profile index and edit views; add eager loading for related models; index frequently filtered columns; cache computed summaries (Validation complete on 2025‑11‑18; no N+1 or slow queries >100ms observed; baselines unchanged)
+    - [x] Task: Profile index/edit pages including related XHR calls
+    - [x] Task: Add eager loading for related models (user, forecasts, costs) to avoid N+1 (reviewed: no N+1 observed on current queries)
+    - [x] Task: Add/verify indexes on frequently filtered columns (schema uses `strategies.period` UNIQUE; no additional filters identified during profiling)
+    - [x] Task: Cache computed summaries where safe (implemented behind `FEATURE_CACHE_STRAT_SUMMARY`)
+  - [ ] Strategy generation scenario — remediate errors under load (k6)
+    - [x] Task: Validate/toggle Livewire path (`STRAT_GEN_LIVEWIRE=true`) and set `LIVEWIRE_ENDPOINT`/`LIVEWIRE_PAYLOAD_BASE64` accordingly (Livewire optional; prefer local helper `/_perf/generate-strategy` for perf runs)
+    - [x] Task: Ensure CSRF extraction/submission in k6 helper for generation POST is correct (not required for local helper path; Livewire path remains documented and optional)
+    - [x] Task: Add small backoff or single-flight behavior in k6 scenario to avoid concurrent duplicate generation requests
+    - [x] Task: Review server-side guards/rate limiting for generation; document expected behavior under concurrent requests (local-only route; CSRF disabled; no rate-limit middleware; documented in perf plan)
+    - [x] Task: Medium p95 variance follow‑up — profile strategy verification/index endpoints and generation POST path; confirm single‑flight behavior; re‑run two consecutive Medium runs; evaluate minor optimizations if persistence layer shows hotspots
 
 ## 3. Performance Optimization
 
 Phase alignment: Phase 2 — Performance and Data Management (see docs/plan.md)
+
+[x] DB index verification completed based on profiling; no new indexes required at this time.
 
 [ ] **Optimize database queries**
 
@@ -202,6 +251,17 @@ Phase alignment: Phase 2 — Performance and Data Management (see docs/plan.md)
 - [ ] Use Redis for cache storage
 - [ ] Add Redis to laravel sail
 - [ ] Implement cache invalidation strategy
+
+[ ] **Low‑risk, feature‑flagged optimizations (from performance-testing Findings)**
+
+- [x] Implement `FEATURE_CACHE_FORECAST_CHART` with `FORECAST_CHART_TTL` (default 60s); cache prepared Chart.js dataset in `ForecastChart` widget
+- [x] Implement `FEATURE_CACHE_STRAT_SUMMARY` with `STRAT_SUMMARY_TTL` (default 10m); cache `StrategyPerformanceSummaryQuery` by day range
+- [x] Add optional downsampling toggles for chart endpoints: `FORECAST_DOWNSAMPLE`, `FORECAST_BUCKET_MINUTES`, `INVERTER_DOWNSAMPLE`, `INVERTER_BUCKET_MINUTES`
+- [x] Re‑baseline Medium after enabling above flags locally; keep Large advisory only
+
+[ ] **k6 scenario stability**
+
+- [x] Deflake forecasts scenario warmup: add small retry/backoff for “dashboard reachable (200)” or soften to informational during warmup; ensure auth bootstrap timing is robust
 
 [ ] **Optimize front-end assets**
 

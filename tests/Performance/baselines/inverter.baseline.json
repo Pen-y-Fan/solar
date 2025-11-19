@@ -1,0 +1,29 @@
+{
+  "scenario": "inverter",
+  "dataset_size": "small",
+  "date": "2025-11-08T09:15:00Z",
+  "environment": {
+    "app_url": "https://solar-dev.test",
+    "hardware": "MacBook Apple M2 Pro, 16 GB Ram, macOS 15.6.1",
+    "notes": "Seeded via PerformanceSeeder; background load minimal."
+  },
+  "run": {
+    "vus": 5,
+    "duration": "20s",
+    "seed_command": "php artisan migrate:fresh --seed --seeder=PerformanceSeeder",
+    "env": {
+      "PERF_DATASET_SIZE": "small"
+    }
+  },
+  "metrics": {
+    "latency_ms": { "p50": 52.102, "p90": 65.5895, "p95": 70.1114, "p99": null },
+    "rps": 8.91188323309282,
+    "error_rate": 0
+  },
+  "k6_command_examples": [
+    "APP_URL=https://solar-dev.test k6 run tests/Performance/inverter.k6.js",
+    "docker run --rm -i -e APP_URL=https://solar-dev.test grafana/k6 run - < tests/Performance/inverter.k6.js"
+  ],
+  "commit": "08bf051",
+  "notes": "Baseline refreshed from k6 summary-export."
+}

@@ -1,0 +1,29 @@
+{
+  "scenario": "inverter",
+  "dataset_size": "large",
+  "date": "2025-11-15T15:32:00Z",
+  "environment": {
+    "app_url": "https://solar-dev.test",
+    "hardware": "MacBook Apple M2 Pro, 16 GB Ram, macOS 15.6.1",
+    "notes": "Seeded via PerformanceSeeder; background load: low"
+  },
+  "run": {
+    "vus": 8,
+    "duration": "90s",
+    "seed_command": "php artisan migrate:fresh --seed --seeder=PerformanceSeeder",
+    "env": {
+      "PERF_DATASET_SIZE": "large"
+    }
+  },
+  "metrics": {
+    "latency_ms": { "p50": 54.45, "p90": 71.35, "p95": 78.88, "p99": null },
+    "rps": 14.41,
+    "error_rate": 0
+  },
+  "k6_command_examples": [
+    "APP_URL=https://solar-dev.test VUS=8 DURATION=90s k6 run tests/Performance/inverter.k6.js",
+    "APP_URL=https://solar-dev.test VUS=8 DURATION=90s PERF_DATASET_SIZE=large bash tests/Performance/run-all.sh"
+  ],
+  "commit": "08bf0512e631ebc5f8ca4423268c31bf7008dae1",
+  "notes": "Local Large advisory run; results stable with no errors."
+}

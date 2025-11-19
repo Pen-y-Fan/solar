@@ -1,0 +1,29 @@
+{
+  "scenario": "forecasts",
+  "dataset_size": "medium",
+  "date": "2025-11-15T09:18:00Z",
+  "environment": {
+    "app_url": "https://solar-dev.test",
+    "hardware": "MacBook Apple M2 Pro, 16 GB Ram, macOS 15.6.1",
+    "notes": "Seeded via PerformanceSeeder; background load: low"
+  },
+  "run": {
+    "vus": 5,
+    "duration": "30s",
+    "seed_command": "php artisan migrate:fresh --seed --seeder=PerformanceSeeder",
+    "env": {
+      "PERF_DATASET_SIZE": "medium"
+    }
+  },
+  "metrics": {
+    "latency_ms": { "p50": 53.028, "p90": 67.1226, "p95": 73.0194, "p99": null },
+    "rps": 9.0877,
+    "error_rate": 0
+  },
+  "k6_command_examples": [
+    "APP_URL=https://solar-dev.test VUS=5 DURATION=30s k6 run tests/Performance/forecasts.k6.js",
+    "APP_URL=https://solar-dev.test VUS=5 DURATION=30s bash tests/Performance/run-all.sh"
+  ],
+  "commit": "08bf0512e631ebc5f8ca4423268c31bf7008dae1",
+  "notes": "Refreshed with fixed auth bootstrap cookie persistence; metrics stable vs prior medium baseline."
+}

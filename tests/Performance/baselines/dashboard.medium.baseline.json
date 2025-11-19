@@ -1,0 +1,29 @@
+{
+  "scenario": "dashboard",
+  "dataset_size": "medium",
+  "date": "2025-11-17T19:49:00Z",
+  "environment": {
+    "app_url": "https://solar-dev.test",
+    "hardware": "MacBook Apple M2 Pro, 16 GB Ram, macOS 15.6.1",
+    "notes": "Seeded via PerformanceSeeder; background load: low"
+  },
+  "run": {
+    "vus": 5,
+    "duration": "30s",
+    "seed_command": "php artisan migrate:fresh --seed --seeder=PerformanceSeeder",
+    "env": {
+      "PERF_DATASET_SIZE": "medium"
+    }
+  },
+  "metrics": {
+    "latency_ms": { "p50": 55.312, "p90": 69.0454, "p95": 71.4982, "p99": null },
+    "rps": 8.982073577553917,
+    "error_rate": 0
+  },
+  "k6_command_examples": [
+    "APP_URL=https://solar-dev.test VUS=5 DURATION=30s k6 run tests/Performance/dashboard.k6.js",
+    "APP_URL=https://solar-dev.test VUS=5 DURATION=30s bash tests/Performance/run-all.sh"
+  ],
+  "commit": "08bf0512e631ebc5f8ca4423268c31bf7008dae1",
+  "notes": "Medium baseline captured from k6 summary-export. Session cookie info check failed but HTTP error rate was 0%."
+}

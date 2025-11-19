@@ -1,0 +1,57 @@
+name: Monthly Large Advisory Perf Reminder
+
+on:
+  schedule:
+    # Every Monday at 09:00 UTC; workflow will exit unless it's the first Monday of the month
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  create-reminder-issue:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - name: Check if today is first Monday of the month (UTC)
+        id: when
+        run: |
+          dow=$(date -u +%u) # 1=Monday
+          dom=$(date -u +%d) # 01..31
+          if [ "$dow" = "1" ] && [ "$dom" -le 7 ]; then
+            echo "first=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "first=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Exit if not first Monday
+        if: steps.when.outputs.first != 'true'
+        run: echo "Not first Monday; exiting."
+
+      - name: Create or update reminder issue
+        if: steps.when.outputs.first == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const title = 'Monthly Large Advisory Perf Re-check';
+            const body = [
+              'This is an automated monthly reminder to run the Large dataset advisory performance checks locally and paste summarized metrics into `docs/performance-testing.md` under "Large Dataset Advisory Results (Local)".',
+              '',
+              'Checklist:',
+              '- [ ] Re-seed Large: `PERF_DATASET_SIZE=large php artisan migrate:fresh --seed --seeder=PerformanceSeeder`',
+              '- [ ] Run k6 suite (local): `APP_URL=https://solar-dev.test VUS=8 DURATION=90s PERF_DATASET_SIZE=large bash tests/Performance/run-all.sh`',
+              '- [ ] Summarize p95/RPS/error rate per scenario in the doc (do not commit artifacts).',
+              '',
+              'Note: Keep feature caches and downsampling flags OFF unless explicitly profiling.'
+            ].join('\n');
+
+            // Try to find an open issue with the same title
+            const issues = await github.rest.search.issuesAndPullRequests({
+              q: `repo:${owner}/${repo} is:issue is:open in:title "${title}"`
+            });
+            if (issues.data.total_count > 0) {
+              const number = issues.data.items[0].number;
+              await github.rest.issues.createComment({ owner, repo, issue_number: number, body: 'Monthly reminder ping.' });
+            } else {
+              await github.rest.issues.create({ owner, repo, title, body, labels: ['maintenance', 'performance'] });
+            }

@@ -1,0 +1,94 @@
+name: perf-suggest (PR info)
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  suggest:
+    name: Suggest Medium perf run (informational)
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write   # to post PR comments
+      contents: read
+      issues: write          # to add/remove labels
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # needed for diffs/merge-base
+
+      - name: Fetch base ref
+        run: |
+          git fetch origin "+refs/heads/${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}"
+
+      - name: Run perf suggest helper
+        id: perf
+        shell: bash
+        run: |
+          set +e
+          bash scripts/suggest-perf-run.sh origin/${{ github.event.pull_request.base.ref }} > out.txt 2> err.txt
+          code=$?
+          echo "exit_code=$code" >> "$GITHUB_OUTPUT"
+          # combine outputs into a safe, short summary
+          echo "summary<<EOF" >> "$GITHUB_OUTPUT"
+          {
+            echo "Helper exit code: $code"
+            echo
+            if [ -s err.txt ]; then
+              echo "stderr:"; sed -e 's/```/`/g' err.txt | sed -n '1,80p'
+            fi
+            if [ -s out.txt ]; then
+              echo
+              echo "stdout:"; sed -e 's/```/`/g' out.txt | sed -n '1,120p'
+            fi
+          } >> "$GITHUB_OUTPUT"
+          echo "EOF" >> "$GITHUB_OUTPUT"
+          # Always succeed (informational-only)
+          exit 0
+
+      - name: Ensure label exists and add when suggested
+        if: steps.perf.outputs.exit_code == '10'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const number = context.payload.pull_request.number;
+            const labelName = 'perf-run-needed';
+            // Ensure label exists (create if missing)
+            try {
+              await github.rest.issues.getLabel({ owner, repo, name: labelName });
+            } catch (e) {
+              if (e.status === 404) {
+                await github.rest.issues.createLabel({
+                  owner,
+                  repo,
+                  name: labelName,
+                  color: '0366d6',
+                  description: 'Perf-sensitive paths touched'
+                });
+              } else {
+                throw e;
+              }
+            }
+            // Add label to PR
+            await github.rest.issues.addLabels({ owner, repo, issue_number: number, labels: [labelName] });
+
+      - name: Comment result on PR
+        uses: actions/github-script@v7
+        env:
+          EXIT_CODE: ${{ steps.perf.outputs.exit_code }}
+          SUMMARY: ${{ steps.perf.outputs.summary }}
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const issue_number = context.payload.pull_request.number;
+            const exitCode = process.env.EXIT_CODE || '0';
+            const summary = process.env.SUMMARY || '';
+            const suggested = exitCode === '10';
+            const body = suggested
+              ? `⚠️ Performance-sensitive changes detected vs base branch.\n\n${summary}\n\n• Label: \`perf-run-needed\` added.\n• Next steps: Re-seed Medium and run local perf suite (see docs/performance-testing.md).`
+              : `✅ No performance-sensitive changes detected vs base branch.\n\n${summary}`;
+            await github.rest.issues.createComment({ owner, repo, issue_number, body });

@@ -1,0 +1,29 @@
+{
+  "scenario": "dashboard",
+  "dataset_size": "small",
+  "date": "2025-11-03T23:02:00Z",
+  "environment": {
+    "app_url": "https://solar-dev.test",
+    "hardware": "MacBook Apple M2 Pro, 16 GB Ram, macOS 15.6.1",
+    "notes": "Seeded via PerformanceSeeder; background load unknown."
+  },
+  "run": {
+    "vus": 5,
+    "duration": "30s",
+    "seed_command": "php artisan migrate:fresh --seed --seeder=PerformanceSeeder",
+    "env": {
+      "PERF_DATASET_SIZE": "small"
+    }
+  },
+  "metrics": {
+    "latency_ms": { "p50": 48.628, "p90": 61.4354, "p95": 63.85005, "p99": null },
+    "rps": 9.091106261655286,
+    "error_rate": 0
+  },
+  "k6_command_examples": [
+    "APP_URL=https://solar-dev.test k6 run tests/Performance/dashboard.k6.js",
+    "docker run --rm -i -e APP_URL=https://solar-dev.test grafana/k6 run - < tests/Performance/dashboard.k6.js"
+  ],
+  "commit": "08bf051",
+  "notes": "Baseline captured from k6 summary-export."
+}
