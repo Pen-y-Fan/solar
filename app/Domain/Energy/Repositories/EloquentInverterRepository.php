@@ -58,12 +58,40 @@ class EloquentInverterRepository implements InverterRepositoryInterface
     public function getConsumptionForDateRange(CarbonInterface $startDate, CarbonInterface $endDate): Collection
     {
         $consumptions = Inverter::query()
+            ->select(['period', 'consumption'])
             ->whereBetween('period', [
                 $startDate,
                 $endDate,
             ])
             ->orderBy('period')
             ->get();
+
+        // Optional downsampling for UI charts over multi‑day horizons (Proposal D)
+        if ((bool) config('perf.inverter_downsample', false)) {
+            $bucket = max(1, (int) config('perf.inverter_bucket_minutes', 30));
+
+            $consumptions = $consumptions
+                ->groupBy(function ($row) use ($bucket) {
+                    /** @var \Illuminate\Support\Carbon $t */
+                    $t = $row->period->copy()->timezone('UTC');
+                    $minute = (int) $t->format('i');
+                    $floored = $minute - ($minute % $bucket);
+                    return $t->copy()->minute($floored)->second(0)->format('Y-m-d H:i:s');
+                })
+                ->map(function ($group) {
+                    $first = $group->first();
+                    $sum = (float) $group->sum(function ($r) {
+                        return (float) $r->consumption;
+                    });
+                    // Synthesize an object-like shape for downstream mapping
+                    return (object) [
+                        'period' => $first->period->copy()->timezone('UTC')->setSecond(0),
+                        'consumption' => $sum,
+                    ];
+                })
+                ->sortKeys()
+                ->values();
+        }
 
         return $consumptions->map(function ($consumption) {
             $value = (float) $consumption->consumption;

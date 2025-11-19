@@ -1,0 +1,59 @@
+name: Perf Cadence Comment
+
+on:
+  pull_request:
+    types: [opened, reopened, labeled, synchronize]
+  workflow_dispatch:
+
+jobs:
+  comment-if-perf-needed:
+    name: Comment when perf run is suggested
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
+    steps:
+      - name: Check if PR has perf-run-needed label
+        id: check_label
+        uses: actions-ecosystem/action-has-labels@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          labels: perf-run-needed
+
+      - name: Post guidance comment
+        if: steps.check_label.outputs.has_labels == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const lines = [
+              '### Performance cadence checklist',
+              '',
+              'This PR is labeled "perf-run-needed". Please run the Medium dataset cadence locally and record the decision in a comment.',
+              '',
+              'Guidance:',
+              '- Re-seed Medium: PERF_DATASET_SIZE=medium php artisan migrate:fresh --seed --seeder=PerformanceSeeder',
+              '- Run suite (twice): APP_URL=https://solar-dev.test VUS=5 DURATION=30s PERF_DATASET_SIZE=medium bash tests/Performance/run-all.sh',
+              '',
+              'Please copy-paste and fill this template as a new PR comment:',
+              '',
+              'Perf cadence (Medium) — completion record',
+              '- Date/runner: <YYYY-MM-DD / your name>',
+              '- Run #1 p95/error-rate summary: <paste>',
+              '- Run #2 p95/error-rate summary: <paste>',
+              '- Decision: <kept baseline | refreshed baseline (which) | opened remediation (#link)>',
+              '',
+              'Tip: You can also run "composer perf-suggest" locally to see if a perf run is suggested for your changes.'
+            ];
+            const body = lines.join('\n');
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+
+            // Avoid duplicate bot comments: only post if a recent identical comment isn't present
+            const { data: comments } = await github.rest.issues.listComments({ owner, repo, issue_number, per_page: 50 });
+            const marker = '### Performance cadence checklist';
+            const already = comments.some(c => c.user && c.user.type === 'Bot' && c.body && c.body.includes(marker));
+            if (!already) {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+            }
+            return;

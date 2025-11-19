@@ -1,0 +1,138 @@
+name: performance
+
+on:
+  pull_request:
+
+jobs:
+  performance-checks:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+
+      - name: Install dependencies (Composer)
+        run: composer install --no-interaction --no-progress --prefer-dist
+
+      - name: Prepare SQLite database
+        run: |
+          mkdir -p database
+          touch database/database.sqlite
+
+      - name: Seed Performance dataset and run k6 scenarios against local server
+        shell: bash
+        continue-on-error: true # non-blocking initially
+        env:
+          APP_ENV: local # required for /_auth/bootstrap
+          APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+          DB_CONNECTION: sqlite
+          DB_DATABASE: database/database.sqlite
+          PERF_DATASET_SIZE: small
+          VUS: '3'
+          DURATION: '10s'
+        run: |
+          set -euo pipefail
+          php artisan key:generate --force
+          php artisan migrate:fresh --seed --seeder=PerformanceSeeder -n
+          # Start the server
+          php artisan serve --host=127.0.0.1 --port=8080 &
+          SERVER_PID=$!
+          # Wait until server is up
+          for i in {1..60}; do
+            if curl -sSf http://127.0.0.1:8080 > /dev/null; then
+              echo "Server is up"; break;
+            fi
+            echo "Waiting for server... ($i)"; sleep 1;
+          done
+          # Run k6 scenarios via helper script (Docker fallback inside script)
+          APP_URL=http://127.0.0.1:8080 USE_BOOTSTRAP_AUTH=true bash tests/Performance/run-all.sh
+          # Stop server
+          kill $SERVER_PID || true
+
+      - name: Upload performance summaries
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-reports
+          path: perf-reports/*.summary.json
+          if-no-files-found: ignore
+
+      - name: Comment PR with performance summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const dir = 'perf-reports';
+            const baselineDir = 'tests/Performance/baselines';
+            let rows = [];
+            if (fs.existsSync(dir)) {
+              for (const f of fs.readdirSync(dir)) {
+                if (!f.endsWith('.summary.json')) continue;
+                const name = f.replace('.summary.json','');
+                try {
+                  const data = JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8'));
+                  const m = data.metrics || {};
+                  const dur = m.http_req_duration || {};
+                  const failed = m.http_req_failed || {};
+                  const values = dur.values || dur;
+                  const p95 = values['p(95)'] ?? values['p95'] ?? null;
+                  const rateValues = failed.values || failed;
+                  const errRate = rateValues['rate'] ?? null;
+                  rows.push({ name, p95: p95!=null? Number(p95): null, errRate });
+                } catch (e) {
+                  rows.push({ name, p95: null, errRate: null });
+                }
+              }
+            }
+            rows.sort((a,b)=>a.name.localeCompare(b.name));
+            if (rows.length === 0) {
+              core.info('No perf summary files found to comment.');
+              return;
+            }
+            // Load medium baselines if available
+            const baselines = {};
+            if (fs.existsSync(baselineDir)) {
+              for (const f of fs.readdirSync(baselineDir)) {
+                if (!/\.medium\.baseline\.json$/.test(f)) continue;
+                try {
+                  const b = JSON.parse(fs.readFileSync(path.join(baselineDir, f), 'utf8'));
+                  if (b && b.scenario && b.metrics && b.metrics.latency_ms && b.metrics.latency_ms.p95 != null) {
+                    baselines[b.scenario] = Number(b.metrics.latency_ms.p95);
+                  }
+                } catch (e) {}
+              }
+            }
+            function fmtMs(v){ return (v==null? 'n/a' : `${Number(v).toFixed(1)} ms`); }
+            function fmtPct(v){ return (v==null? 'n/a' : `${(Number(v)*100).toFixed(2)}%`); }
+            function fmtDelta(cur, base){
+              if (cur==null || base==null) return 'n/a';
+              const diff = cur - base; const pct = (diff/base)*100;
+              const sign = diff >= 0 ? '+' : '';
+              return `${sign}${diff.toFixed(1)} ms (${sign}${pct.toFixed(1)}%)`;
+            }
+            let body = '### Performance Smoke Summary\n\n';
+            body += 'Scenario | p95 latency | vs Medium Baseline | Error rate\\n';
+            body += '--- | ---: | ---: | ---: \\n';
+            for (const r of rows) {
+              const base = baselines[r.name];
+              body += `${r.name} | ${fmtMs(r.p95)} | ${fmtDelta(r.p95, base)} | ${fmtPct(r.errRate)}\\n`;
+            }
+            body += '\nNotes: Baselines are captured locally (medium dataset); CI runs small dataset and are informational-only.\\n';
+            body += '\nArtifacts with full summaries are uploaded as `perf-reports`.\n';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body,
+            });

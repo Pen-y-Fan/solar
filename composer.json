@@ -54,8 +54,8 @@
             "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
             "@php artisan migrate --graceful --ansi"
         ],
-        "cs": "phpcs --standard=PSR12 app tests",
-        "cs-fix": "phpcbf --standard=PSR12 app tests",
+        "cs": "phpcs --standard=PSR12 --extensions=php app tests",
+        "cs-fix": "phpcbf --standard=PSR12 --extensions=php app tests",
         "phpstan": "phpstan analyse --memory-limit 512M",
         "phpstan-baseline": "phpstan analyse --generate-baseline",
         "test": "phpunit --no-coverage",
@@ -65,7 +65,8 @@
             "@cs",
             "@phpstan",
             "@test"
-        ]
+        ],
+        "perf-suggest": "bash scripts/suggest-perf-run.sh"
     },
     "extra": {
         "laravel": {

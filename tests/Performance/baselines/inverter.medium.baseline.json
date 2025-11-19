@@ -1,0 +1,29 @@
+{
+  "scenario": "inverter",
+  "dataset_size": "medium",
+  "date": "2025-11-17T20:37:00Z",
+  "environment": {
+    "app_url": "https://solar-dev.test",
+    "hardware": "MacBook Apple M2 Pro, 16 GB Ram, macOS 15.6.1",
+    "notes": "Seeded via PerformanceSeeder; background load: low"
+  },
+  "run": {
+    "vus": 5,
+    "duration": "30s",
+    "seed_command": "php artisan migrate:fresh --seed --seeder=PerformanceSeeder",
+    "env": {
+      "PERF_DATASET_SIZE": "medium"
+    }
+  },
+  "metrics": {
+    "latency_ms": { "p50": 51.94, "p90": 65.9122, "p95": 68.3996, "p99": null },
+    "rps": 9.1649,
+    "error_rate": 0
+  },
+  "k6_command_examples": [
+    "APP_URL=https://solar-dev.test VUS=5 DURATION=30s k6 run tests/Performance/inverter.k6.js",
+    "APP_URL=https://solar-dev.test VUS=5 DURATION=30s bash tests/Performance/run-all.sh"
+  ],
+  "commit": "",
+  "notes": "Refreshed after two consecutive Medium runs (VUS=5, 30s) with SQL logging enabled; p95 stable within tolerance across both runs (68.64ms, 68.39ms)."
+}

@@ -20,6 +20,9 @@ use App\Application\Commands\Forecasting\RefreshForecastsCommand;
 use App\Application\Commands\Forecasting\RefreshForecastsCommandHandler;
 use App\Application\Commands\Strategy\RecalculateStrategyCostsCommand;
 use App\Application\Commands\Strategy\RecalculateStrategyCostsCommandHandler;
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -48,6 +51,21 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Local-only lightweight SQL profiling toggle.
+        // Enable by setting PERF_PROFILE=true in .env when APP_ENV=local or testing.
+        if (app()->environment(['local', 'testing']) && (bool) config('perf.profile', false)) {
+            DB::listen(static function (QueryExecuted $query): void {
+                try {
+                    Log::debug('sql', [
+                        'sql' => $query->sql,
+                        'bindings' => $query->bindings,
+                        'time_ms' => $query->time,
+                        'connection' => $query->connectionName,
+                    ]);
+                } catch (\Throwable $e) {
+                    // Swallow any logging errors to avoid impacting app behavior during profiling
+                }
+            });
+        }
     }
 }

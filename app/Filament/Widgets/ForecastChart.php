@@ -8,6 +8,7 @@ use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class ForecastChart extends ChartWidget
 {
@@ -126,6 +127,25 @@ class ForecastChart extends ChartWidget
 
     private function getDatabaseData(): Collection
     {
+        $enabled = (bool) config('perf.feature_cache_forecast_chart', false);
+        $ttl = (int) config('perf.forecast_chart_ttl', 60);
+        if ($enabled) {
+            $key = sprintf(
+                'forecast_chart:%s:%s',
+                (string) $this->filter,
+                now('Europe/London')->startOfDay()->format('Y-m-d')
+            );
+
+            return Cache::remember($key, $ttl, function () {
+                return $this->getDatabaseDataUncached();
+            });
+        }
+
+        return $this->getDatabaseDataUncached();
+    }
+
+    private function getDatabaseDataUncached(): Collection
+    {
         $startDate = match ($this->filter) {
             'yesterday', 'yesterday10', 'yesterday90', 'yesterday_strategy1', 'yesterday_strategy2' =>
             now('Europe/London')
@@ -146,14 +166,17 @@ class ForecastChart extends ChartWidget
         $limit = 48;
 
         $forecastData = Forecast::query()
-            ->with(['importCost', 'exportCost'])
-            ->orderBy('period_end')
+            ->select(['id', 'period_end', 'pv_estimate', 'pv_estimate10', 'pv_estimate90', 'updated_at'])
+            ->with([
+                'importCost:id,valid_from,value_inc_vat',
+                'exportCost:id,valid_from,value_inc_vat',
+            ])
             ->whereBetween('period_end', [
                 $startDate,
                 $startDate->copy()->timezone('Europe/London')->endOfDay()->timezone('UTC'),
             ])
-            ->limit($limit)
             ->orderBy('period_end')
+            ->limit($limit)
             ->get();
 
         if ($forecastData->count() === 0) {
@@ -278,7 +301,35 @@ class ForecastChart extends ChartWidget
             ];
         }
 
-        return collect($result);
+        $collection = collect($result);
+
+        // Optional downsampling for long ranges (Proposal B)
+        if ((bool) config('perf.forecast_downsample', false)) {
+            $bucket = max(1, (int) config('perf.forecast_bucket_minutes', 30));
+            $collection = $this->downsampleForecast($collection, $bucket);
+        }
+
+        return $collection;
+    }
+
+    /**
+     * Downsample forecast points by selecting the last point per bucket to preserve
+     * cumulative series shapes while reducing point count.
+     *
+     * @param Collection $collection
+     * @return Collection
+     */
+    private function downsampleForecast(Collection $collection, int $bucketMinutes): Collection
+    {
+        return $collection
+            ->groupBy(function (array $row) use ($bucketMinutes) {
+                $t = $row['period_end']->copy()->timezone('UTC');
+                $minute = (int) $t->format('i');
+                $floored = $minute - ($minute % $bucketMinutes);
+                return $t->copy()->minute($floored)->second(0)->format('Y-m-d H:i:s');
+            })
+            ->map(fn ($group) => $group->last())
+            ->values();
     }
 
     protected function getOptions(): array
