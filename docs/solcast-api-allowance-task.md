@@ -31,10 +31,7 @@ Notes:
 - [x] Create migration for `solcast_allowance_states` singleton table with fields from the story:
       `day_key`, `count`, `last_attempt_at_forecast`, `last_attempt_at_actual`, `last_success_at_forecast`,
       `last_success_at_actual`, `backoff_until`, `reset_at`, timestamps.
-- [ ] Optional: Create migration for `solcast_allowance_logs` with fields from the story; include sensible indexes
-      (e.g., `endpoint`, `happened_at`, `day_key`).
 - [x] Add Eloquent model `App\Domain\Forecasting\Models\SolcastAllowanceState` with helpers for day transitions.
-- [ ] Optional: Add Eloquent model `App\Domain\Forecasting\Models\SolcastAllowanceLog` (with pruning policy constants).
 - [x] Write unit tests for models (factories or simple programmatic creation) covering getters/setters and day reset behavior.
 - [x] Run migrations locally to validate schema.
 - [x] Quality Gate: run `composer all` and ensure green.
