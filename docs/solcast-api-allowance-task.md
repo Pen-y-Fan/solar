@@ -150,20 +150,21 @@ Notes:
 
 ## Stage 13 — Performance Validation (K6 Medium) and Maintenance Log
 
-- [ ] `git` commit any changes from previous stage(s).
-- [ ] Prepare dataset and ensure app is running locally (see `docs/performance-testing.md`).
-- [ ] Execute Medium cadence twice (clean runs):
+- [x] Prepare dataset and ensure app is running locally (see `docs/performance-testing.md`). 
+  - Confirmed: k6 binary is installed. App is running locally. APP_URL=https://solar-dev.test is correct
+- [x] Execute Medium cadence twice (clean runs):
       ```bash
+      PERF_DATASET_SIZE=medium php artisan migrate:fresh --seed --seeder=PerformanceSeeder
       APP_URL=https://solar-dev.test VUS=5 DURATION=30s PERF_DATASET_SIZE=medium bash tests/Performance/run-all.sh
       APP_URL=https://solar-dev.test VUS=5 DURATION=30s PERF_DATASET_SIZE=medium bash tests/Performance/run-all.sh
       ```
-- [ ] Compare against baseline; ensure tolerances per policy are met. If not, open remediation tasks.
-- [ ] Update `docs/k6-medium-maintenance.md` with a new row capturing date, gate, runs, and outcome.
-- [ ] Quality Gate: run `composer all` and ensure green.
+- [x] Compare against baseline; ensure tolerances per policy are met. If not, open remediation tasks.
+- [x] Update `docs/k6-medium-maintenance.md` with a new row capturing date, gate, runs, and outcome.
+- [x] Quality Gate: run `composer all` and ensure green.
+- [x] `git add` and `git commit` any changes from this and previous stage(s).
 
 ## Stage 14 — Rollout and Clean‑up
 
-- [ ] `git` commit any changes from previous stage(s).
 - [ ] Re‑run full quality suite.
 - [ ] Rebase/merge and resolve conflicts; final review.
 - [ ] Ensure `docs/tasks.md` reflects progress (optional cross‑link to this task file).
