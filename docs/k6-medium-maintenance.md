@@ -1,4 +1,4 @@
-# Daily Maintenance Log (Performance Cadence)
+# K6 Medium Maintenance Log (Performance Cadence)
 
 This log provides a lightweight, human‑readable trace of our Maintenance cadence decisions and actions.
 
@@ -14,9 +14,10 @@ Legend:
 - Medium: 0/2 (skipped or first pass), 2/2 (two clean runs), or “run+remediate”
 - Outcome: kept baseline / refreshed baseline / remediation opened
 
-| Date (UTC) | Gate | PR label | Medium | Outcome | Large advisory | Profiling spot‑check | Notes / Link | Initials |
-|---|---:|:---:|:---:|:---|:---:|:---:|:---|:--:|
-| 2025‑11‑19 | 0 | no | 0/2 | kept baseline | n/a | no | Entered Maintenance; no runs needed today | MP |
+| Date (UTC) | Gate | PR label | Medium | Outcome        | Large advisory | Profiling spot‑check | Notes / Link                               | Initials |
+|---|-----:|:--------:|:------:|:---------------|:--------------:|:--------------------:|:-------------------------------------------|:--------:|
+| 2025‑11‑19 |   0  |   no     |  0/2   | kept baseline  |      n/a       |         no           | Entered Maintenance; no runs needed today  |    MP    |
+| 2025‑11‑20 |  10  |   no     |  2/2   | kept baseline  |      n/a       |         no           | Medium runs within tolerance; artifacts in perf-reports/*.medium.summary.json |    MP    |
 
 Quick refs:
 - Decision gate: `composer perf-suggest` (exit code 0/10)

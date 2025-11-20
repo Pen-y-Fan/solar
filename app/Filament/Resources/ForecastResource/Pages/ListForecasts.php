@@ -4,6 +4,7 @@ namespace App\Filament\Resources\ForecastResource\Pages;
 
 use App\Filament\Resources\ForecastResource;
 use App\Filament\Resources\ForecastResource\Widgets\ForecastChartWidget;
+use App\Filament\Resources\ForecastResource\Widgets\SolcastAllowanceStatusWidget;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
@@ -21,6 +22,7 @@ class ListForecasts extends ListRecords
     protected function getHeaderWidgets(): array
     {
         return [
+            SolcastAllowanceStatusWidget::class,
             ForecastChartWidget::class,
         ];
     }
