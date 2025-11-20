@@ -34,6 +34,7 @@ use App\Domain\Forecasting\Events\SolcastRequestSucceeded;
 use App\Domain\Forecasting\Events\SolcastRequestSkipped;
 use App\Domain\Forecasting\Events\SolcastRateLimited;
 use App\Domain\Forecasting\Events\SolcastAllowanceReset;
+use App\Domain\Forecasting\Models\SolcastAllowanceLog;
 use App\Domain\Forecasting\Services\Contracts\SolcastAllowanceContract;
 use App\Domain\Forecasting\Services\SolcastAllowanceService;
 
@@ -76,6 +77,14 @@ class AppServiceProvider extends ServiceProvider
                     'endpoint' => $e->endpoint->value,
                     'at' => (string) $e->at,
                 ]);
+                if ((bool) config('solcast.allowance.log_to_db', false)) {
+                    SolcastAllowanceLog::create([
+                        'event_type' => 'attempted',
+                        'endpoint' => $e->endpoint->value,
+                        'payload' => null,
+                        'created_at' => $e->at,
+                    ]);
+                }
             } catch (\Throwable) {
                 // no-op
             }
@@ -86,6 +95,14 @@ class AppServiceProvider extends ServiceProvider
                     'endpoint' => $e->endpoint->value,
                     'at' => (string) $e->at,
                 ]);
+                if ((bool) config('solcast.allowance.log_to_db', false)) {
+                    SolcastAllowanceLog::create([
+                        'event_type' => 'succeeded',
+                        'endpoint' => $e->endpoint->value,
+                        'payload' => null,
+                        'created_at' => $e->at,
+                    ]);
+                }
             } catch (\Throwable) {
                 // no-op
             }
@@ -98,6 +115,16 @@ class AppServiceProvider extends ServiceProvider
                     'nextEligibleAt' => $e->nextEligibleAt?->toIso8601String(),
                     'at' => (string) $e->at,
                 ]);
+                if ((bool) config('solcast.allowance.log_to_db', false)) {
+                    SolcastAllowanceLog::create([
+                        'event_type' => 'skipped',
+                        'endpoint' => $e->endpoint->value,
+                        'reason' => $e->reason,
+                        'next_eligible_at' => $e->nextEligibleAt,
+                        'payload' => null,
+                        'created_at' => $e->at,
+                    ]);
+                }
             } catch (\Throwable) {
                 // no-op
             }
@@ -110,6 +137,16 @@ class AppServiceProvider extends ServiceProvider
                     'backoffUntil' => $e->backoffUntil->toIso8601String(),
                     'at' => (string) $e->at,
                 ]);
+                if ((bool) config('solcast.allowance.log_to_db', false)) {
+                    SolcastAllowanceLog::create([
+                        'event_type' => 'rate_limited',
+                        'endpoint' => $e->endpoint->value,
+                        'status' => $e->status,
+                        'backoff_until' => $e->backoffUntil,
+                        'payload' => null,
+                        'created_at' => $e->at,
+                    ]);
+                }
             } catch (\Throwable) {
                 // no-op
             }
@@ -120,6 +157,14 @@ class AppServiceProvider extends ServiceProvider
                     'dayKey' => $e->dayKey,
                     'resetAt' => $e->resetAt->toIso8601String(),
                 ]);
+                if ((bool) config('solcast.allowance.log_to_db', false)) {
+                    SolcastAllowanceLog::create([
+                        'event_type' => 'allowance_reset',
+                        'day_key' => $e->dayKey,
+                        'reset_at' => $e->resetAt,
+                        'payload' => null,
+                    ]);
+                }
             } catch (\Throwable) {
                 // no-op
             }

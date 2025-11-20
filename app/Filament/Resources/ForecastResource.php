@@ -4,6 +4,8 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ForecastResource\Pages;
 use App\Filament\Resources\ForecastResource\Widgets\ForecastChartWidget;
+use App\Filament\Resources\ForecastResource\Widgets\SolcastAllowanceStatusWidget;
+use App\Filament\Resources\ForecastResource\Widgets\SolcastAllowanceLogsWidget;
 use App\Domain\Forecasting\Models\Forecast;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -154,6 +156,8 @@ class ForecastResource extends Resource
     {
         return [
             ForecastChartWidget::class,
+            SolcastAllowanceStatusWidget::class,
+            SolcastAllowanceLogsWidget::class,
         ];
     }
 }
