@@ -2,56 +2,69 @@
 
 namespace App\Console\Commands;
 
-use App\Domain\Forecasting\Actions\ActualForecastAction;
-use App\Domain\Forecasting\Actions\ForecastAction;
+use App\Application\Commands\Bus\CommandBus;
+use App\Application\Commands\Forecasting\RequestSolcastActual;
+use App\Application\Commands\Forecasting\RequestSolcastForecast;
+use App\Support\Actions\ActionResult;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Log;
 
 class Forecast extends Command
 {
     /**
-     * The name and signature of the console command.
+     * php artisan app:forecast
+     * php artisan app:forecast --force
      *
-     * @var string
+     * Exit codes:
+     * `0` success; `2` policy skipped (min-interval/cap/backoff); `3` external failure (4xx/5xx/transport); `4`
      */
-    protected $signature = 'app:forecast';
+    protected $signature = 'app:forecast'
+    . ' {--force : Bypass only the per-endpoint min-interval check (daily allowance still enforced)}';
 
-    /**
-     * The console command description.
-     *
-     * @var string
-     */
-    protected $description = 'Fetch forecast data from the Solis API and save it to the database';
+    protected $description = 'Fetch forecast data from the Solcast API and save it to the database';
 
     /**
      * Execute the console command.
      */
-    public function handle(ForecastAction $forecast, ActualForecastAction $actualForecast): void
+    public function handle(): int
     {
-        try {
-            $result = $forecast->execute();
-            if ($result->isSuccess()) {
-                $this->info('Forecast has been fetched!');
-            } else {
-                $this->warn('Forecast fetch failed: ' . ($result->getMessage() ?? 'unknown error'));
-            }
-        } catch (\Throwable $th) {
-            Log::error('Error running forecast import action', ['error message' => $th->getMessage()]);
-            $this->error('Error running forecast import action:');
-            $this->error($th->getMessage());
+        $force = (bool)$this->option('force');
+        $bus = app(CommandBus::class);
+
+        $exitCode = 0;
+
+        $actual = $bus->dispatch(new RequestSolcastActual(force: $force));
+        $exitCode = max($exitCode, $this->reportResult('actual', $actual));
+
+        $forecast = $bus->dispatch(new RequestSolcastForecast(force: $force));
+        return max($exitCode, $this->reportResult('forecast', $forecast));
+    }
+
+    private function reportResult(string $endpointLabel, ActionResult $result): int
+    {
+        if ($result->isSuccess()) {
+            $this->info("{$this->getForecastType($endpointLabel)} has been fetched!");
+            return 0;
         }
 
-        try {
-            $result = $actualForecast->execute();
-            if ($result->isSuccess()) {
-                $this->info('Actual forecast has been fetched!');
-            } else {
-                $this->warn('Actual forecast fetch failed: ' . ($result->getMessage() ?? 'unknown error'));
-            }
-        } catch (\Throwable $th) {
-            Log::error('Error running actual forecast import action', ['error message' => $th->getMessage()]);
-            $this->error('Error running actual forecast import action:');
-            $this->error($th->getMessage());
+        $code = $result->getCode();
+        $msg = $result->getMessage() ?? 'unknown error';
+
+        if ($code === 'skipped') {
+            $this->line("{$this->getForecastType($endpointLabel)} request skipped: $msg");
+            return 2;
         }
+
+        if ($code === 'config_error') {
+            $this->error("{$this->getForecastType($endpointLabel)} configuration error: $msg");
+            return 4;
+        }
+
+        $this->warn("{$this->getForecastType($endpointLabel)} fetch failed: $msg");
+        return 3;
+    }
+
+    public function getForecastType(string $endpointLabel): string
+    {
+        return $endpointLabel === 'actual' ? 'Actual forecast' : 'Forecast';
     }
 }

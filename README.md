@@ -195,12 +195,36 @@ Login with the seeded user:
 - Email: **test@example.com**
 - Password: **password**
 
+## CLI/Artisan Commands
+
+The project provides a few artisan commands to run data refreshes and maintenance tasks. Run `php artisan list` to see all, or the following key commands:
+
+- Forecasting (Solcast):
+    - `php artisan app:forecast [--force]`
+        - Fetches Solcast forecast and estimated actuals via the Command Bus.
+        - `--force` bypasses only the per-endpoint minimum-interval check. Daily cap and active backoff are still enforced by policy.
+    - `php artisan forecasts:refresh {--date=}`
+        - Refresh both actuals and future forecasts for the optional date (YYYY-MM-DD); defaults to today. Uses Command Bus.
+- Octopus Energy:
+    - `php artisan app:octopus`
+        - Fetch usage/cost data and Agile tariffs.
+    - `php artisan app:octopus-account`
+        - Fetch and log account details.
+- Inverter import:
+    - `php artisan app:inverter`
+        - Import Solis inverter XLS files from `storage/app/uploads/`.
+- Maintenance:
+    - `php artisan solcast:prune-logs {--days=}`
+        - Prune `solcast_allowance_logs` older than the retention window (default 14 days, or override with `--days`).
+
+Notes:
+- All Solcast requests are governed by `SolcastAllowanceService` (daily cap, per-endpoint min intervals, and 429 backoff).
+
 ## Packages
 
 The following packages have been used:
 
-- [Filament admin panel](https://filamentphp.com/docs/3.x/admin/installation) - Admin panel restricted to authenticated
-  users.
+- [Filament admin panel](https://filamentphp.com/docs/3.x/admin/installation) - Admin panel restricted to authenticated users.
 - [Laravel Livewire](https://laravel-livewire.com/) - Included with Filament.
 
 ## Architecture: CQRS and Domain-Driven Design
@@ -327,12 +351,6 @@ composer phpstan-baseline
 ### Testing
 
 The project uses PHPUnit for testing. The configuration is in `phpunit.xml` at the root of the project.
-
-Preferred during development: run the full quality suite (code style, static analysis, and tests) in one go:
-
-```shell
-composer all
-```
 
 If you need to run only tests:
 

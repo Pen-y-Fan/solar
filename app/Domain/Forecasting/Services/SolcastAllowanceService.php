@@ -23,10 +23,12 @@ use Illuminate\Support\Facades\Event;
  * Enforces Solcast API allowance policy with atomic DB locking and reservation pattern.
  *
  * Reservation pattern:
- *  - checkAndLock() evaluates policy under row lock and, if allowed, records an attempt reservation
- *    by incrementing the daily count and setting last_attempt for the endpoint.
+ *  - checkAndLock() evaluates policy under row lock and, if allowed, reserves capacity by incrementing the daily
+ *    count and setting last_attempt for the endpoint. This reservation guarantees concurrency safety.
  *  - External API call happens after commit.
  *  - recordSuccess()/recordFailure() finalize metadata (success timestamps, backoff on 429) in short transactions.
+ *    On non-429 failure the reservation is reverted (count is decremented, not below zero). On 429 the count is set
+ *    to the daily cap and a global backoff window is applied.
  */
 final class SolcastAllowanceService implements SolcastAllowanceContract
 {
@@ -44,17 +46,17 @@ final class SolcastAllowanceService implements SolcastAllowanceContract
         ?string $resetTz = null,
     ) {
         // Defaults match docs/solcast-api-allowance.md; Stage 8 will move to config.
-        $this->dailyCap = $dailyCap ?? (int) config('solcast.allowance.daily_cap', 6);
+        $this->dailyCap = $dailyCap ?? (int) config('solcast.allowance.daily_cap');
         $this->forecastMinInterval = self::parseInterval(
-            $forecastMinInterval ?? (string) config('solcast.allowance.forecast_min_interval', 'PT4H')
+            $forecastMinInterval ?? (string) config('solcast.allowance.forecast_min_interval')
         );
         $this->actualMinInterval = self::parseInterval(
-            $actualMinInterval ?? (string) config('solcast.allowance.actual_min_interval', 'PT8H')
+            $actualMinInterval ?? (string) config('solcast.allowance.actual_min_interval')
         );
         $this->backoffDuration = self::parseInterval(
-            $backoffDuration ?? (string) config('solcast.allowance.backoff_429', 'PT8H')
+            $backoffDuration ?? (string) config('solcast.allowance.backoff_429')
         );
-        $this->resetTz = $resetTz ?? (string) config('solcast.allowance.reset_tz', 'UTC');
+        $this->resetTz = $resetTz ?? (string) config('solcast.allowance.reset_tz');
     }
 
     /**
@@ -62,7 +64,7 @@ final class SolcastAllowanceService implements SolcastAllowanceContract
      */
     public function checkAndLock(Endpoint $endpoint, bool $forceMinInterval = false): AllowanceDecision
     {
-        $now = CarbonImmutable::now();
+        $now = Carbon::now()->toImmutable();
 
         return DB::transaction(function () use ($endpoint, $forceMinInterval, $now): AllowanceDecision {
             // Ensure/reset state for now (inside tx) then lock the singleton row
@@ -161,7 +163,7 @@ final class SolcastAllowanceService implements SolcastAllowanceContract
      */
     public function recordSuccess(Endpoint $endpoint): void
     {
-        $now = CarbonImmutable::now();
+        $now = Carbon::now()->toImmutable();
         DB::transaction(function () use ($endpoint, $now): void {
             // lock row
             /** @var SolcastAllowanceState|null $state */
@@ -181,11 +183,13 @@ final class SolcastAllowanceService implements SolcastAllowanceContract
     }
 
     /**
-     * Finalize a failed attempt; on 429 mark a global backoff window.
+     * Finalize a failed attempt.
+     * - For HTTP 429: set global backoff and set count to daily cap (no remaining calls today).
+     * - For other failures: revert the reservation by decrementing count (not below zero).
      */
     public function recordFailure(Endpoint $endpoint, int $status): void
     {
-        $now = CarbonImmutable::now();
+        $now = Carbon::now()->toImmutable();
         $backoffUntil = null;
         DB::transaction(function () use ($status, $now, &$backoffUntil): void {
             /** @var SolcastAllowanceState|null $state */
@@ -196,6 +200,11 @@ final class SolcastAllowanceService implements SolcastAllowanceContract
             if ($status === 429) {
                 $backoffUntil = $now->add($this->backoffDuration);
                 $state->backoff_until = Carbon::instance($backoffUntil->toDateTime());
+                // 429 consumes the current reservation only; do not force daily cap to max.
+            } else {
+                // Revert reservation: decrement count but not below zero.
+                $current = (int) $state->count;
+                $state->count = max(0, $current - 1);
             }
             $state->save();
         });
@@ -210,7 +219,7 @@ final class SolcastAllowanceService implements SolcastAllowanceContract
      */
     public function currentStatus(): AllowanceStatus
     {
-        $now = CarbonImmutable::now();
+        $now = Carbon::now()->toImmutable();
         // Ensure/reset and fetch current row
         $state = DB::transaction(function () use ($now): SolcastAllowanceState {
             $row = SolcastAllowanceState::ensureForNow($now, $this->resetTz);

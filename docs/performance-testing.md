@@ -554,7 +554,7 @@ Operate under this maintenance plan:
 - Monthly Large advisory re-check (local): paste summarized metrics under “Large Dataset Advisory Results (Local)”; do not commit artifacts.
 - Keep CI PR smoke job informational-only; never make it a required/blocking status. Adjust small baselines only when improvements are intentional.
 - Keep feature caches and downsampling flags OFF by default; enable them only for targeted profiling or A/B sessions.
-- Daily log: record cadence decisions and actions in `docs/daily-maintenance.md` (append a row only on days you ran the gate or took action).
+- K6 medium log: record cadence decisions and actions in `docs/k6-medium-maintenance.md` (append a row only on days you ran the gate or took action).
 
 Completed (low‑risk optimizations behind flags):
 - [x] Proposal A — ForecastChart short‑TTL cache behind `FEATURE_CACHE_FORECAST_CHART` and `FORECAST_CHART_TTL` (default off; TTL default 60s)

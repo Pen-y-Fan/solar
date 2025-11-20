@@ -90,6 +90,10 @@ updating progress, ensure work proceeds broadly in this order unless justified o
 
 Details and the full checklist have been moved to docs/cqrs-tasks.md.
 
+**Forecasting — Solcast API Allowance**
+
+- [x] Implement unified Solcast API allowance policy (daily cap, per-endpoint min intervals, global backoff, DB row lock) — see docs/solcast-api-allowance-task.md
+
 ## 2. Testing and Quality Assurance
 
 [ ] Foundation and Security (Phase 1 alignment)

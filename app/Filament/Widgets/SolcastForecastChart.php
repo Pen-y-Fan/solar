@@ -17,10 +17,6 @@ class SolcastForecastChart extends ChartWidget
 
     protected static ?string $pollingInterval = '120s';
 
-    private const UPDATE_FREQUENCY_DAY_HOURS = 2;
-
-    private const UPDATE_FREQUENCY_OTHER_HOURS = 3;
-
     protected function getData(): array
     {
         $rawData = $this->getDatabaseData();
@@ -71,42 +67,9 @@ class SolcastForecastChart extends ChartWidget
         ];
     }
 
-    /*
-        backgroundColor: [
-          'rgba(255, 99, 132, 0.2)',
-          'rgba(255, 159, 64, 0.2)',
-          'rgba(255, 205, 86, 0.2)',
-          'rgba(75, 192, 192, 0.2)', // blue
-          'rgba(54, 162, 235, 0.2)',
-          'rgba(153, 102, 255, 0.2)',
-          'rgba(201, 203, 207, 0.2)'
-        ],
-        borderColor: [
-          'rgb(255, 99, 132)',
-          'rgb(255, 159, 64)',
-          'rgb(255, 205, 86)',
-          'rgb(75, 192, 192)',
-          'rgb(54, 162, 235)',
-          'rgb(153, 102, 255)',
-          'rgb(201, 203, 207)'
-        ],
-     */
-
     private function getDatabaseData(): Collection
     {
-        $lastUpdateData = Forecast::query()
-            ->latest('updated_at')
-            ->first('updated_at');
-
-        // Refresh data every 2 hours between 9am and 5pm, outside these hours 3 hours.
-        $refreshHours = (
-            now('Europe/London') < now('Europe/London')->setTime(9, 0)
-            || now('Europe/London') > now('Europe/London')->setTime(17, 0)
-        ) ? self::UPDATE_FREQUENCY_OTHER_HOURS : self::UPDATE_FREQUENCY_DAY_HOURS;
-
-        if ($lastUpdateData?->updated_at < now()->subHours($refreshHours)) {
-            $this->updateSolcast();
-        }
+        $this->updateSolcast();
 
         return Forecast::query()
             ->where('period_end', '>=', now()->startOfHour())
