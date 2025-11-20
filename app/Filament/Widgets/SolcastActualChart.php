@@ -2,7 +2,8 @@
 
 namespace App\Filament\Widgets;
 
-use App\Domain\Forecasting\Actions\ActualForecastAction as ActualForecastAction;
+use App\Application\Commands\Bus\CommandBus;
+use App\Application\Commands\Forecasting\RequestSolcastActual;
 use App\Domain\Forecasting\Models\ActualForecast;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Database\Eloquent\Collection;
@@ -83,9 +84,9 @@ class SolcastActualChart extends ChartWidget
     private function updateSolcast(): void
     {
         try {
-            /** @var ActualForecastAction $action */
-            $action = app(ActualForecastAction::class);
-            $action->execute();
+            /** @var CommandBus $bus */
+            $bus = app(CommandBus::class);
+            $bus->dispatch(new RequestSolcastActual());
         } catch (Throwable $th) {
             Log::error('Error running actual forecast import action', ['error message' => $th->getMessage()]);
         }

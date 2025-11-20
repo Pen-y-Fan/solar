@@ -2,7 +2,8 @@
 
 namespace App\Filament\Widgets;
 
-use App\Domain\Forecasting\Actions\ForecastAction;
+use App\Application\Commands\Bus\CommandBus;
+use App\Application\Commands\Forecasting\RequestSolcastForecast;
 use App\Domain\Forecasting\Models\Forecast;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Database\Eloquent\Collection;
@@ -122,9 +123,9 @@ class SolcastForecastChart extends ChartWidget
     private function updateSolcast(): void
     {
         try {
-            /** @var ForecastAction $action */
-            $action = app(ForecastAction::class);
-            $action->execute();
+            /** @var CommandBus $bus */
+            $bus = app(CommandBus::class);
+            $bus->dispatch(new RequestSolcastForecast());
         } catch (Throwable $th) {
             Log::error('Error running forecast import action', ['error message' => $th->getMessage()]);
         }
