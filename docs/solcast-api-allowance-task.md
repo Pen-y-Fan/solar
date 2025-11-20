@@ -58,55 +58,67 @@ Notes:
 - [x] Unit tests simulating edge cases: just before/after reset, hitting daily cap, min interval, backoff on 429,
       and concurrent callers (simulate with sequential calls under lock semantics).
 - [x] Quality Gate: run `composer all` and ensure green.
+- [x] Mark this stage as complete.
 
 ## Stage 4 — Domain Events and Observability
 
-- [ ] Add events under `App\Domain\Forecasting\Events\*`:
+- [x] Commit previous stage changes. 
+- [x] Add events under `App\Domain\Forecasting\Events\*`:
       `SolcastRequestAttempted`, `SolcastRequestSucceeded`, `SolcastRequestSkipped`, `SolcastRateLimited`,
       `SolcastAllowanceReset`.
-- [ ] Emit events from the service during transitions (attempt, skip reason, success, 429/backoff, reset).
-- [ ] Add listeners/logging hooks (structured logs) and minimal tests for event dispatch (using Laravel events fakes).
-- [ ] Quality Gate: run `composer all` and ensure green.
+- [x] Emit events from the service during transitions (attempt, skip reason, success, 429/backoff, reset).
+- [x] Add listeners/logging hooks (structured logs) and minimal tests for event dispatch (using Laravel events fakes).
+- [x] Quality Gate: run `composer all` and ensure green.
+- [x] Mark this stage as complete.
 
 ## Stage 5 — Application Layer (Commands + Handlers)
 
-- [ ] Add Commands:
-      - [ ] `App\Application\Commands\Forecasting\RequestSolcastForecast` (DTO; includes `force` flag).
-      - [ ] `App\Application\Commands\Forecasting\RequestSolcastActual` (DTO; includes `force` flag).
-- [ ] Add Handlers under `...\Handlers\` for each command to:
-      - [ ] Resolve `SolcastAllowanceService`.
-      - [ ] Call `checkAndLock()` with endpoint; if not allowed, emit skipped event and return ActionResult.
-      - [ ] Call existing domain action (`ForecastAction` or `ActualForecastAction`).
-      - [ ] Based on response (success/HTTP code), call `recordSuccess` or `recordFailure`.
-- [ ] Map Command => Handler in `App\Providers\AppServiceProvider` (CommandBus mappings).
-- [ ] Unit tests for handlers (happy path, cap reached, min interval, backoff active, 429).
-- [ ] Quality Gate: run `composer all` and ensure green.
+- [x] Commit previous stage changes.
+- [x] Add Commands:
+      - [x] `App\Application\Commands\Forecasting\RequestSolcastForecast` (DTO; includes `force` flag).
+      - [x] `App\Application\Commands\Forecasting\RequestSolcastActual` (DTO; includes `force` flag).
+- [x] Add Handlers under `...\Handlers\` for each command to:
+      - [x] Resolve `SolcastAllowanceService`.
+      - [x] Call `checkAndLock()` with endpoint; if not allowed, emit skipped event and return ActionResult.
+      - [x] Call existing domain action (`ForecastAction` or `ActualForecastAction`).
+      - [x] Based on response (success/HTTP code), call `recordSuccess` or `recordFailure`.
+- [x] Map Command => Handler in `App\Providers\AppServiceProvider` (CommandBus mappings).
+- [x] Unit tests for handlers (happy path, cap reached, min interval, backoff active, 429).
+- [x] Quality Gate: run `composer all` and ensure green.
+- [x] Mark this stage as complete.
 
 ## Stage 6 — Queries (Read Side)
 
-- [ ] Add `App\Application\Queries\Forecasting\SolcastAllowanceStatusQuery` returning `AllowanceStatus`.
-- [ ] Add `App\Application\Queries\Forecasting\NextEligibleTimesQuery` to compute next eligible timestamps per endpoint.
-- [ ] Unit tests for query logic using seeded state rows.
-- [ ] Quality Gate: run `composer all` and ensure green.
+- [x] Commit previous stage changes.
+- [x] Add `App\Application\Queries\Forecasting\SolcastAllowanceStatusQuery` returning `AllowanceStatus`.
+- [x] Add `App\Application\Queries\Forecasting\NextEligibleTimesQuery` to compute next eligible timestamps per endpoint.
+- [x] Unit tests for query logic using seeded state rows.
+- [x] Quality Gate: run `composer all` and ensure green.
+- [x] Mark this stage as complete.
 
 ## Stage 7 — Filament/UX Integration
 
+- [ ] Commit previous stage changes.
 - [ ] Update Forecast/Actual Filament widgets to dispatch commands rather than directly invoking actions.
 - [ ] Add a small Filament card on the Forecast page showing remaining allowance, next reset, and backoff status.
 - [ ] Feature tests for UI flows: dispatch command, assert notifications/messages surface policy outcomes.
 - [ ] Quality Gate: run `composer all` and ensure green.
+- [ ] Mark this stage as complete.
 
 ## Stage 8 — Configuration and .env
 
+- [ ] Commit previous stage changes.
 - [ ] Add environment variables with defaults in `config` and `.env.example`:
       `SOLCAST_DAILY_CAP`, `SOLCAST_FORECAST_MIN_INTERVAL`, `SOLCAST_ACTUAL_MIN_INTERVAL`, `SOLCAST_429_BACKOFF`,
       `SOLCAST_RESET_TZ`.
 - [ ] Document configuration in `README.md` (brief) and reference the story doc for details.
 - [ ] Unit test config parsing in the service (e.g., ISO-8601 duration parsing).
 - [ ] Quality Gate: run `composer all` and ensure green.
+- [ ] Mark this stage as complete.
 
 ## Stage 9 — Integration Tests (End‑to‑End slices)
 
+- [ ] Commit previous stage changes.
 - [ ] Write Feature tests that simulate sequences over time: multiple tries within min interval; just before/after daily
       reset; 429 backoff blocking subsequent attempts; success increments; combined cap enforcement across endpoints.
 - [ ] Use `Carbon::setTestNow()` and in-memory SQLite per test guidelines.
@@ -114,6 +126,7 @@ Notes:
 
 ## Stage 10 — Observability + Admin Surface
 
+- [ ] Commit previous stage changes.
 - [ ] Ensure events produce structured logs at suitable levels (`info`/`warning`).
 - [ ] Add optional log table writes if `solcast_allowance_logs` is enabled; add pruning command or policy.
 - [ ] Add an admin page section (Filament) for operational status (read-only view from `AllowanceStatusQuery`).
@@ -121,6 +134,7 @@ Notes:
 
 ## Stage 11 — Concurrency/Locking Verification
 
+- [ ] Commit previous stage changes.
 - [ ] Add a test ensuring `lockForUpdate()` path prevents double increments under concurrent attempts (simulate with
       interleaved transactions in tests or fakes around repository/service boundaries).
 - [ ] Review transaction boundaries to avoid holding locks during external API calls; use reservation pattern (attempt
@@ -129,12 +143,14 @@ Notes:
 
 ## Stage 12 — Documentation and Ops Notes
 
+- [ ] Commit previous stage changes.
 - [ ] Update `docs/solcast-api-allowance.md` if any deviations/clarifications were made during implementation.
 - [ ] Add troubleshooting section (e.g., clock skew, daylight savings in non‑UTC TZs, backoff override policy).
 - [ ] Quality Gate: run `composer all` and ensure green.
 
 ## Stage 13 — Performance Validation (K6 Medium) and Maintenance Log
 
+- [ ] Commit previous stage changes.
 - [ ] Prepare dataset and ensure app is running locally (see `docs/performance-testing.md`).
 - [ ] Execute Medium cadence twice (clean runs):
       ```bash
@@ -147,6 +163,7 @@ Notes:
 
 ## Stage 14 — Rollout and Clean‑up
 
+- [ ] Commit previous stage changes.
 - [ ] Re‑run full quality suite.
 - [ ] Rebase/merge and resolve conflicts; final review.
 - [ ] Ensure `docs/tasks.md` reflects progress (optional cross‑link to this task file).
