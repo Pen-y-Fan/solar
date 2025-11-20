@@ -14,5 +14,10 @@ return [
 
         // IANA timezone for the daily reset boundary
         'reset_tz' => env('SOLCAST_RESET_TZ', 'UTC'),
+
+        // Optional DB logging of allowance events
+        'log_to_db' => env('SOLCAST_ALLOWANCE_LOG_TO_DB', false),
+        // Max days to retain logs when pruning
+        'log_max_days' => env('SOLCAST_ALLOWANCE_LOG_MAX_DAYS', 14),
     ],
 ];
