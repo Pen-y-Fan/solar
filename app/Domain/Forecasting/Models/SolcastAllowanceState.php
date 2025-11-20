@@ -4,6 +4,8 @@ namespace App\Domain\Forecasting\Models;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Event;
+use App\Domain\Forecasting\Events\SolcastAllowanceReset;
 
 /**
  * Singleton row model storing the current day's Solcast allowance state.
@@ -97,6 +99,12 @@ class SolcastAllowanceState extends Model
             'reset_at' => self::nextResetAtFor($now, $tz),
         ]);
         $this->save();
+
+        // Emit reset domain event for observability
+        Event::dispatch(new SolcastAllowanceReset(
+            dayKey: (string) $this->day_key,
+            resetAt: CarbonImmutable::parse((string) $this->reset_at)
+        ));
     }
 
     /**
