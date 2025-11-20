@@ -38,26 +38,26 @@ Notes:
 
 ## Stage 2 — Value Objects and Enums
 
-- [ ] Add `Endpoint` enum at `App\Domain\Forecasting\ValueObjects\Endpoint` with values `FORECAST`, `ACTUAL`.
-- [ ] Add `AllowanceStatus` value object to describe current status (budget left, backoff, resetAt, last attempts/successes).
-- [ ] Add `AllowanceDecision` value object (allowed: bool, reason: string/enum; optional nextEligibleAt).
-- [ ] Unit tests for the above VOs (immutability, simple construction, and helpers like remaining budget computation).
-- [ ] Quality Gate: run `composer all` and ensure green.
+- [x] Add `Endpoint` enum at `App\Domain\Forecasting\ValueObjects\Endpoint` with values `FORECAST`, `ACTUAL`.
+- [x] Add `AllowanceStatus` value object to describe current status (budget left, backoff, resetAt, last attempts/successes).
+- [x] Add `AllowanceDecision` value object (allowed: bool, reason: string/enum; optional nextEligibleAt).
+- [x] Unit tests for the above VOs (immutability, simple construction, and helpers like remaining budget computation).
+- [x] Quality Gate: run `composer all` and ensure green.
 
 ## Stage 3 — Domain Service (Allowance Policy + Concurrency)
 
-- [ ] Implement `App\Domain\Forecasting\Services\SolcastAllowanceService` encapsulating:
-      - [ ] Config parsing (cap, min intervals, backoff duration, reset TZ).
-      - [ ] Reset window computation using `Carbon` in `SOLCAST_RESET_TZ`.
-      - [ ] `checkAndLock(Endpoint $endpoint, bool $forceMinInterval = false): AllowanceDecision` using DB transaction
+- [x] Implement `App\Domain\Forecasting\Services\SolcastAllowanceService` encapsulating:
+      - [x] Config parsing (cap, min intervals, backoff duration, reset TZ).
+      - [x] Reset window computation using `Carbon` in `SOLCAST_RESET_TZ`.
+      - [x] `checkAndLock(Endpoint $endpoint, bool $forceMinInterval = false): AllowanceDecision` using DB transaction
             and `lockForUpdate()` against the singleton row, applying policy precedence:
             backoff → reset (if now >= reset_at) → daily cap → min-interval (unless forced) → record attempt reservation.
-      - [ ] `recordSuccess(Endpoint $endpoint): void` in a short transaction.
-      - [ ] `recordFailure(Endpoint $endpoint, int $status): void` (429 → set global backoff; always increment count).
-      - [ ] `currentStatus(): AllowanceStatus`.
-- [ ] Unit tests simulating edge cases: just before/after reset, hitting daily cap, min interval, backoff on 429,
+      - [x] `recordSuccess(Endpoint $endpoint): void` in a short transaction.
+      - [x] `recordFailure(Endpoint $endpoint, int $status): void` (429 → set global backoff; always increment count).
+      - [x] `currentStatus(): AllowanceStatus`.
+- [x] Unit tests simulating edge cases: just before/after reset, hitting daily cap, min interval, backoff on 429,
       and concurrent callers (simulate with sequential calls under lock semantics).
-- [ ] Quality Gate: run `composer all` and ensure green.
+- [x] Quality Gate: run `composer all` and ensure green.
 
 ## Stage 4 — Domain Events and Observability
 
