@@ -115,6 +115,21 @@ recommended options:
 Note: Relying on the cache’s lock mechanism is not required here. Database-level row locks suffice and fit the chosen
 storage.
 
+### Reservation pattern and transaction boundaries
+
+- The service implements a reservation pattern to avoid holding database locks during external API calls:
+  1) In `checkAndLock(...)`, within a DB transaction and under `lockForUpdate()`, evaluate policy and if allowed,
+     increment the daily `count` and set the appropriate `last_attempt_at_*` field. Commit the transaction.
+  2) Perform the Solcast HTTP call outside any DB transaction/lock.
+  3) Finalize outcome using short transactions:
+     - On success: `recordSuccess(endpoint)` updates the `last_success_at_*` timestamp.
+     - On 429: `recordFailure(endpoint, 429)` sets a global `backoff_until` for the configured duration.
+
+- Precedence is: backoff → reset (if now >= reset_at) → daily cap → per-endpoint min-interval → reserve.
+
+- This pattern ensures that concurrent processes cannot double-count. One process will reserve first; subsequent
+  processes will observe the updated `count` or per-endpoint min-interval and be denied appropriately.
+
 ## Observability
 
 - Emit domain events, using Filament notifications, for: attempt, success, skipped (min interval), limit reached, 429
@@ -132,6 +147,29 @@ storage.
   row locks, at the cost of slightly more application code.
 
 ---
+
+## Troubleshooting
+
+- Clock skew between app server and database
+  - Symptom: Unexpected early/late resets or backoff windows appearing shifted.
+  - Guidance: Ensure both PHP/app and DB hosts run NTP and agree on time. The service computes `reset_at` using
+    `SOLCAST_RESET_TZ` (default `UTC`) and stores timestamps in the app timezone (typically UTC).
+
+- Daylight saving time (DST) in non-UTC reset timezones
+  - Symptom: Reset boundary appears to shift by one hour when DST transitions occur.
+  - Guidance: Prefer `SOLCAST_RESET_TZ=UTC` to avoid DST issues. If a non-UTC timezone is required, be aware that
+    `nextResetAtFor()` uses Carbon with the configured timezone; transitions will naturally move the boundary.
+
+- Backoff override policy
+  - Symptom: Operators attempt to force a fetch but it still gets skipped due to backoff.
+  - Guidance: The `--force` option only overrides the per-endpoint minimum interval. It never bypasses the daily cap or
+    a global backoff after a 429. To clear backoff intentionally (not recommended in normal ops), you may manually
+    update `solcast_allowance_states.backoff_until` in the database — but consider the risk of repeated 429s.
+
+- SQLite in tests and `lockForUpdate()`
+  - Note: SQLite does not support true row-level `FOR UPDATE` locks. Our unit/feature tests simulate contention by
+    executing sequential reservations and verifying only one increment occurs when cap is 1. In production with MySQL
+    or PostgreSQL, `lockForUpdate()` will provide the intended mutual exclusion semantics.
 
 ## Files/classes to add (CQRS-aligned)
 
