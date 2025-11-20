@@ -7,6 +7,7 @@ namespace Tests\Feature\Forecasting;
 use App\Application\Commands\Bus\CommandBus;
 use App\Application\Commands\Forecasting\RequestSolcastActual;
 use App\Application\Commands\Forecasting\RequestSolcastForecast;
+use App\Domain\Forecasting\Models\SolcastAllowanceState;
 use App\Domain\Forecasting\Actions\ActualForecastAction;
 use App\Domain\Forecasting\Actions\ForecastAction;
 use App\Domain\User\Models\User;
@@ -81,6 +82,10 @@ final class SolcastAllowanceIntegrationTest extends TestCase
 
         $r2 = $bus->dispatch(new RequestSolcastActual());
         $this->assertTrue($r2->isSuccess());
+
+        // Assert that successful attempts increment the daily counter (combined across endpoints)
+        $state = SolcastAllowanceState::query()->firstOrFail();
+        $this->assertSame(2, $state->count, 'Daily count should be 2 after two successful requests');
 
         $r3 = $bus->dispatch(new RequestSolcastForecast());
         $this->assertFalse($r3->isSuccess(), 'Third request should be skipped due to daily cap');
