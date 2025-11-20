@@ -18,12 +18,24 @@ use App\Application\Commands\Energy\SyncOctopusAccountCommand;
 use App\Application\Commands\Energy\SyncOctopusAccountCommandHandler;
 use App\Application\Commands\Forecasting\RefreshForecastsCommand;
 use App\Application\Commands\Forecasting\RefreshForecastsCommandHandler;
+use App\Application\Commands\Forecasting\RequestSolcastForecast;
+use App\Application\Commands\Forecasting\RequestSolcastForecastHandler;
+use App\Application\Commands\Forecasting\RequestSolcastActual;
+use App\Application\Commands\Forecasting\RequestSolcastActualHandler;
 use App\Application\Commands\Strategy\RecalculateStrategyCostsCommand;
 use App\Application\Commands\Strategy\RecalculateStrategyCostsCommandHandler;
 use Illuminate\Database\Events\QueryExecuted;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Event;
+use App\Domain\Forecasting\Events\SolcastRequestAttempted;
+use App\Domain\Forecasting\Events\SolcastRequestSucceeded;
+use App\Domain\Forecasting\Events\SolcastRequestSkipped;
+use App\Domain\Forecasting\Events\SolcastRateLimited;
+use App\Domain\Forecasting\Events\SolcastAllowanceReset;
+use App\Domain\Forecasting\Services\Contracts\SolcastAllowanceContract;
+use App\Domain\Forecasting\Services\SolcastAllowanceService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,6 +44,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Bind Solcast allowance contract to its concrete service
+        $this->app->bind(SolcastAllowanceContract::class, SolcastAllowanceService::class);
+
         $this->app->singleton(CommandBus::class, function ($app) {
             $bus = new SimpleCommandBus($app);
             $bus->register(GenerateStrategyCommand::class, GenerateStrategyCommandHandler::class);
@@ -42,6 +57,9 @@ class AppServiceProvider extends ServiceProvider
             $bus->register(CopyConsumptionWeekAgoCommand::class, CopyConsumptionWeekAgoCommandHandler::class);
             $bus->register(RefreshForecastsCommand::class, RefreshForecastsCommandHandler::class);
             $bus->register(RecalculateStrategyCostsCommand::class, RecalculateStrategyCostsCommandHandler::class);
+            // Solcast allowance commands
+            $bus->register(RequestSolcastForecast::class, RequestSolcastForecastHandler::class);
+            $bus->register(RequestSolcastActual::class, RequestSolcastActualHandler::class);
             return $bus;
         });
     }
@@ -51,6 +69,62 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Lightweight structured logging for domain events (observability)
+        Event::listen(SolcastRequestAttempted::class, static function (SolcastRequestAttempted $e): void {
+            try {
+                Log::info('solcast.attempted', [
+                    'endpoint' => $e->endpoint->value,
+                    'at' => (string) $e->at,
+                ]);
+            } catch (\Throwable) {
+                // no-op
+            }
+        });
+        Event::listen(SolcastRequestSucceeded::class, static function (SolcastRequestSucceeded $e): void {
+            try {
+                Log::info('solcast.succeeded', [
+                    'endpoint' => $e->endpoint->value,
+                    'at' => (string) $e->at,
+                ]);
+            } catch (\Throwable) {
+                // no-op
+            }
+        });
+        Event::listen(SolcastRequestSkipped::class, static function (SolcastRequestSkipped $e): void {
+            try {
+                Log::info('solcast.skipped', [
+                    'endpoint' => $e->endpoint->value,
+                    'reason' => $e->reason,
+                    'nextEligibleAt' => $e->nextEligibleAt?->toIso8601String(),
+                    'at' => (string) $e->at,
+                ]);
+            } catch (\Throwable) {
+                // no-op
+            }
+        });
+        Event::listen(SolcastRateLimited::class, static function (SolcastRateLimited $e): void {
+            try {
+                Log::warning('solcast.rate_limited', [
+                    'endpoint' => $e->endpoint->value,
+                    'status' => $e->status,
+                    'backoffUntil' => $e->backoffUntil->toIso8601String(),
+                    'at' => (string) $e->at,
+                ]);
+            } catch (\Throwable) {
+                // no-op
+            }
+        });
+        Event::listen(SolcastAllowanceReset::class, static function (SolcastAllowanceReset $e): void {
+            try {
+                Log::info('solcast.allowance_reset', [
+                    'dayKey' => $e->dayKey,
+                    'resetAt' => $e->resetAt->toIso8601String(),
+                ]);
+            } catch (\Throwable) {
+                // no-op
+            }
+        });
+
         // Local-only lightweight SQL profiling toggle.
         // Enable by setting PERF_PROFILE=true in .env when APP_ENV=local or testing.
         if (app()->environment(['local', 'testing']) && (bool) config('perf.profile', false)) {

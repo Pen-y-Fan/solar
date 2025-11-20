@@ -8,10 +8,16 @@ use App\Domain\Forecasting\Models\SolcastAllowanceState;
 use App\Domain\Forecasting\ValueObjects\AllowanceDecision;
 use App\Domain\Forecasting\ValueObjects\AllowanceStatus;
 use App\Domain\Forecasting\ValueObjects\Endpoint;
+use App\Domain\Forecasting\Services\Contracts\SolcastAllowanceContract;
+use App\Domain\Forecasting\Events\SolcastRequestAttempted;
+use App\Domain\Forecasting\Events\SolcastRequestSkipped;
+use App\Domain\Forecasting\Events\SolcastRequestSucceeded;
+use App\Domain\Forecasting\Events\SolcastRateLimited;
 use Carbon\CarbonImmutable;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 
 /**
  * Enforces Solcast API allowance policy with atomic DB locking and reservation pattern.
@@ -22,7 +28,7 @@ use Illuminate\Support\Facades\DB;
  *  - External API call happens after commit.
  *  - recordSuccess()/recordFailure() finalize metadata (success timestamps, backoff on 429) in short transactions.
  */
-final class SolcastAllowanceService
+final class SolcastAllowanceService implements SolcastAllowanceContract
 {
     private int $dailyCap;
     private CarbonInterval $forecastMinInterval;
@@ -76,10 +82,15 @@ final class SolcastAllowanceService
 
             // Backoff check (after daily reset handling above)
             if ($state->isBackoffActive($now)) {
-                return AllowanceDecision::deny(
-                    'backoff_active',
-                    CarbonImmutable::parse((string) $state->backoff_until)
-                );
+                $next = CarbonImmutable::parse((string) $state->backoff_until);
+                $decision = AllowanceDecision::deny('backoff_active', $next);
+                Event::dispatch(new SolcastRequestSkipped(
+                    endpoint: $endpoint,
+                    reason: $decision->reason,
+                    nextEligibleAt: $decision->nextEligibleAt,
+                    at: $now,
+                ));
+                return $decision;
             }
 
             // Daily cap
@@ -87,7 +98,14 @@ final class SolcastAllowanceService
                 $resetAt = $state->reset_at !== null
                     ? CarbonImmutable::parse((string) $state->reset_at)
                     : null;
-                return AllowanceDecision::deny('daily_cap_reached', $resetAt);
+                $decision = AllowanceDecision::deny('daily_cap_reached', $resetAt);
+                Event::dispatch(new SolcastRequestSkipped(
+                    endpoint: $endpoint,
+                    reason: $decision->reason,
+                    nextEligibleAt: $decision->nextEligibleAt,
+                    at: $now,
+                ));
+                return $decision;
             }
 
             // Min-interval per endpoint (unless forced)
@@ -96,14 +114,28 @@ final class SolcastAllowanceService
                     $next = CarbonImmutable::parse((string) $state->last_attempt_at_forecast)
                         ->add($this->forecastMinInterval);
                     if ($now->lessThan($next)) {
-                        return AllowanceDecision::deny('under_min_interval', $next);
+                        $decision = AllowanceDecision::deny('under_min_interval', $next);
+                        Event::dispatch(new SolcastRequestSkipped(
+                            endpoint: $endpoint,
+                            reason: $decision->reason,
+                            nextEligibleAt: $decision->nextEligibleAt,
+                            at: $now,
+                        ));
+                        return $decision;
                     }
                 }
                 if ($endpoint === Endpoint::ACTUAL && $state->last_attempt_at_actual !== null) {
                     $next = CarbonImmutable::parse((string) $state->last_attempt_at_actual)
                         ->add($this->actualMinInterval);
                     if ($now->lessThan($next)) {
-                        return AllowanceDecision::deny('under_min_interval', $next);
+                        $decision = AllowanceDecision::deny('under_min_interval', $next);
+                        Event::dispatch(new SolcastRequestSkipped(
+                            endpoint: $endpoint,
+                            reason: $decision->reason,
+                            nextEligibleAt: $decision->nextEligibleAt,
+                            at: $now,
+                        ));
+                        return $decision;
                     }
                 }
             }
@@ -116,6 +148,9 @@ final class SolcastAllowanceService
                 $state->last_attempt_at_actual = Carbon::instance($now->toDateTime());
             }
             $state->save();
+
+            // Emit attempted after reservation commit point inside transaction
+            Event::dispatch(new SolcastRequestAttempted($endpoint, $now));
 
             return AllowanceDecision::allow('reserved');
         });
@@ -141,6 +176,8 @@ final class SolcastAllowanceService
             }
             $state->save();
         });
+
+        Event::dispatch(new SolcastRequestSucceeded($endpoint, $now));
     }
 
     /**
@@ -149,17 +186,23 @@ final class SolcastAllowanceService
     public function recordFailure(Endpoint $endpoint, int $status): void
     {
         $now = CarbonImmutable::now();
-        DB::transaction(function () use ($status, $now): void {
+        $backoffUntil = null;
+        DB::transaction(function () use ($status, $now, &$backoffUntil): void {
             /** @var SolcastAllowanceState|null $state */
             $state = SolcastAllowanceState::query()->lockForUpdate()->first();
             if ($state === null) {
                 return;
             }
             if ($status === 429) {
-                $state->backoff_until = Carbon::instance($now->add($this->backoffDuration)->toDateTime());
+                $backoffUntil = $now->add($this->backoffDuration);
+                $state->backoff_until = Carbon::instance($backoffUntil->toDateTime());
             }
             $state->save();
         });
+
+        if ($status === 429 && $backoffUntil !== null) {
+            Event::dispatch(new SolcastRateLimited($endpoint, $status, $backoffUntil, CarbonImmutable::now()));
+        }
     }
 
     /**
