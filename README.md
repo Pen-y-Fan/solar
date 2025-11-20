@@ -145,6 +145,23 @@ a [free account](https://toolkit.solcast.com.au/register) can be created for hom
 
 Once registered, enter your **API key** and **resource id** in the **.env** file.
 
+#### Solcast API Allowance configuration
+
+You can tune how often the app calls Solcast and how the daily cap/backoff works via these `.env` variables (defaults shown):
+
+```ini
+# Combined daily cap across forecast + actual requests
+SOLCAST_DAILY_CAP=6
+# ISO-8601 durations for minimum intervals and 429 backoff
+SOLCAST_FORECAST_MIN_INTERVAL=PT4H
+SOLCAST_ACTUAL_MIN_INTERVAL=PT8H
+SOLCAST_429_BACKOFF=PT8H
+# Reset window timezone (IANA tz) for daily allowance reset
+SOLCAST_RESET_TZ=UTC
+```
+
+These are read from `config/solcast.php` under the `allowance` section. See `docs/solcast-api-allowance.md` for the full policy and rationale.
+
 ### Octopus energy
 
 Existing customers can generate a key: https://octopus.energy/dashboard/new/accounts/personal-details/api-access

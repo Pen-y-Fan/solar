@@ -98,22 +98,22 @@ Notes:
 
 ## Stage 7 — Filament/UX Integration
 
-- [ ] Commit previous stage changes.
-- [ ] Update Forecast/Actual Filament widgets to dispatch commands rather than directly invoking actions.
-- [ ] Add a small Filament card on the Forecast page showing remaining allowance, next reset, and backoff status.
-- [ ] Feature tests for UI flows: dispatch command, assert notifications/messages surface policy outcomes.
-- [ ] Quality Gate: run `composer all` and ensure green.
-- [ ] Mark this stage as complete.
+- [x] Commit previous stage changes (if any).
+- [x] Update Forecast/Actual Filament widgets to dispatch commands rather than directly invoking actions.
+- [x] Add a small Filament card on the Forecast page showing remaining allowance, next reset, and backoff status.
+- [x] Feature tests for UI flows: dispatch command, assert notifications/messages surface policy outcomes.
+- [x] Quality Gate: run `composer all` and ensure green.
+- [x] Mark this stage as complete.
 
 ## Stage 8 — Configuration and .env
 
-- [ ] Commit previous stage changes.
-- [ ] Add environment variables with defaults in `config` and `.env.example`:
+- [x] Commit previous stage changes.
+- [x] Add environment variables with defaults in `config` and `.env.example`:
       `SOLCAST_DAILY_CAP`, `SOLCAST_FORECAST_MIN_INTERVAL`, `SOLCAST_ACTUAL_MIN_INTERVAL`, `SOLCAST_429_BACKOFF`,
       `SOLCAST_RESET_TZ`.
 - [ ] Document configuration in `README.md` (brief) and reference the story doc for details.
-- [ ] Unit test config parsing in the service (e.g., ISO-8601 duration parsing).
-- [ ] Quality Gate: run `composer all` and ensure green.
+- [x] Unit test config parsing in the service (e.g., ISO-8601 duration parsing).
+- [x] Quality Gate: run `composer all` and ensure green.
 - [ ] Mark this stage as complete.
 
 ## Stage 9 — Integration Tests (End‑to‑End slices)
