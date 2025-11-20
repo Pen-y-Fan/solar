@@ -1,4 +1,4 @@
-# Daily Maintenance Log (Performance Cadence)
+# K6 Medium Maintenance Log (Performance Cadence)
 
 This log provides a lightweight, human‑readable trace of our Maintenance cadence decisions and actions.
 
