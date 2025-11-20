@@ -111,46 +111,46 @@ Notes:
 - [x] Add environment variables with defaults in `config` and `.env.example`:
       `SOLCAST_DAILY_CAP`, `SOLCAST_FORECAST_MIN_INTERVAL`, `SOLCAST_ACTUAL_MIN_INTERVAL`, `SOLCAST_429_BACKOFF`,
       `SOLCAST_RESET_TZ`.
-- [ ] Document configuration in `README.md` (brief) and reference the story doc for details.
+- [x] Document configuration in `README.md` (brief) and reference the story doc for details.
 - [x] Unit test config parsing in the service (e.g., ISO-8601 duration parsing).
 - [x] Quality Gate: run `composer all` and ensure green.
-- [ ] Mark this stage as complete.
+- [x] Mark this stage as complete.
 
 ## Stage 9 — Integration Tests (End‑to‑End slices)
 
-- [ ] Commit previous stage changes.
-- [ ] Write Feature tests that simulate sequences over time: multiple tries within min interval; just before/after daily
-      reset; 429 backoff blocking subsequent attempts; success increments; combined cap enforcement across endpoints.
-- [ ] Use `Carbon::setTestNow()` and in-memory SQLite per test guidelines.
-- [ ] Quality Gate: run `composer all` and ensure green.
+ - [x] Commit previous stage changes.
+ - [x] Write Feature tests that simulate sequences over time: multiple tries within min interval; just before/after daily
+       reset; 429 backoff blocking subsequent attempts; success increments; combined cap enforcement across endpoints.
+ - [x] Use `Carbon::setTestNow()` and in-memory SQLite per test guidelines.
+ - [x] Quality Gate: run `composer all` and ensure green.
 
 ## Stage 10 — Observability + Admin Surface
 
-- [ ] Commit previous stage changes.
-- [ ] Ensure events produce structured logs at suitable levels (`info`/`warning`).
-- [ ] Add optional log table writes if `solcast_allowance_logs` is enabled; add pruning command or policy.
-- [ ] Add an admin page section (Filament) for operational status (read-only view from `AllowanceStatusQuery`).
-- [ ] Quality Gate: run `composer all` and ensure green.
+ - [x] `git` commit any changes from previous stage(s).
+ - [x] Ensure events produce structured logs at suitable levels (`info`/`warning`).
+ - [x] Add optional log table writes if `solcast_allowance_logs` is enabled; add pruning command or policy.
+ - [x] Add an admin page section (Filament) for operational status (read-only view from `AllowanceStatusQuery`).
+ - [x] Quality Gate: run `composer all` and ensure green.
 
 ## Stage 11 — Concurrency/Locking Verification
 
-- [ ] Commit previous stage changes.
-- [ ] Add a test ensuring `lockForUpdate()` path prevents double increments under concurrent attempts (simulate with
-      interleaved transactions in tests or fakes around repository/service boundaries).
-- [ ] Review transaction boundaries to avoid holding locks during external API calls; use reservation pattern (attempt
+- [x] `git` commit any changes from previous stage(s).
+- [x] Add a test ensuring `lockForUpdate()` path prevents double increments under concurrent attempts (simulate with
+      interleaved/sequential race using cap=1 and immediate double reservation attempts in a shared SQLite DB).
+- [x] Review transaction boundaries to avoid holding locks during external API calls; use reservation pattern (attempt
       recorded, commit, perform call, then finalize success/failure in a new short transaction).
-- [ ] Quality Gate: run `composer all` and ensure green.
+- [x] Quality Gate: run `composer all` and ensure green.
 
 ## Stage 12 — Documentation and Ops Notes
 
-- [ ] Commit previous stage changes.
-- [ ] Update `docs/solcast-api-allowance.md` if any deviations/clarifications were made during implementation.
-- [ ] Add troubleshooting section (e.g., clock skew, daylight savings in non‑UTC TZs, backoff override policy).
-- [ ] Quality Gate: run `composer all` and ensure green.
+- [x] `git` commit any changes from previous stage(s).
+- [x] Update `docs/solcast-api-allowance.md` if any deviations/clarifications were made during implementation.
+- [x] Add troubleshooting section (e.g., clock skew, daylight savings in non‑UTC TZs, backoff override policy).
+- [x] Quality Gate: run `composer all` and ensure green.
 
 ## Stage 13 — Performance Validation (K6 Medium) and Maintenance Log
 
-- [ ] Commit previous stage changes.
+- [ ] `git` commit any changes from previous stage(s).
 - [ ] Prepare dataset and ensure app is running locally (see `docs/performance-testing.md`).
 - [ ] Execute Medium cadence twice (clean runs):
       ```bash
@@ -163,7 +163,7 @@ Notes:
 
 ## Stage 14 — Rollout and Clean‑up
 
-- [ ] Commit previous stage changes.
+- [ ] `git` commit any changes from previous stage(s).
 - [ ] Re‑run full quality suite.
 - [ ] Rebase/merge and resolve conflicts; final review.
 - [ ] Ensure `docs/tasks.md` reflects progress (optional cross‑link to this task file).
