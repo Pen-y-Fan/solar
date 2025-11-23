@@ -8,7 +8,7 @@ The requests should be noted, reviewed and added to the [task list](docs/tasks.m
 
 - On the Solcast vs actual forecasts chart: Solis should be corrected to Solcast.
     - Current action: Added as task 1.1.2 in `docs/tasks.md`
-    - Status: Under investigation
+    - Status: Complete
 
 ## Features
 
