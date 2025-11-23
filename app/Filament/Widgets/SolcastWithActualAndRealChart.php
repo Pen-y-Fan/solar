@@ -3,14 +3,14 @@
 namespace App\Filament\Widgets;
 
 use App\Domain\Forecasting\Models\ActualForecast;
-use App\Domain\Energy\Models\Inverter;
 use Carbon\CarbonPeriod;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 
 class SolcastWithActualAndRealChart extends ChartWidget
 {
-    protected static ?string $heading = 'PV Yield vs Forecast solis actual Chart';
+    protected static ?string $heading = 'PV Yield vs Forecast Solcast actual forecast chart';
 
     protected static ?string $pollingInterval = '120s';
 
@@ -21,7 +21,7 @@ class SolcastWithActualAndRealChart extends ChartWidget
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
-            self::$heading = 'No data for PV Yield vs Forecast solis actual ';
+            self::$heading = 'No data for PV yield vs Solcast actual forecast';
 
             return [];
         }
@@ -30,23 +30,23 @@ class SolcastWithActualAndRealChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'Solcast actual',
-                    'data' => $rawData->map(function ($item) {
+                    'label'           => 'Solcast actual',
+                    'data'            => $rawData->map(function ($item) {
                         return $item['pv_estimate'];
                     }),
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
-                    'borderColor' => 'rgb(75, 192, 192)',
+                    'borderColor'     => 'rgb(75, 192, 192)',
                 ],
                 [
-                    'label' => 'PV Yield',
-                    'data' => $rawData->map(function ($item) {
+                    'label'           => 'PV Yield',
+                    'data'            => $rawData->map(function ($item) {
                         return $item['inverter_yield'];
                     }),
                     'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
-                    'borderColor' => 'rgb(255, 99, 132)',
+                    'borderColor'     => 'rgb(255, 99, 132)',
                 ],
             ],
-            'labels' => $rawData->map(function ($item) {
+            'labels'   => $rawData->map(function ($item) {
                 return Carbon::parse($item['period_end'], 'UTC')
                     ->timezone('Europe/London')
                     ->format('H:i');
@@ -71,44 +71,31 @@ class SolcastWithActualAndRealChart extends ChartWidget
         return 'line';
     }
 
-    private function getDatabaseData(): \Illuminate\Support\Collection
+    private function getDatabaseData(): Collection
     {
 
         $start = Carbon::parse($this->filter, 'Europe/London')->startOfDay();
 
         $limit = 48;
 
-        // get actual forecast
-        $actualForecast = ActualForecast::query()
+        $actualForecasts = ActualForecast::query()
+            ->with(['inverter:id,yield,period'])
             ->where('period_end', '>=', $start)
             ->orderBy('period_end')
             ->limit($limit)
-            ->get();
+            ->get(['id', 'period_end', 'pv_estimate']);
 
-        // get real data
-        $inverterData = Inverter::query()
-            ->where(
-                'period',
-                '>=',
-                $start
-            )
-            ->orderBy('period')
-            ->limit($limit)
-            ->get();
-
-        // return the combined data
-        return $actualForecast->map(fn ($item) => [
-            'period_end' => $item->period_end,
-            'pv_estimate' => $item->pv_estimate / 2,
-            'inverter_yield' => ($inverterYield = $inverterData->where('period', '=', $item->period_end)->first())
-                ? $inverterYield->yield : 0,
+        return $actualForecasts->map(fn(ActualForecast $actualForecast) => [
+            'period_end'     => $actualForecast->period_end,
+            'pv_estimate'    => $actualForecast->pv_estimate / 2,
+            'inverter_yield' => $actualForecast->inverter?->yield,
         ]);
     }
 
-    private function setHeading(\Illuminate\Support\Collection $rawData): void
+    private function setHeading(Collection $rawData): void
     {
         self::$heading = sprintf(
-            'Solis actual (%01.2f) vs PV Yield (%01.2f) Chart from %s to %s',
+            'Solcast actual (%01.2f) vs PV Yield (%01.2f) Chart from %s to %s',
             $rawData->sum('pv_estimate'),
             $rawData->sum('inverter_yield'),
             Carbon::parse($rawData->first()['period_end'], 'UTC')

@@ -12,7 +12,7 @@ class ForecastChartWidget extends ChartWidget
 
     protected static ?string $maxHeight = '400px';
 
-    protected static ?string $heading = 'Forecast';
+    protected static ?string $heading = 'Solcast forecast';
 
     protected static ?string $pollingInterval = '120s';
 
