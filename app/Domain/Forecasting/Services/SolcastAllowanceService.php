@@ -14,7 +14,7 @@ use App\Domain\Forecasting\Events\SolcastRequestSkipped;
 use App\Domain\Forecasting\Events\SolcastRequestSucceeded;
 use App\Domain\Forecasting\Events\SolcastRateLimited;
 use Carbon\CarbonImmutable;
-use Carbon\Carbon;
+use Illuminate\Support\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;

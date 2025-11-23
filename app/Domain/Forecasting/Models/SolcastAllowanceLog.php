@@ -16,13 +16,29 @@ use Illuminate\Support\Carbon;
  * @property string|null $endpoint
  * @property string|null $reason
  * @property int|null $status
- * @property Carbon|null $backoff_until
+ * @property \Carbon\CarbonImmutable|null $backoff_until
  * @property string|null $day_key
- * @property Carbon|null $reset_at
- * @property Carbon|null $next_eligible_at
- * @property array|null $payload
- * @property Carbon $created_at
- * @property Carbon $updated_at
+ * @property \Carbon\CarbonImmutable|null $reset_at
+ * @property \Carbon\CarbonImmutable|null $next_eligible_at
+ * @property array<array-key, mixed>|null $payload
+ * @property \Carbon\CarbonImmutable|null $created_at
+ * @property \Carbon\CarbonImmutable|null $updated_at
+ * @method static Builder<static>|SolcastAllowanceLog newModelQuery()
+ * @method static Builder<static>|SolcastAllowanceLog newQuery()
+ * @method static Builder<static>|SolcastAllowanceLog query()
+ * @method static Builder<static>|SolcastAllowanceLog whereBackoffUntil($value)
+ * @method static Builder<static>|SolcastAllowanceLog whereCreatedAt($value)
+ * @method static Builder<static>|SolcastAllowanceLog whereDayKey($value)
+ * @method static Builder<static>|SolcastAllowanceLog whereEndpoint($value)
+ * @method static Builder<static>|SolcastAllowanceLog whereEventType($value)
+ * @method static Builder<static>|SolcastAllowanceLog whereId($value)
+ * @method static Builder<static>|SolcastAllowanceLog whereNextEligibleAt($value)
+ * @method static Builder<static>|SolcastAllowanceLog wherePayload($value)
+ * @method static Builder<static>|SolcastAllowanceLog whereReason($value)
+ * @method static Builder<static>|SolcastAllowanceLog whereResetAt($value)
+ * @method static Builder<static>|SolcastAllowanceLog whereStatus($value)
+ * @method static Builder<static>|SolcastAllowanceLog whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
 class SolcastAllowanceLog extends Model
 {

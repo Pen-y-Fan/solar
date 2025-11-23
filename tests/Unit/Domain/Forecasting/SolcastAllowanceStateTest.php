@@ -38,7 +38,7 @@ final class SolcastAllowanceStateTest extends TestCase
         // Seed a row for the day
         $state = SolcastAllowanceState::ensureForNow($now, $tz);
         $state->count = 5;
-        $state->backoff_until = \Carbon\Carbon::instance($now->addHours(2)->toDateTime());
+        $state->backoff_until = \Illuminate\Support\Carbon::instance($now->addHours(2)->toDateTime());
         $state->save();
 
         // Move to next day beyond reset_at
@@ -63,7 +63,7 @@ final class SolcastAllowanceStateTest extends TestCase
 
         $this->assertFalse($state->isBackoffActive($now));
 
-        $state->backoff_until = \Carbon\Carbon::instance($now->addHour()->toDateTime());
+        $state->backoff_until = \Illuminate\Support\Carbon::instance($now->addHour()->toDateTime());
         $state->save();
 
         $this->assertTrue($state->isBackoffActive($now));

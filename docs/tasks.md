@@ -92,7 +92,7 @@ Details and the full checklist have been moved to docs/cqrs-tasks.md.
 
 ## 1.1 User requirements
 
-Tasks based on the [User Requirements Document](docs/user-requirements.md).
+Tasks based on the [User Requirements Document](./user-requests.md).
 
 ### 1.1.1 Forecasting — Solcast API Allowance
 

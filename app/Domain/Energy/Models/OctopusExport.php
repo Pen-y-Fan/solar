@@ -16,20 +16,18 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Domain\Energy\Models\AgileExport|null $exportCost
  * @property-read \App\Domain\Energy\Models\AgileImport|null $importCost
- * @property-read \App\Domain\Energy\Models\OctopusImport|null $octopusImport
  * @property-read \App\Domain\Energy\Models\Inverter|null $inverter
- * @property-read \App\Domain\Strategy\Models\Strategy|null $strategy
- *
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport query()
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport whereConsumption($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport whereIntervalEnd($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport whereIntervalStart($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusExport whereUpdatedAt($value)
- *
+ * @property-read \App\Domain\Energy\Models\OctopusImport|null $octopusImport
+ * @property-read Strategy|null $strategy
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusExport newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusExport newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusExport query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusExport whereConsumption($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusExport whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusExport whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusExport whereIntervalEnd($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusExport whereIntervalStart($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusExport whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class OctopusExport extends Model

@@ -29,7 +29,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class ActualForecast extends Model
 {
-    use HasFactory;
+//    use HasFactory;
 
     protected $fillable = [
         'period_end',
