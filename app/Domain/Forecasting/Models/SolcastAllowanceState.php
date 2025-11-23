@@ -9,6 +9,33 @@ use App\Domain\Forecasting\Events\SolcastAllowanceReset;
 
 /**
  * Singleton row model storing the current day's Solcast allowance state.
+ *
+ * @property int $id
+ * @property string $day_key
+ * @property int $count
+ * @property \Illuminate\Support\Carbon|null $last_attempt_at_forecast
+ * @property \Illuminate\Support\Carbon|null $last_attempt_at_actual
+ * @property \Illuminate\Support\Carbon|null $last_success_at_forecast
+ * @property \Illuminate\Support\Carbon|null $last_success_at_actual
+ * @property \Illuminate\Support\Carbon|null $backoff_until
+ * @property \Illuminate\Support\Carbon $reset_at
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SolcastAllowanceState newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SolcastAllowanceState newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SolcastAllowanceState query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SolcastAllowanceState whereBackoffUntil($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SolcastAllowanceState whereCount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SolcastAllowanceState whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SolcastAllowanceState whereDayKey($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SolcastAllowanceState whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SolcastAllowanceState whereLastAttemptAtActual($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SolcastAllowanceState whereLastAttemptAtForecast($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SolcastAllowanceState whereLastSuccessAtActual($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SolcastAllowanceState whereLastSuccessAtForecast($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SolcastAllowanceState whereResetAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|SolcastAllowanceState whereUpdatedAt($value)
+ * @mixin \Eloquent
  */
 class SolcastAllowanceState extends Model
 {

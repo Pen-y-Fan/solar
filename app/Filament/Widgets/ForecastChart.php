@@ -16,7 +16,7 @@ class ForecastChart extends ChartWidget
 
     protected static ?string $maxHeight = '400px';
 
-    protected static ?string $heading = 'Forecast';
+    protected static ?string $heading = 'Solcast forecast';
 
     public ?string $filter = 'today';
 
@@ -58,7 +58,7 @@ class ForecastChart extends ChartWidget
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
-            self::$heading = 'No forecast data';
+            self::$heading = 'No solcast forecast data';
 
             return [];
         }
@@ -70,7 +70,7 @@ class ForecastChart extends ChartWidget
         }
 
         self::$heading = sprintf(
-            'Forecast for %s to %s cost £%0.2f %s',
+            'Solcast forecast for %s to %s cost £%0.2f %s',
             $rawData->first()['period_end']
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),

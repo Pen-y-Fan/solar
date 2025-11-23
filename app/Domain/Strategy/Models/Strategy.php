@@ -18,14 +18,14 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 /**
  * @property int $id
  * @property \Carbon\CarbonImmutable|null $period
- * @property int|null $battery_percentage1
- * @property float|null $battery_charge_amount
+ * @property int $battery_percentage1
+ * @property float $battery_charge_amount
  * @property float|null $import_amount
  * @property float|null $export_amount
  * @property int|null $battery_percentage_manual
- * @property int|null $strategy_manual
- * @property int|null $strategy1
- * @property int|null $strategy2
+ * @property bool|null $strategy_manual
+ * @property bool $strategy1
+ * @property bool $strategy2
  * @property float|null $consumption_last_week
  * @property float|null $consumption_average
  * @property float|null $consumption_manual
@@ -36,34 +36,32 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read ActualForecast|null $actualForecast
- * @property-read \App\Domain\Energy\Models\AgileExport|null $exportCost
- * @property-read \App\Domain\Forecasting\Models\Forecast|null $forecast
- * @property-read \App\Domain\Energy\Models\AgileImport|null $importCost
- *
- * @method static StrategyFactory factory($count = null, $state = [])
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy query()
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereBatteryChargeAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereBatteryPercentage1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereBatteryPercentageManual($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereConsumptionAverage($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereConsumptionAverageCost($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereConsumptionLastWeek($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereConsumptionLastWeekCost($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereConsumptionManual($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereExportAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereExportValueIncVat($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereImportAmount($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereImportValueIncVat($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy wherePeriod($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereStrategy1($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereStrategy2($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereStrategyManual($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Strategy whereUpdatedAt($value)
- *
+ * @property-read AgileExport|null $exportCost
+ * @property-read Forecast|null $forecast
+ * @property-read AgileImport|null $importCost
+ * @method static \Database\Factories\StrategyFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereBatteryChargeAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereBatteryPercentage1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereBatteryPercentageManual($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereConsumptionAverage($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereConsumptionAverageCost($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereConsumptionLastWeek($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereConsumptionLastWeekCost($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereConsumptionManual($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereExportAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereExportValueIncVat($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereImportAmount($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereImportValueIncVat($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy wherePeriod($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereStrategy1($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereStrategy2($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereStrategyManual($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Strategy whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Strategy extends Model

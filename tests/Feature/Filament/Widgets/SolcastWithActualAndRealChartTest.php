@@ -54,9 +54,7 @@ final class SolcastWithActualAndRealChartTest extends TestCase
             ->test(SolcastWithActualAndRealChart::class)
             ->set('filter', $filter)
             ->assertSuccessful()
-            // Heading contains these substrings when data exists
-            ->assertSee('Solis actual (')
-            ->assertSee('vs PV Yield (');
+            ->assertSee('Solcast actual (0.90) vs PV Yield (0.30) Chart');
     }
 
     public function testWidgetShowsNoDataHeadingWhenEmpty(): void
@@ -66,6 +64,6 @@ final class SolcastWithActualAndRealChartTest extends TestCase
             // Set filter to a valid date but do not seed any data
             ->set('filter', now('Europe/London')->format('Y-m-d'))
             ->assertSuccessful()
-            ->assertSee('No data for PV Yield vs Forecast solis actual');
+            ->assertSee(' No data for PV yield vs Solcast actual forecast');
     }
 }

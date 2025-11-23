@@ -5,6 +5,8 @@ namespace App\Domain\Energy\Models;
 use App\Domain\Energy\ValueObjects\MonetaryValue;
 use App\Domain\Energy\ValueObjects\TimeInterval;
 use Carbon\CarbonImmutable;
+use Database\Factories\AgileImportFactory;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -18,27 +20,29 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Domain\Energy\Models\AgileExport|null $exportCost
- *
- * @method static \Illuminate\Database\Eloquent\Builder|AgileImport newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AgileImport newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AgileImport query()
- * @method static \Illuminate\Database\Eloquent\Builder|AgileImport whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgileImport whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgileImport whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgileImport whereValidFrom($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgileImport whereValidTo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgileImport whereValueExcVat($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgileImport whereValueIncVat($value)
- *
+ * @method static AgileImportFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileImport newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileImport newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileImport query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileImport whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileImport whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileImport whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileImport whereValidFrom($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileImport whereValidTo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileImport whereValueExcVat($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileImport whereValueIncVat($value)
  * @mixin \Eloquent
  */
 class AgileImport extends Model
 {
     use HasFactory;
 
+    /**
+     * @return AgileImportFactory|Factory
+     */
     protected static function newFactory()
     {
-        return \Database\Factories\AgileImportFactory::new();
+        return AgileImportFactory::new();
     }
 
     /**
@@ -54,7 +58,7 @@ class AgileImport extends Model
     /**
      * Reset value objects when the model is refreshed
      */
-    public function refresh()
+    public function refresh(): AgileImport
     {
         // Reset value objects
         $this->monetaryValueObject = null;

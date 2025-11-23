@@ -90,9 +90,17 @@ updating progress, ensure work proceeds broadly in this order unless justified o
 
 Details and the full checklist have been moved to docs/cqrs-tasks.md.
 
-**Forecasting — Solcast API Allowance**
+## 1.1 User requirements
+
+Tasks based on the [User Requirements Document](./user-requests.md).
+
+### 1.1.1 Forecasting — Solcast API Allowance
 
 - [x] Implement unified Solcast API allowance policy (daily cap, per-endpoint min intervals, global backoff, DB row lock) — see docs/solcast-api-allowance-task.md
+
+### 1.1.2 Bug: - Correct actual/actual forecasts charts: Solis should be corrected to Solcast.
+
+- [x] Investigate all charts that display 'Forecast' and 'ActualForecast' model data. Update any Solis reference to Solcast.
 
 ## 2. Testing and Quality Assurance
 

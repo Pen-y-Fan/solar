@@ -11,6 +11,8 @@ use App\Domain\Energy\Models\AgileExport;
 use App\Domain\Energy\Models\AgileImport;
 
 /**
+ * Solcast forecast model.
+ *
  * @property int $id
  * @property \Carbon\CarbonImmutable|null $period_end
  * @property float|null $pv_estimate
@@ -18,21 +20,20 @@ use App\Domain\Energy\Models\AgileImport;
  * @property float|null $pv_estimate90
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- * @property-read \App\Domain\Energy\Models\AgileExport|null $exportCost
- * @property-read \App\Domain\Energy\Models\AgileImport|null $importCost
- * @property-read \App\Domain\Strategy\Models\Strategy|null $strategy
- *
- * @method static \Illuminate\Database\Eloquent\Builder|Forecast newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Forecast newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Forecast query()
- * @method static \Illuminate\Database\Eloquent\Builder|Forecast whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Forecast whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Forecast wherePeriodEnd($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Forecast wherePvEstimate($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Forecast wherePvEstimate10($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Forecast wherePvEstimate90($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Forecast whereUpdatedAt($value)
- *
+ * @property-read AgileExport|null $exportCost
+ * @property-read AgileImport|null $importCost
+ * @property-read Strategy|null $strategy
+ * @method static \Database\Factories\ForecastFactory factory($count = null, $state = [])
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Forecast newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Forecast newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Forecast query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Forecast whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Forecast whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Forecast wherePeriodEnd($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Forecast wherePvEstimate($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Forecast wherePvEstimate10($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Forecast wherePvEstimate90($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Forecast whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class Forecast extends Model

@@ -14,17 +14,15 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Domain\Energy\Models\AgileImport|null $importCost
- *
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusImport newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusImport newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusImport query()
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusImport whereConsumption($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusImport whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusImport whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusImport whereIntervalEnd($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusImport whereIntervalStart($value)
- * @method static \Illuminate\Database\Eloquent\Builder|OctopusImport whereUpdatedAt($value)
- *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusImport newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusImport newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusImport query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusImport whereConsumption($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusImport whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusImport whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusImport whereIntervalEnd($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusImport whereIntervalStart($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|OctopusImport whereUpdatedAt($value)
  * @mixin \Eloquent
  */
 class OctopusImport extends Model

@@ -17,22 +17,20 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property int|null $battery_soc
- * @property-read EnergyFlow $energyFlow
- * @property-read BatteryStateOfCharge|null $batteryStateOfCharge
- *
- * @method static \Illuminate\Database\Eloquent\Builder|Inverter newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Inverter newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|Inverter query()
- * @method static \Illuminate\Database\Eloquent\Builder|Inverter whereBatterySoc($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inverter whereConsumption($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inverter whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inverter whereFromGrid($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inverter whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inverter wherePeriod($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inverter whereToGrid($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inverter whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|Inverter whereYield($value)
- *
+ * @property \App\Domain\Energy\ValueObjects\BatteryStateOfCharge|null $battery_state_of_charge
+ * @property EnergyFlow $energy_flow
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Inverter newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Inverter newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Inverter query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Inverter whereBatterySoc($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Inverter whereConsumption($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Inverter whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Inverter whereFromGrid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Inverter whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Inverter wherePeriod($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Inverter whereToGrid($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Inverter whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Inverter whereYield($value)
  * @mixin \Eloquent
  */
 class Inverter extends Model

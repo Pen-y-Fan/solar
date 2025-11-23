@@ -22,7 +22,7 @@ class SolcastActualChart extends ChartWidget
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
-            self::$heading = 'No data for Solis actual';
+            self::$heading = 'No data for Solcast actual';
 
             return [];
         }

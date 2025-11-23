@@ -16,18 +16,16 @@ use Illuminate\Database\Eloquent\Model;
  * @property \Carbon\CarbonImmutable|null $valid_to
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
- *
- * @method static \Illuminate\Database\Eloquent\Builder|AgileExport newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AgileExport newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder|AgileExport query()
- * @method static \Illuminate\Database\Eloquent\Builder|AgileExport whereCreatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgileExport whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgileExport whereUpdatedAt($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgileExport whereValidFrom($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgileExport whereValidTo($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgileExport whereValueExcVat($value)
- * @method static \Illuminate\Database\Eloquent\Builder|AgileExport whereValueIncVat($value)
- *
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileExport newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileExport newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileExport query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileExport whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileExport whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileExport whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileExport whereValidFrom($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileExport whereValidTo($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileExport whereValueExcVat($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|AgileExport whereValueIncVat($value)
  * @mixin \Eloquent
  */
 class AgileExport extends Model
