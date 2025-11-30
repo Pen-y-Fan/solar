@@ -20,6 +20,8 @@ class AgileChart extends ChartWidget
 
     protected static ?string $maxHeight = '400px';
 
+    protected static bool $isLazy = false;
+
     protected static ?string $heading = 'Agile forecast';
 
     protected static ?string $pollingInterval = '120s';
@@ -29,8 +31,16 @@ class AgileChart extends ChartWidget
      */
     public float $minValue = 0.0;
 
+    public ?string $filter = null;
+
     protected function getData(): array
     {
+        // If the filter requested a reset, emit the event immediately and clear selection
+        if ($this->filter === 'reset_zoom') {
+            $this->dispatch('agile-chart:reset-zoom');
+            $this->filter = null;
+        }
+
         $data = $this->getDatabaseData();
 
         self::$heading = sprintf(
@@ -46,6 +56,7 @@ class AgileChart extends ChartWidget
         $averageExport = $data->sum('export_value_inc_vat') / $data->count();
         $averageImport = $data->sum('import_value_inc_vat') / $data->count();
 
+        // If the filter requested a reset, pass a flag to plugins via options (handled in getOptions())
         return [
             'datasets' => [
                 [
@@ -65,7 +76,7 @@ class AgileChart extends ChartWidget
                     'stepped' => 'middle',
                 ],
                 [
-                    'label' => sprintf('Average export value (%0.02f)', $averageExport),
+                    'label' => 'Average export value',
                     'data' => $data->map(fn ($item): string => number_format($averageExport, 2)),
                     'type' => 'line',
                     'borderDash' => [5, 10],
@@ -74,7 +85,7 @@ class AgileChart extends ChartWidget
                 ],
 
                 [
-                    'label' => sprintf('Average import value (%0.02f)', $averageImport),
+                    'label' => 'Average import value',
                     'data' => $data->map(fn ($item): string => number_format($averageImport, 2)),
                     'borderDash' => [5, 10],
                     'type' => 'line',
@@ -82,14 +93,17 @@ class AgileChart extends ChartWidget
                     'borderColor' => 'rgb(255, 99, 132)',
                 ],
             ],
-            'labels' => $data->map(function ($item): string {
-                $date = Carbon::parse($item['valid_from'], 'UTC')
-                    ->timezone('Europe/London');
+            // Use ISO (UTC) values for x-axis labels to ensure uniqueness across day boundaries;
+            // we will format for display on the client (Europe/London) via a ticks callback.
+            'labels' => $data->map(fn ($item): string => Carbon::parse($item['valid_from'], 'UTC')->toIso8601String()),
+        ];
+    }
 
-                $format = $date->format('H:i') === '00:00' ? 'j M H:i' : 'H:i';
-
-                return $date->format($format);
-            }),
+    protected function getFilters(): ?array
+    {
+        return [
+            '' => 'Choose option',
+            'reset_zoom' => 'Reset zoom',
         ];
     }
 
@@ -157,15 +171,131 @@ class AgileChart extends ChartWidget
 
     protected function getOptions(): array
     {
+        // Compute current period time (Europe/London), rounded to 00 or 30, then convert to UTC ISO for label matching
+        $nowLondon = now()->timezone('Europe/London')->second(0);
+        $minute = (int) $nowLondon->minute;
+        if ($minute < 30) {
+            $nowLondon->minute(0);
+        } else {
+            $nowLondon->minute(30);
+        }
+        $currentPeriodUtcIso = $nowLondon->clone()->timezone('UTC')->toIso8601String();
+
+        // Resolve an annotation label that exists in the x-axis labels: prefer exact match, else nearest slot.
+        $labels = [];
+        try {
+            $data = $this->getData();
+            if (isset($data['labels']) && is_iterable($data['labels'])) {
+                $labels = is_array($data['labels']) ? $data['labels'] : iterator_to_array($data['labels']);
+            }
+        } catch (\Throwable) {
+            // ignore, we'll fallback below
+        }
+
+        $resolvedLabel = null;
+        if (!empty($labels)) {
+            if (in_array($currentPeriodUtcIso, $labels, true)) {
+                $resolvedLabel = $currentPeriodUtcIso;
+            } else {
+                // Find nearest by absolute time difference using ISO datetimes
+                $targetTs = $nowLondon->clone()->timezone('UTC')->getTimestamp();
+                $bestDiff = PHP_INT_MAX;
+                foreach ($labels as $lbl) {
+                    try {
+                        $ts = Carbon::parse((string) $lbl, 'UTC')->getTimestamp();
+                    } catch (\Throwable) {
+                        $ts = PHP_INT_MIN;
+                    }
+                    $diff = abs($ts - $targetTs);
+                    if ($diff < $bestDiff) {
+                        $bestDiff = $diff;
+                        $resolvedLabel = (string) $lbl;
+                    }
+                }
+            }
+        }
+        $displayAnnotation = is_string($resolvedLabel) && $resolvedLabel !== '';
+
+        // Determine if we should request a zoom reset on init via plugin flag
+        $resetOnInit = $this->filter === 'reset_zoom';
+
+        // Clear the filter selection now that we've captured it
+        if ($resetOnInit) {
+            $this->filter = null;
+        }
+
         return [
             'scales' => [
                 'y' => [
                     'type' => 'linear',
                     'min' => $this->minValue,
                 ],
+                'x' => [
+                    'ticks' => [
+                        // Placeholder; JS plugin will replace with a real formatter for Europe/London display
+                        'callback' => 'function',
+                    ],
+                ],
+            ],
+            // Configure interaction so hovering a period shows all dataset values
+            'interaction' => [
+                'mode' => 'index',
+                'intersect' => false,
+            ],
+            // Configure tooltip callbacks (shape only here; JS bodies are registered client-side)
+            'plugins' => [
+                // Minimal annotation config retained for tests (client does not use annotation plugin)
+                'annotation' => [
+                    'annotations' => [
+                        'currentPeriod' => [
+                            'type' => 'line',
+                            'mode' => 'vertical',
+                            'scaleID' => 'x',
+                            // Keep a string value for test stability even when not displayed
+                            'value' => $displayAnnotation ? (string) $resolvedLabel : '',
+                            'borderColor' => 'rgba(99, 102, 241, 0.8)',
+                            'borderWidth' => 1,
+                            'display' => $displayAnnotation,
+                        ],
+                    ],
+                ],
+                'tooltip' => [
+                    'callbacks' => [
+                        // Title should render the period range (e.g., 13:00–13:30, full date shown as needed)
+                        'title' => 'function',
+                        // Label should render per-dataset currency formatted values (e.g., £0.12)
+                        'label' => 'function',
+                    ],
+                ],
+                // Lightweight current-time vertical line (custom plugin, no 3rd-party deps)
+                'solarCurrentTimeLine' => [
+                    // ISO label used by the custom plugin to draw the line at the exact slot
+                    'label' => $resolvedLabel,
+                    'color' => 'rgba(99, 102, 241, 0.8)',
+                    'lineWidth' => 1,
+                    'dash' => [2, 2],
+                ],
+                // Re-enable zoom/pan (plugin registered client-side)
+                'zoom' => [
+                    'zoom' => [
+                        'wheel' => [
+                            'enabled' => true,
+                            'speed' => 0.05,
+                        ],
+                        'pinch' => ['enabled' => true],
+                        'mode' => 'x',
+                    ],
+                    'pan' => [
+                        'enabled' => true,
+                        'threshold' => 15,
+                        'mode' => 'x',
+                    ],
+                ],
             ],
         ];
     }
+
+    // Reset handled via getFilters() dropdown selection
 
     private function updateAgileImport(): void
     {

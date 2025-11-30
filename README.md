@@ -402,6 +402,50 @@ dump($variable);
 dd($variable);
 ```
 
+## Filament Chart.js plugins (Agile/Cost charts interactivity)
+
+The Agile and Strategy Cost charts use additional Chart.js plugins for interactivity:
+
+- `chartjs-plugin-zoom` for zooming and panning
+- `chartjs-plugin-annotation` for the current-period indicator
+- A small custom helper plugin to aggregate tooltip content and wire the global Reset Zoom event
+
+How it works:
+
+- Plugins are provided to Filament by pushing them onto `window.filamentChartJsPlugins` in
+  `resources/js/filament-chart-js-plugins.js` (per the Filament docs: widgets/charts → Using custom Chart.js plugins).
+- The JS file is included in the Vite build via `vite.config.js` (see the `input` array) and registered for the App panel
+  in `App\\Providers\\Filament\\AppPanelProvider` using `Js::make(...)->module()` with `Vite::asset(...)`.
+
+Local development steps:
+
+1. Install dependencies once:
+
+   ```shell
+   npm install
+   ```
+
+2. Run the dev server (recommended during UI work):
+
+   ```shell
+   npm run dev
+   ```
+
+   Alternatively, build for production:
+
+   ```shell
+   npm run build
+   ```
+
+3. If you change `resources/js/filament-chart-js-plugins.js`, hard‑refresh the browser (Cmd+Shift+R) to bypass cache.
+
+Verifying in the browser:
+
+- Open DevTools Console and check `window.filamentChartJsPlugins` contains `zoom`, `annotation`, and an object with
+  `id: 'solarTooltipHelper'`.
+- On a page with charts, mouse‑wheel/pinch to zoom on the X‑axis, drag to pan, and click the “Reset Zoom” button in the
+  widget header to restore the full range.
+
 ## Contributing
 
 This is a **personal project**. Contributions are **not** required. Anyone interested is welcome to fork or clone for

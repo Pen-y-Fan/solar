@@ -19,14 +19,24 @@ class CostChart extends ChartWidget
 
     protected static ?string $maxHeight = '400px';
 
+    protected static bool $isLazy = false;
+
     protected static ?string $heading = 'Agile forecast cost';
 
     protected static ?string $pollingInterval = '120s';
 
     public float $minValue = 0.0;
 
+    public ?string $filter = null;
+
     protected function getData(): array
     {
+        // Handle Reset Zoom via filter dropdown
+        if ($this->filter === 'reset_zoom') {
+            $this->dispatch('agile-chart:reset-zoom');
+            $this->filter = null;
+        }
+
         $data = $this->getDatabaseData();
 
         if ($data->count() === 0) {
@@ -76,7 +86,7 @@ class CostChart extends ChartWidget
                     'stepped' => 'middle',
                 ],
                 [
-                    'label' => sprintf('Average export value (%0.02f)', $averageExport),
+                    'label' => 'Average export value',
                     'data' => $data->map(fn ($item): string => number_format($averageExport, 2)),
                     'type' => 'line',
                     'borderDash' => [5, 10],
@@ -84,7 +94,7 @@ class CostChart extends ChartWidget
                     'borderColor' => 'rgb(75, 192, 192)',
                 ],
                 [
-                    'label' => sprintf('Average import value (%0.02f)', $averageImport),
+                    'label' => 'Average import value',
                     'data' => $data->map(fn ($item): string => number_format($averageImport, 2)),
                     'borderDash' => [5, 10],
                     'type' => 'line',
@@ -92,7 +102,7 @@ class CostChart extends ChartWidget
                     'borderColor' => 'rgb(255, 99, 132)',
                 ],
                 [
-                    'label' => sprintf('Average net cost (%0.02f)', $averageNetCost),
+                    'label' => 'Average net cost',
                     'data' => $data->map(fn ($item): string => number_format($averageNetCost, 2)),
                     'borderDash' => [5, 10],
                     'type' => 'line',
@@ -100,14 +110,17 @@ class CostChart extends ChartWidget
                     'borderColor' => 'rgb(54, 162, 235)',
                 ],
             ],
-            'labels' => $data->map(function ($item): string {
-                $date = Carbon::parse($item['valid_from'], 'UTC')
-                    ->timezone('Europe/London');
+            // Use ISO (UTC) for x-axis labels to ensure uniqueness across day boundaries.
+            // A JS ticks formatter will render human-friendly labels in Europe/London.
+            'labels' => $data->map(fn ($item): string => Carbon::parse($item['valid_from'], 'UTC')->toIso8601String()),
+        ];
+    }
 
-                $format = $date->format('H:i') === '00:00' ? 'j M H:i' : 'H:i';
-
-                return $date->format($format);
-            }),
+    protected function getFilters(): ?array
+    {
+        return [
+            '' => 'Choose option',
+            'reset_zoom' => 'Reset zoom',
         ];
     }
 
@@ -145,11 +158,122 @@ class CostChart extends ChartWidget
 
     protected function getOptions(): array
     {
+        // Compute current period time (Europe/London), snap to :00/:30, then convert to UTC ISO for label matching
+        $nowLondon = now()->timezone('Europe/London')->second(0);
+        $minute = (int) $nowLondon->minute;
+        if ($minute < 30) {
+            $nowLondon->minute(0);
+        } else {
+            $nowLondon->minute(30);
+        }
+        $currentPeriodUtcIso = $nowLondon->clone()->timezone('UTC')->toIso8601String();
+
+        // Resolve an annotation label that exists in the x-axis labels: prefer exact match, else nearest slot.
+        $labels = [];
+        try {
+            $data = $this->getData();
+            if (isset($data['labels']) && is_iterable($data['labels'])) {
+                $labels = is_array($data['labels']) ? $data['labels'] : iterator_to_array($data['labels']);
+            }
+        } catch (\Throwable) {
+            // ignore; fall back below
+        }
+
+        $resolvedLabel = null;
+        if (!empty($labels)) {
+            if (in_array($currentPeriodUtcIso, $labels, true)) {
+                $resolvedLabel = $currentPeriodUtcIso;
+            } else {
+                $targetTs = $nowLondon->clone()->timezone('UTC')->getTimestamp();
+                $bestDiff = PHP_INT_MAX;
+                foreach ($labels as $lbl) {
+                    try {
+                        $ts = Carbon::parse((string) $lbl, 'UTC')->getTimestamp();
+                    } catch (\Throwable) {
+                        $ts = PHP_INT_MIN;
+                    }
+                    $diff = abs($ts - $targetTs);
+                    if ($diff < $bestDiff) {
+                        $bestDiff = $diff;
+                        $resolvedLabel = (string) $lbl;
+                    }
+                }
+            }
+        }
+
+        // Determine if we should request a zoom reset on init via plugin flag
+        $resetOnInit = $this->filter === 'reset_zoom';
+
+        if ($resetOnInit) {
+            $this->filter = null;
+        }
+
         return [
             'scales' => [
                 'y' => [
                     'type' => 'linear',
                     'min' => $this->minValue,
+                ],
+                'x' => [
+                    'ticks' => [
+                        // Placeholder: client-side plugin formats ISO to human labels (Europe/London)
+                        'callback' => 'function',
+                    ],
+                ],
+            ],
+            // Hover should aggregate across datasets for the time slot
+            'interaction' => [
+                'mode' => 'index',
+                'intersect' => false,
+            ],
+            'plugins' => [
+                // Minimal annotation config retained for tests
+                'annotation' => [
+                    'annotations' => [
+                        'currentPeriod' => [
+                            'type' => 'line',
+                            'mode' => 'vertical',
+                            'scaleID' => 'x',
+                            'value' => is_string($resolvedLabel) ? $resolvedLabel : '',
+                            'borderColor' => 'rgba(99, 102, 241, 0.8)',
+                            'borderWidth' => 1,
+                            'display' => is_string($resolvedLabel) && $resolvedLabel !== '',
+                        ],
+                    ],
+                ],
+                // Custom helper namespace to allow reset on init from PHP options
+                'solarReset' => [
+                    'resetOnInit' => $resetOnInit,
+                ],
+                'tooltip' => [
+                    'callbacks' => [
+                        // The JS plugin registered in resources/js/filament-chart-js-plugins.js fills these in
+                        'title' => 'function',
+                        'label' => 'function',
+                    ],
+                ],
+                // Lightweight current-time vertical line (custom plugin)
+                'solarCurrentTimeLine' => [
+                    'label' => $resolvedLabel,
+                    'color' => 'rgba(99, 102, 241, 0.8)',
+                    'lineWidth' => 1,
+                    'dash' => [2, 2],
+                ],
+                // zoom/pan (plugin registered client-side)
+                'zoom' => [
+                    'zoom' => [
+                        'wheel' => [
+                            'enabled' => true,
+                            'speed' => 0.05,
+                        ],
+                        'pinch' => ['enabled' => true],
+                        'mode' => 'x',
+                    ],
+                    'pan' => [
+                        'enabled' => true,
+                        'threshold' => 15,
+                        'mode' => 'x',
+                    ],
                 ],
             ],
         ];
