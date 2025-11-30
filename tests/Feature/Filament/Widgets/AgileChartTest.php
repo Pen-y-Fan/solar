@@ -72,9 +72,10 @@ final class AgileChartTest extends TestCase
         $this->assertArrayHasKey('labels', $data);
         $this->assertCount($series->count(), $data['labels']);
 
-        // Label formatting: midnight should include date (j M H:i), subsequent label is just time (H:i)
-        $this->assertStringContainsString('1 Jan 00:00', (string) $data['labels'][0]);
-        $this->assertSame('00:30', $data['labels'][1]);
+        // X-axis labels are ISO datetimes (UTC) for uniqueness across day boundaries; client formats ticks.
+        $this->assertStringStartsWith('2025-01-01T00:00:00', (string) $data['labels'][0]);
+        $this->assertStringEndsWith('+00:00', (string) $data['labels'][0]);
+        $this->assertSame('2025-01-01T00:30:00+00:00', (string) $data['labels'][1]);
 
         // Options should reflect y-axis min snapped to a multiple of 5 below the min negative value
         // min import = -1.2 => floor(-1.2) = -2 => floor(-2/5)*5 = -5

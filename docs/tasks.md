@@ -96,11 +96,23 @@ Tasks based on the [User Requirements Document](./user-requests.md).
 
 ### 1.1.1 Forecasting — Solcast API Allowance
 
-- [x] Implement unified Solcast API allowance policy (daily cap, per-endpoint min intervals, global backoff, DB row lock) — see docs/solcast-api-allowance-task.md
+- [x] Implement unified Solcast API allowance policy (daily cap, per-endpoint min intervals, global backoff, DB row
+  lock) — see docs/solcast-api-allowance-task.md
 
-### 1.1.2 Bug: - Correct actual/actual forecasts charts: Solis should be corrected to Solcast.
+### 1.1.2 Bug: Correct Solcast forecasts charts: Solis should be corrected to Solcast.
 
-- [x] Investigate all charts that display 'Forecast' and 'ActualForecast' model data. Update any Solis reference to Solcast.
+- [x] Investigate all charts that display 'Forecast' and 'ActualForecast' model data. Update any Solis reference to
+  Solcast.
+
+### 1.1.3 Make the Agile cost chart interactive
+
+- [x] Dashboard — Make the Agile cost chart interactive, see `docs/make-the-agile-cost-chart-interactive.md` for the full story.
+
+### 1.1.3.1 Make the cost chart interactive
+
+Once the dashboard chart is interactive, also update the smilar chart in strategy
+
+- [x] Strategy — Make the cost chart interactive, the strategy cost chart is almost identical to the Agile cost chart. Note: future requirement is to make it interactive from 7PM, so it need to be a different chart.
 
 ## 2. Testing and Quality Assurance
 
@@ -202,48 +214,79 @@ integration tests for critical flows and plan E2E coverage.
 - [x] Add Larastan for Laravel-specific static analysis
 - [x] Set up GitHub Actions for CI/CD
 
-[x] **Add performance testing** 
- 
+[x] **Add performance testing**
+
 See `docs/performance-testing.md` for full details and scripts
 
-Next step (updated 2025‑11‑19 21:43): Entered Maintenance cadence. Medium/Large runs are not required today. On relevant changes, re‑seed Medium and run perf suite; refresh baselines only when two consecutive runs are within tolerance and record justification. Monthly Large advisory remains local/docs‑only on the first Monday (UTC). CI PR smoke remains informational‑only. Quality suite (`composer all`) green as of 21:43.
-- Status: Baselines unchanged; no remediation open. DB index verification completed based on recent profiling (no new indexes required).
-- [x] Medium re‑seed and local k6 runs completed for Dashboard, Forecasts, Inverter, Strategies, and Strategy‑Generation (VUS=5, 30s)
+Next step (updated 2025‑11‑19 21:43): Entered Maintenance cadence. Medium/Large runs are not required today. On relevant
+changes, re‑seed Medium and run perf suite; refresh baselines only when two consecutive runs are within tolerance and
+record justification. Monthly Large advisory remains local/docs‑only on the first Monday (UTC). CI PR smoke remains
+informational‑only. Quality suite (`composer all`) green as of 21:43.
+
+- Status: Baselines unchanged; no remediation open. DB index verification completed based on recent profiling (no new
+  indexes required).
+- [x] Medium re‑seed and local k6 runs completed for Dashboard, Forecasts, Inverter, Strategies, and
+  Strategy‑Generation (VUS=5, 30s)
 - [x] Committed new `tests/Performance/baselines/dashboard.medium.baseline.json`
 - [x] Updated `tests/Performance/baselines/strategies.medium.baseline.json` (improved p95; error rate 0%)
-- [x] Updated `tests/Performance/baselines/inverter.medium.baseline.json` (p95 stable within tolerance across two runs; error rate 0%)
-- [x] Validated `forecasts.medium.baseline.json` and `strategy-generation.medium.baseline.json` against Tolerance Policy via two Medium runs; both within tolerance and left unchanged by policy (0% error rate)
-- [x] Perf maintenance SOP established — Champion: Michael Pritchard; cadence: Medium re‑baseline on relevant merges (24–48h) and monthly Large advisory (local, docs‑only).
+- [x] Updated `tests/Performance/baselines/inverter.medium.baseline.json` (p95 stable within tolerance across two runs;
+  error rate 0%)
+- [x] Validated `forecasts.medium.baseline.json` and `strategy-generation.medium.baseline.json` against Tolerance Policy
+  via two Medium runs; both within tolerance and left unchanged by policy (0% error rate)
+- [x] Perf maintenance SOP established — Champion: Michael Pritchard; cadence: Medium re‑baseline on relevant merges (
+  24–48h) and monthly Large advisory (local, docs‑only).
 
 - [x] Benchmark database queries
 - [x] Test application under load
-  - CI k6 smoke test in place (non-blocking) with PR comment summaries — see `.github/workflows/performance.yml`
-  - Local scenarios documented in `tests/Performance/README.md`
-- [x] Create remediation tasks for top 3 bottlenecks (forecasts, inverter, strategies) — tracked below and in `docs/performance-testing.md`
+    - CI k6 smoke test in place (non-blocking) with PR comment summaries — see `.github/workflows/performance.yml`
+    - Local scenarios documented in `tests/Performance/README.md`
+- [x] Create remediation tasks for top 3 bottlenecks (forecasts, inverter, strategies) — tracked below and in
+  `docs/performance-testing.md`
 - [ ] Identify and fix performance bottlenecks
-  - [ ] Forecasts scenario — profile queries; eliminate N+1 in chart/summary queries; add/select indices on time/user foreign keys; consider caching hot aggregates
-    - [x] Task: Enable DB query logging per `docs/perf-profiling.md` and capture slow queries
-    - [x] Task: Add/verify indexes on `forecasts(valid_from)`, `forecasts(user_id)` (schema uses `forecasts.period_end` UNIQUE; no `user_id`/`valid_from` columns — no additional indexes needed)
-    - [x] Task: Add eager loading in Forecast widgets/queries to remove N+1 (reviewed: no N+1 observed; no change needed)
-    - [x] Task: Consider caching aggregated series for hot windows (e.g., last 24h) (assessed; feature cache behind flags, off by default)
-    - [ ] Task: Medium p95 regression follow‑up — re‑profile with query logging, verify no local interference (browser tabs, background load), re‑run Medium once; if still high, file targeted remediation (e.g., pre‑aggregations)
-  - [ ] Inverter scenario — profile widget/JSON endpoints; eager-load relations; verify indices on timestamps and device IDs; consider downsampling for charts
-    - [x] Task: Profile JSON endpoints; record SQL count and worst queries
-    - [x] Task: Verify/ add indexes on `inverters(timestamp)`, `inverters(device_id)` (schema uses `inverters.period` UNIQUE; no `device_id` column — no additional indexes needed)
-    - [x] Task: Eager-load related device/metrics where applicable (reviewed: no N+1 observed on current paths)
-    - [x] Task: Evaluate downsampling for long-range charts (toggles added; measured impact locally)
-    - [x] Task: Medium p95 regression follow‑up — re‑profile inverter widget endpoints; confirm downsampling toggles remain OFF; re‑run Medium; consider tightening select columns if needed (stable across two runs; baseline updated)
-  - [x] Strategies scenario — profile index and edit views; add eager loading for related models; index frequently filtered columns; cache computed summaries (Validation complete on 2025‑11‑18; no N+1 or slow queries >100ms observed; baselines unchanged)
-    - [x] Task: Profile index/edit pages including related XHR calls
-    - [x] Task: Add eager loading for related models (user, forecasts, costs) to avoid N+1 (reviewed: no N+1 observed on current queries)
-    - [x] Task: Add/verify indexes on frequently filtered columns (schema uses `strategies.period` UNIQUE; no additional filters identified during profiling)
-    - [x] Task: Cache computed summaries where safe (implemented behind `FEATURE_CACHE_STRAT_SUMMARY`)
-  - [ ] Strategy generation scenario — remediate errors under load (k6)
-    - [x] Task: Validate/toggle Livewire path (`STRAT_GEN_LIVEWIRE=true`) and set `LIVEWIRE_ENDPOINT`/`LIVEWIRE_PAYLOAD_BASE64` accordingly (Livewire optional; prefer local helper `/_perf/generate-strategy` for perf runs)
-    - [x] Task: Ensure CSRF extraction/submission in k6 helper for generation POST is correct (not required for local helper path; Livewire path remains documented and optional)
-    - [x] Task: Add small backoff or single-flight behavior in k6 scenario to avoid concurrent duplicate generation requests
-    - [x] Task: Review server-side guards/rate limiting for generation; document expected behavior under concurrent requests (local-only route; CSRF disabled; no rate-limit middleware; documented in perf plan)
-    - [x] Task: Medium p95 variance follow‑up — profile strategy verification/index endpoints and generation POST path; confirm single‑flight behavior; re‑run two consecutive Medium runs; evaluate minor optimizations if persistence layer shows hotspots
+    - [ ] Forecasts scenario — profile queries; eliminate N+1 in chart/summary queries; add/select indices on time/user
+      foreign keys; consider caching hot aggregates
+        - [x] Task: Enable DB query logging per `docs/perf-profiling.md` and capture slow queries
+        - [x] Task: Add/verify indexes on `forecasts(valid_from)`, `forecasts(user_id)` (schema uses
+          `forecasts.period_end` UNIQUE; no `user_id`/`valid_from` columns — no additional indexes needed)
+        - [x] Task: Add eager loading in Forecast widgets/queries to remove N+1 (reviewed: no N+1 observed; no change
+          needed)
+        - [x] Task: Consider caching aggregated series for hot windows (e.g., last 24h) (assessed; feature cache behind
+          flags, off by default)
+        - [ ] Task: Medium p95 regression follow‑up — re‑profile with query logging, verify no local interference (
+          browser tabs, background load), re‑run Medium once; if still high, file targeted remediation (e.g.,
+          pre‑aggregations)
+    - [ ] Inverter scenario — profile widget/JSON endpoints; eager-load relations; verify indices on timestamps and
+      device IDs; consider downsampling for charts
+        - [x] Task: Profile JSON endpoints; record SQL count and worst queries
+        - [x] Task: Verify/ add indexes on `inverters(timestamp)`, `inverters(device_id)` (schema uses
+          `inverters.period` UNIQUE; no `device_id` column — no additional indexes needed)
+        - [x] Task: Eager-load related device/metrics where applicable (reviewed: no N+1 observed on current paths)
+        - [x] Task: Evaluate downsampling for long-range charts (toggles added; measured impact locally)
+        - [x] Task: Medium p95 regression follow‑up — re‑profile inverter widget endpoints; confirm downsampling toggles
+          remain OFF; re‑run Medium; consider tightening select columns if needed (stable across two runs; baseline
+          updated)
+    - [x] Strategies scenario — profile index and edit views; add eager loading for related models; index frequently
+      filtered columns; cache computed summaries (Validation complete on 2025‑11‑18; no N+1 or slow queries >100ms
+      observed; baselines unchanged)
+        - [x] Task: Profile index/edit pages including related XHR calls
+        - [x] Task: Add eager loading for related models (user, forecasts, costs) to avoid N+1 (reviewed: no N+1
+          observed on current queries)
+        - [x] Task: Add/verify indexes on frequently filtered columns (schema uses `strategies.period` UNIQUE; no
+          additional filters identified during profiling)
+        - [x] Task: Cache computed summaries where safe (implemented behind `FEATURE_CACHE_STRAT_SUMMARY`)
+    - [ ] Strategy generation scenario — remediate errors under load (k6)
+        - [x] Task: Validate/toggle Livewire path (`STRAT_GEN_LIVEWIRE=true`) and set `LIVEWIRE_ENDPOINT`/
+          `LIVEWIRE_PAYLOAD_BASE64` accordingly (Livewire optional; prefer local helper `/_perf/generate-strategy` for
+          perf runs)
+        - [x] Task: Ensure CSRF extraction/submission in k6 helper for generation POST is correct (not required for
+          local helper path; Livewire path remains documented and optional)
+        - [x] Task: Add small backoff or single-flight behavior in k6 scenario to avoid concurrent duplicate generation
+          requests
+        - [x] Task: Review server-side guards/rate limiting for generation; document expected behavior under concurrent
+          requests (local-only route; CSRF disabled; no rate-limit middleware; documented in perf plan)
+        - [x] Task: Medium p95 variance follow‑up — profile strategy verification/index endpoints and generation POST
+          path; confirm single‑flight behavior; re‑run two consecutive Medium runs; evaluate minor optimizations if
+          persistence layer shows hotspots
 
 ## 3. Performance Optimization
 
@@ -266,14 +309,18 @@ Phase alignment: Phase 2 — Performance and Data Management (see docs/plan.md)
 
 [ ] **Low‑risk, feature‑flagged optimizations (from performance-testing Findings)**
 
-- [x] Implement `FEATURE_CACHE_FORECAST_CHART` with `FORECAST_CHART_TTL` (default 60s); cache prepared Chart.js dataset in `ForecastChart` widget
-- [x] Implement `FEATURE_CACHE_STRAT_SUMMARY` with `STRAT_SUMMARY_TTL` (default 10m); cache `StrategyPerformanceSummaryQuery` by day range
-- [x] Add optional downsampling toggles for chart endpoints: `FORECAST_DOWNSAMPLE`, `FORECAST_BUCKET_MINUTES`, `INVERTER_DOWNSAMPLE`, `INVERTER_BUCKET_MINUTES`
+- [x] Implement `FEATURE_CACHE_FORECAST_CHART` with `FORECAST_CHART_TTL` (default 60s); cache prepared Chart.js dataset
+  in `ForecastChart` widget
+- [x] Implement `FEATURE_CACHE_STRAT_SUMMARY` with `STRAT_SUMMARY_TTL` (default 10m); cache
+  `StrategyPerformanceSummaryQuery` by day range
+- [x] Add optional downsampling toggles for chart endpoints: `FORECAST_DOWNSAMPLE`, `FORECAST_BUCKET_MINUTES`,
+  `INVERTER_DOWNSAMPLE`, `INVERTER_BUCKET_MINUTES`
 - [x] Re‑baseline Medium after enabling above flags locally; keep Large advisory only
 
 [ ] **k6 scenario stability**
 
-- [x] Deflake forecasts scenario warmup: add small retry/backoff for “dashboard reachable (200)” or soften to informational during warmup; ensure auth bootstrap timing is robust
+- [x] Deflake forecasts scenario warmup: add small retry/backoff for “dashboard reachable (200)” or soften to
+  informational during warmup; ensure auth bootstrap timing is robust
 
 [ ] **Optimize front-end assets**
 
