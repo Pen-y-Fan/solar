@@ -104,7 +104,7 @@ Tasks based on the [User Requirements Document](./user-requests.md).
 - [x] Investigate all charts that display 'Forecast' and 'ActualForecast' model data. Update any Solis reference to
   Solcast.
 
-    ### 1.1.3 Make the Agile cost chart interactive
+### 1.1.3 Make the Agile cost chart interactive
 
 - [x] Dashboard — Make the Agile cost chart interactive, see `docs/make-the-agile-cost-chart-interactive.md` for the full story.
 
@@ -117,6 +117,11 @@ Once the dashboard chart is interactive, also update the smilar chart in strateg
 ### 1.1.4 Monthly large dataset performance checks
 
 - [x] Add monthly large dataset performance checks — see `docs/monthly-large-dataset-performance-checks.md` for the full checklist
+
+### 1.1.5 Fix CI build (tests and code-quality)
+
+- [ ] The CI build for tests is failing — see `docs/ci-build-fixes-task-list.md`
+- [ ] The CI code-quality check isn't consistent — see `docs/ci-build-fixes-task-list.md`
 
 ## 2. Testing and Quality Assurance
 

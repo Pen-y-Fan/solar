@@ -14,19 +14,40 @@ jobs:
     - uses: shivammathur/setup-php@v2
       with:
         php-version: '8.3'
-        extensions: mbstring, dom, fileinfo, mysql
-        coverage: xdebug
+        extensions: mbstring, dom, fileinfo, sqlite3, curl, json
+        coverage: none
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install frontend dependencies
+      run: npm ci
+
+    - name: Build frontend assets
+      run: npm run build
+
+    - name: Verify Vite manifest exists
+      run: |
+        test -f public/build/manifest.json || {
+          echo "Vite manifest not found at public/build/manifest.json";
+          ls -la public || true;
+          ls -la public/build || true;
+          exit 1;
+        }
 
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
-    - name: Install Dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+    - name: Install PHP dependencies
+      run: composer install -q --no-ansi --no-interaction --no-progress --prefer-dist
 
     - name: Generate key
-      run: php artisan key:generate
+      run: php artisan key:generate --ansi
 
     - name: Directory Permissions
       run: chmod -R 777 storage bootstrap/cache
@@ -36,18 +57,11 @@ jobs:
         mkdir -p database
         touch database/database.sqlite
 
-    - name: Execute tests with coverage (Unit and Feature tests) via PHPUnit
+    - name: Execute tests (Unit and Feature tests)
       env:
         DB_CONNECTION: sqlite
         DB_DATABASE: database/database.sqlite
-        XDEBUG_MODE: coverage
-      run: vendor/bin/phpunit --coverage-clover coverage/clover.xml
-
-    - name: Upload coverage report
-      uses: codecov/codecov-action@v3
-      with:
-        file: coverage/clover.xml
-        fail_ci_if_error: false
+      run: composer test
 
   code-quality:
     runs-on: ubuntu-latest
@@ -56,16 +70,40 @@ jobs:
     - uses: shivammathur/setup-php@v2
       with:
         php-version: '8.3'
-        extensions: mbstring, dom, fileinfo
+        extensions: mbstring, dom, fileinfo, sqlite3, curl, json
         coverage: none
 
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
-    - name: Install Dependencies
-      run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
 
-    - name: PHP Code Sniffer
-      run: vendor/bin/phpcs --standard=PSR12 app tests
+    - name: Install frontend dependencies
+      run: npm ci
 
-    - name: PHPStan
-      run: vendor/bin/phpstan analyse
+    - name: Build frontend assets
+      run: npm run build
+
+    - name: Verify Vite manifest exists
+      run: |
+        test -f public/build/manifest.json || {
+          echo "Vite manifest not found at public/build/manifest.json";
+          ls -la public || true;
+          ls -la public/build || true;
+          exit 1;
+        }
+
+    - name: Copy .env
+      run: php -r "file_exists('.env') || copy('.env.example', '.env');"
+
+    - name: Install PHP dependencies
+      run: composer install -q --no-ansi --no-interaction --no-progress --prefer-dist --no-scripts
+
+    - name: Code style (PHPCS via composer)
+      run: composer cs
+
+    - name: Static analysis (PHPStan)
+      run: composer phpstan

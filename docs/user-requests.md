@@ -87,8 +87,8 @@ Investigate options on how to accurately update the Solis inverter.
       period.
 - Add a current period indicator, e.g. a line or a different background colour
 - Enable zooming and panning
-- Current action: Add a task to section 1.1.x of  `docs/tasks.md`
-- Status: Not started
+- Current action: Added as task 1.1.3 of  `docs/tasks.md`
+- Status: Complete
 
 ### General
 
@@ -141,6 +141,10 @@ When building the CI fails to complete the build, probably due to a missing step
 
 Illuminate\Foundation\ViteManifestNotFoundException
 
+- Current action: Added a task to section 1.1.5 of  `docs/tasks.md` and completed
+  `docs/monthly-large-dataset-performance-checks.md`
+- Status: Complete
+
 ##### Monthly large dataset performance checks
 
 This is an automated monthly reminder to run the Large dataset advisory performance checks locally and paste summarized
@@ -153,6 +157,9 @@ Checklist:
   `APP_URL=https://solar-dev.test VUS=8 DURATION=90s PERF_DATASET_SIZE=large bash tests/Performance/run-all.sh`
 - Summarize p95/RPS/error rate per scenario in the doc (do not commit artifacts).
 - Note: Keep feature caches and downsampling flags OFF unless explicitly profiling.
+- Current action: Added a task to section 1.1.4 of  `docs/tasks.md` and completed
+  `docs/monthly-large-dataset-performance-checks.md`
+- Status: Complete (for Dec)
 
 ## Tariff
 
