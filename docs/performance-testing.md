@@ -1161,7 +1161,7 @@ Decisions:
 
 ### Large Dataset Advisory Results (Local)
 
-Last update: 2025‑11‑17 22:56
+Last update: 2025‑12‑03
 
 Use this section to paste summarized metrics from `perf-reports/*.large.summary.json` after running the Large dataset locally. Include hardware notes (CPU/RAM), background load, and any relevant observations. Do not commit the raw perf-reports; only the summaries below.
 
@@ -1171,37 +1171,40 @@ Template per scenario (example keys):
 - Error rate
 - Notes (hardware, background load, observations)
 
-Results:
+Results (2025‑12‑03, local Mac, low background load; VUS=8, DURATION=90s; `PERF_DATASET_SIZE=large`):
 
 - forecasts (Large):
-  - p50: 62.26 ms
-  - p90: 85.49 ms
-  - p95: 92.37 ms
+  - p50: 57.62 ms
+  - p90: 77.22 ms
+  - p95: 89.06 ms
   - p99: n/a
-  - RPS: ~14.35 req/s
+  - RPS: ~14.36 req/s
   - Error rate: 0%
-  - Notes: VUS=8, DURATION=90s, `PERF_DATASET_SIZE=large`; local helper auth via `/_auth/bootstrap`. SSL trusted via Herd. Background load low.
+  - Notes: Auth via `/_auth/bootstrap`; SSL trusted (Herd). All thresholds green.
 - inverter (Large):
-  - p50: 54.45 ms
-  - p90: 71.35 ms
-  - p95: 78.88 ms
+  - p50: 61.18 ms
+  - p90: 86.87 ms
+  - p95: 91.67 ms
   - p99: n/a
-  - RPS: ~14.41 req/s
+  - RPS: ~14.33 req/s
   - Error rate: 0%
-  - Notes: VUS=8, DURATION=90s; results stable with no errors.
+  - Notes: Stable across run; no errors.
 - strategies (Large):
-  - p50: 55.43 ms
-  - p90: 71.87 ms
-  - p95: 86.24 ms
+  - p50: 55.56 ms
+  - p90: 72.39 ms
+  - p95: 81.18 ms
   - p99: n/a
-  - RPS: ~14.49 req/s
+  - RPS: ~14.47 req/s
   - Error rate: 0%
-  - Notes: One-off high max observed (~582 ms) but percentiles within advisory targets.
+  - Notes: Occasional high max observed (~700 ms) but percentiles within advisory targets.
 - strategy-generation (Large):
-  - p95 (request): 54.06 ms
+  - p50: 33.77 ms
+  - p90: 47.42 ms
+  - p95: 57.52 ms
+  - p99: n/a
+  - RPS: ~25.47 req/s
   - Error rate: 0%
-  - End-to-end observation (if applicable): Local helper path completes near-instantly; command finishes within ~<1s on developer machine.
-  - Notes: `STRAT_GEN_LIVEWIRE=false` (helper endpoint `/_perf/generate-strategy`), single-flight guarded in script.
+  - Notes: Helper path `/_perf/generate-strategy`, single-flight; no duplicate submissions.
 
 ---
 

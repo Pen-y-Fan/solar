@@ -25,8 +25,8 @@ On the Solcast vs actual forecasts chart: Solis should be corrected to Solcast.
 - Extend the start time to 7pm the previous day.
 - Values after 22:30 the current day, when the import value is null, are shown as 0.
     - Keep as null and don't show the value or calculate a 'Net cost (Import - Export - 15)'
-- Current action: Add a task to section 1.1.x of  `docs/tasks.md`
-- Status: Not started
+- Current action: Add a task to section 1.1.3 of  `docs/tasks.md`
+- Status: Complete
 
 #### Improve the strategy algorithm
 
@@ -132,6 +132,27 @@ failing for .js' code being incorrectly formated. Update the commands so they ar
 
 - Current action: Add a task to section 1.1.x of  `docs/tasks.md`
 - Status: Not started
+
+#### The CI build for tests is failing
+
+When building the CI fails to complete the build, probably due to a missing step `npm run build`
+
+`Run php artisan key:generate` fails:
+
+Illuminate\Foundation\ViteManifestNotFoundException
+
+##### Monthly large dataset performance checks
+
+This is an automated monthly reminder to run the Large dataset advisory performance checks locally and paste summarized
+metrics into `docs/performance-testing.md` under "Large Dataset Advisory Results (Local)".
+
+Checklist:
+
+- Re-seed Large: `PERF_DATASET_SIZE=large php artisan migrate:fresh --seed --seeder=PerformanceSeeder`
+- Run k6 suite (local):
+  `APP_URL=https://solar-dev.test VUS=8 DURATION=90s PERF_DATASET_SIZE=large bash tests/Performance/run-all.sh`
+- Summarize p95/RPS/error rate per scenario in the doc (do not commit artifacts).
+- Note: Keep feature caches and downsampling flags OFF unless explicitly profiling.
 
 ## Tariff
 
