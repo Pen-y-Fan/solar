@@ -75,6 +75,27 @@ jobs:
 
     - uses: actions/checkout@v4
 
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install frontend dependencies
+      run: npm ci
+
+    - name: Build frontend assets
+      run: npm run build
+
+    - name: Verify Vite manifest exists
+      run: |
+        test -f public/build/manifest.json || {
+          echo "Vite manifest not found at public/build/manifest.json";
+          ls -la public || true;
+          ls -la public/build || true;
+          exit 1;
+        }
+
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
 
