@@ -132,6 +132,11 @@ Once the dashboard chart is interactive, also update the smilar chart in strateg
   the previous day to 4pm (16:00) GMT the current day
 - [x] Change the drop-down to display the period start and end times.
 
+### 1.1.7 Update the strategy generator
+
+- [x] The strategy generator to align with the charts, which now display from 4pm the previous day to 4pm (16:00) GMT
+  the current day
+
 ## 2. Testing and Quality Assurance
 
 [ ] Foundation and Security (Phase 1 alignment)

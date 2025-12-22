@@ -8,6 +8,7 @@ use App\Application\Commands\Strategy\CopyConsumptionWeekAgoCommand;
 use App\Application\Commands\Strategy\CopyConsumptionWeekAgoCommandHandler;
 use App\Domain\Strategy\Models\Strategy;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Tests\TestCase;
 
@@ -20,7 +21,7 @@ final class CopyConsumptionWeekAgoCommandHandlerTest extends TestCase
         Log::spy();
 
         $date = now('Europe/London')->format('Y-m-d');
-        $start = \Carbon\Carbon::parse($date, 'Europe/London')->startOfDay()->timezone('UTC');
+        $start = Carbon::parse($date, 'Europe/London')->subDay()->setTime(16, 0)->timezone('UTC');
 
         // strategy with lastWeek available
         $s1 = Strategy::factory()->create([
@@ -68,7 +69,6 @@ final class CopyConsumptionWeekAgoCommandHandlerTest extends TestCase
 
         $handler = new CopyConsumptionWeekAgoCommandHandler();
         $result = $handler->handle(new CopyConsumptionWeekAgoCommand(date: 'not-a-date'));
-
         $this->assertFalse($result->isSuccess());
         $this->assertStringStartsWith('Copy consumption failed:', (string) $result->getMessage());
 

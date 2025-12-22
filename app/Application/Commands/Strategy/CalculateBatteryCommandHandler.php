@@ -6,10 +6,11 @@ namespace App\Application\Commands\Strategy;
 
 use App\Application\Commands\Contracts\Command;
 use App\Application\Commands\Contracts\CommandHandler;
+use App\Domain\Strategy\Helpers\DateUtils;
 use App\Domain\Strategy\Models\Strategy;
 use App\Helpers\CalculateBatteryPercentage;
 use App\Support\Actions\ActionResult;
-use Carbon\Carbon;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -27,57 +28,52 @@ final class CalculateBatteryCommandHandler implements CommandHandler
         Log::info('CalculateBatteryCommand started');
 
         try {
-            // Determine date boundaries in Europe/London, then convert to UTC for DB
-            $dateStr = $command->date ?: Carbon::now('Europe/London')->format('Y-m-d');
-            $start = Carbon::parse($dateStr, 'Europe/London')->startOfDay()->timezone('UTC');
-            $end = Carbon::parse($dateStr, 'Europe/London')->endOfDay()->timezone('UTC');
+            [$start, $end] = DateUtils::calculateDateRange($command->date);
 
             $count = 0;
 
             if ($command->simulate) {
-                // For simulate, just iterate but do not persist
+                // For simulating, just iterate but do not persist
                 $strategies = Strategy::query()->whereBetween('period', [$start, $end])->get();
                 foreach ($strategies as $strategy) {
                     $this->calculateForStrategy($strategy, persist: false);
                     $count++;
                 }
 
-                $ms = (int) ((microtime(true) - $startedAt) * 1000);
+                $ms = (int)((microtime(true) - $startedAt) * 1000);
                 Log::info('CalculateBatteryCommand finished', [
-                    'success' => true,
-                    'ms' => $ms,
-                    'count' => $count,
+                    'success'  => true,
+                    'ms'       => $ms,
+                    'count'    => $count,
                     'simulate' => true,
                 ]);
                 return ActionResult::success(null, "Simulated battery calculation for {$count} strategy rows");
             }
 
-            // Default current battery for calculation; could be enhanced later to use strategy state
-            $currentBattery = 10;
-            $this->calculator->startBatteryPercentage($currentBattery);
-
             DB::transaction(function () use (&$count, $start, $end) {
                 $strategies = Strategy::query()->whereBetween('period', [$start, $end])->get();
+                // Start battery for calculation; if the battery is "recalculated" use the previous first value.
+                $this->calculator->startBatteryPercentage($strategies->first()->battery_percentage_manual ?? 100);
                 foreach ($strategies as $strategy) {
                     $this->calculateForStrategy($strategy, persist: true);
                     $count++;
                 }
             });
 
-            $ms = (int) ((microtime(true) - $startedAt) * 1000);
+            $ms = (int)((microtime(true) - $startedAt) * 1000);
             Log::info('CalculateBatteryCommand finished', [
-                'success' => true,
-                'ms' => $ms,
-                'count' => $count,
+                'success'  => true,
+                'ms'       => $ms,
+                'count'    => $count,
                 'simulate' => false,
             ]);
 
             return ActionResult::success(null, "Calculated battery for {$count} strategy rows");
         } catch (\Throwable $e) {
-            $ms = (int) ((microtime(true) - $startedAt) * 1000);
+            $ms = (int)((microtime(true) - $startedAt) * 1000);
             Log::warning('CalculateBatteryCommand failed', [
                 'exception' => $e->getMessage(),
-                'ms' => $ms,
+                'ms'        => $ms,
             ]);
 
             return ActionResult::failure('Battery calculation failed: ' . $e->getMessage());
@@ -87,8 +83,8 @@ final class CalculateBatteryCommandHandler implements CommandHandler
     private function calculateForStrategy(Strategy $strategy, bool $persist): void
     {
         $consumption = $strategy->getConsumptionDataValueObject()->manual ?? 0.0;
-        $pvEstimate = (float) (optional($strategy->forecast)->pv_estimate ?? 0.0);
-        $charging = (bool) ($strategy->strategy_manual ?? false);
+        $pvEstimate = (float)(optional($strategy->forecast)->pv_estimate ?? 0.0);
+        $charging = (bool)($strategy->strategy_manual ?? false);
 
         [$batteryPercentage, $chargeAmount, $importAmount, $exportAmount] = $this->calculator
             ->isCharging($charging)

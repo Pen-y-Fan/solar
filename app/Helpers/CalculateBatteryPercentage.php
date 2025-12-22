@@ -22,7 +22,7 @@ class CalculateBatteryPercentage
     {
         $battery = $this->calculateFromBatteryPercentageTokWh();
 
-        // Estimate is per hour,  we are calculating per 1/2 hour.
+        // Estimate KWh is per hour, we are calculating per 1/2 hour.
         $estimatePV = $this->estimatePV / 2;
 
         $estimatedBatteryRequired = $estimatePV - $this->consumption;
@@ -32,7 +32,7 @@ class CalculateBatteryPercentage
         $charge = 0;
 
         if ($this->charging) {
-            // Let's charge using cheap rate electricity
+            // Let's charge using inexpensive rate electricity
 
             // we are charging so negative $estimatedBatteryRequired means we charge the battery
             // the import cost is the chargeAmount + $estimatedBatteryRequired
