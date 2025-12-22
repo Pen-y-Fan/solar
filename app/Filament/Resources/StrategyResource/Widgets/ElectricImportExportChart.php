@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\StrategyResource\Widgets;
 
-use App\Domain\Energy\Models\OctopusExport;
+use Carbon\Exceptions\InvalidFormatException;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -25,7 +25,6 @@ class ElectricImportExportChart extends ChartWidget
 
     protected function getData(): array
     {
-        //        dd($this->tableFilters);
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
@@ -42,56 +41,56 @@ class ElectricImportExportChart extends ChartWidget
             Carbon::parse($rawData->last()['interval_end'], 'Europe/London')
                 ->timezone('UTC')
                 ->format('jS M H:i'),
-            -$rawData->last()['net_accumulative_cost']
+            -$rawData->last()['net_accumulative_cost'] / 100
         );
 
         return [
             'datasets' => [
                 [
-                    'label' => 'Export',
-                    'type' => 'bar',
-                    'data' => $rawData->map(fn ($item) => -$item['export_consumption']),
+                    'label'           => 'Export (p)',
+                    'type'            => 'bar',
+                    'data'            => $rawData->map(fn($item) => sprintf('%0.2f', $item['export_cost'])),
                     'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
-                    'borderColor' => 'rgb(54, 162, 235)',
-                    'yAxisID' => 'y',
+                    'borderColor'     => 'rgb(54, 162, 235)',
+                    'yAxisID'         => 'y',
                 ],
                 [
-                    'label' => 'Export accumulative cost',
-                    'type' => 'line',
-                    'data' => $rawData->map(fn ($item) => -$item['export_accumulative_cost']),
+                    'label'       => 'Export accumulative cost',
+                    'type'        => 'line',
+                    'data'        => $rawData->map(fn($item) => sprintf('%0.2f', -$item['export_accumulative_cost'])),
                     'borderColor' => 'rgb(75, 192, 192)',
-                    'yAxisID' => 'y1',
+                    'yAxisID'     => 'y1',
                 ],
                 [
-                    'label' => 'Import',
-                    'data' => $rawData->map(fn ($item) => $item['import_consumption']),
+                    'label'           => 'Import (p)',
+                    'data'            => $rawData->map(fn($item) => sprintf('%0.2f', $item['import_cost'])),
                     'backgroundColor' => 'rgba(255, 159, 64, 0.2)',
-                    'borderColor' => 'rgb(255, 159, 64)',
-                    'yAxisID' => 'y',
+                    'borderColor'     => 'rgb(255, 159, 64)',
+                    'yAxisID'         => 'y',
                 ],
                 [
-                    'label' => 'Import accumulative cost',
-                    'type' => 'line',
-                    'data' => $rawData->map(fn ($item) => -$item['import_accumulative_cost']),
+                    'label'       => 'Import accumulative cost',
+                    'type'        => 'line',
+                    'data'        => $rawData->map(fn($item) => sprintf('%0.2f', -$item['import_accumulative_cost'])),
                     'borderColor' => 'rgb(255, 99, 132)',
-                    'yAxisID' => 'y1',
+                    'yAxisID'     => 'y1',
                 ],
                 [
-                    'label' => 'Net accumulative cost',
-                    'type' => 'line',
-                    'data' => $rawData->map(fn ($item) => -$item['net_accumulative_cost']),
+                    'label'       => 'Net accumulative cost',
+                    'type'        => 'line',
+                    'data'        => $rawData->map(fn($item) => sprintf('%0.2f', -$item['net_accumulative_cost'])),
                     'borderColor' => 'rgb(54, 162, 235)',
-                    'yAxisID' => 'y1',
+                    'yAxisID'     => 'y1',
                 ],
                 [
-                    'label' => 'Battery (%)',
-                    'type' => 'line',
-                    'data' => $rawData->map(fn ($item) => $item['battery_percent']),
+                    'label'       => 'Battery (%)',
+                    'type'        => 'line',
+                    'data'        => $rawData->map(fn($item) => $item['battery_percent']),
                     'borderColor' => 'rgb(255, 159, 64)',
-                    'yAxisID' => 'y2',
+                    'yAxisID'     => 'y2',
                 ],
             ],
-            'labels' => $rawData->map(fn ($item) => Carbon::parse($item['interval_start'], 'UTC')
+            'labels'   => $rawData->map(fn($item) => Carbon::parse($item['interval_start'], 'UTC')
                 ->timezone('Europe/London')
                 ->format('H:i')),
         ];
@@ -105,7 +104,11 @@ class ElectricImportExportChart extends ChartWidget
     private function getDatabaseData(): Collection
     {
         $date = $this->tableFilters['period']['value'] ?? now('Europe/London')->format('Y-m-d');
-        $start = Carbon::parse($date, 'Europe/London')->startOfDay()->timezone('UTC');
+        try {
+            $start = Carbon::parse($date, 'Europe/London')->subDay()->setTime(16, 0)->timezone('UTC');
+        } catch (InvalidFormatException $e) {
+            $start = now('Europe/London')->subDay()->setTime(16, 0)->timezone('UTC');
+        }
 
         $limit = 48;
 
@@ -119,14 +122,14 @@ class ElectricImportExportChart extends ChartWidget
     {
         return [
             'scales' => [
-                'y' => [
-                    'type' => 'linear',
-                    'display' => true,
+                'y'  => [
+                    'type'     => 'linear',
+                    'display'  => true,
                     'position' => 'left',
                 ],
                 'y1' => [
-                    'type' => 'linear',
-                    'display' => true,
+                    'type'     => 'linear',
+                    'display'  => true,
                     'position' => 'right',
 
                     'grid' => [
@@ -134,8 +137,8 @@ class ElectricImportExportChart extends ChartWidget
                     ],
                 ],
                 'y2' => [
-                    'type' => 'linear',
-                    'display' => true,
+                    'type'     => 'linear',
+                    'display'  => true,
                     'position' => 'right',
 
                     'grid' => [

@@ -40,12 +40,12 @@ final class StrategyManualSeriesQuery
 
         /** @var Strategy $strategy */
         foreach ($strategies as $strategy) {
-            // Maintain existing widget math but typed
-            $import = (float) (($strategy->import_amount ?? 0) + ($strategy->battery_charge_amount ?? 0));
-            $export = (float) ($strategy->export_amount ?? 0);
+            // Maintain the existing widget math but typed
+            $import = (float)(($strategy->import_amount ?? 0) + ($strategy->battery_charge_amount ?? 0));
+            $export = (float)($strategy->export_amount ?? 0);
 
-            $importCost = $import * (float) ($strategy->import_value_inc_vat ?? 0) / 100.0;
-            $exportCost = $export * (float) ($strategy->export_value_inc_vat ?? 0) / 100.0;
+            $importCost = $import * (float)($strategy->import_value_inc_vat ?? 0);
+            $exportCost = $export * (float)($strategy->export_value_inc_vat ?? 0);
 
             $cost = ($importCost - $exportCost);
             $accumulativeCost += $cost;
@@ -59,13 +59,15 @@ final class StrategyManualSeriesQuery
                 : null;
 
             $data[] = [
-                'period_end' => $period ?? now()->toImmutable(),
-                'import' => $import,
-                'export' => $export,
-                'cost' => $cost,
-                'acc_cost' => $accumulativeCost,
-                'charging' => $strategy->strategy_manual,
-                'battery_percent' => $strategy->battery_percentage_manual,
+                'period_end'               => $period ?? now()->toImmutable(),
+                'import'                   => $import,
+                'export'                   => $export,
+                'import_cost'              => $importCost,
+                'export_cost'              => $exportCost,
+                'cost'                     => $cost,
+                'acc_cost'                 => $accumulativeCost,
+                'charging'                 => $strategy->strategy_manual,
+                'battery_percent'          => $strategy->battery_percentage_manual,
                 'import_accumulative_cost' => $importAccumulativeCost,
                 'export_accumulative_cost' => $exportAccumulativeCost,
             ];

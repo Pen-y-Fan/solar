@@ -12,6 +12,7 @@ use App\Filament\Resources\StrategyResource\Widgets\StrategyChart;
 use App\Filament\Resources\StrategyResource\Widgets\StrategyOverview;
 use App\Domain\Strategy\Models\Strategy;
 use Carbon\CarbonPeriod;
+use Carbon\Exceptions\InvalidFormatException;
 use Exception;
 use Filament\Forms;
 use Filament\Forms\Form;
@@ -113,7 +114,7 @@ class StrategyResource extends Resource
                 Tables\Columns\TextColumn::make('period')
                     ->label('Date time')
                     ->dateTime(format: 'd M H:i', timezone: 'Europe/London')
-                    ->description(fn ($record) => $record->period->clone()->setTimezone('Europe/London')->format('P')
+                    ->description(fn($record) => $record->period->clone()->setTimezone('Europe/London')->format('P')
                     !== $record->period->clone()->setTimezone('UTC')->format('P')
                         ? sprintf('(%s UTC)', $record->period->clone()->setTimezone('UTC')->format('d M H:i'))
                         : null)
@@ -126,8 +127,8 @@ class StrategyResource extends Resource
 
                 Tables\Columns\TextColumn::make('battery_charge_amount')
                     ->label('Bat.charge')
-                    ->description(fn ($record) => $record->battery_charge_amount * $record->import_value_inc_vat)
-                    ->tooltip(fn ($record) => $record->getBatteryStateValueObject()->isCharging()
+                    ->description(fn($record) => $record->battery_charge_amount * $record->import_value_inc_vat)
+                    ->tooltip(fn($record) => $record->getBatteryStateValueObject()->isCharging()
                         ? 'Battery is charging'
                         : 'Battery is discharging')
                     ->numeric(2)
@@ -141,13 +142,13 @@ class StrategyResource extends Resource
 
                 Tables\Columns\TextColumn::make('import_amount')
                     ->label('Import')
-                    ->description(fn ($record) => $record->import_amount * $record->import_value_inc_vat)
+                    ->description(fn($record) => $record->import_amount * $record->import_value_inc_vat)
                     ->numeric(2)
                     ->summarize(Sum::make()),
 
                 Tables\Columns\TextColumn::make('export_amount')
                     ->label('Export')
-                    ->description(fn ($record) => $record->export_amount * $record->export_value_inc_vat)
+                    ->description(fn($record) => $record->export_amount * $record->export_value_inc_vat)
                     ->numeric(2)
                     ->summarize(Sum::make()),
 
@@ -186,14 +187,14 @@ class StrategyResource extends Resource
                 Tables\Columns\TextColumn::make('best_estimate')
                     ->label('Best Estimate')
                     ->tooltip('Best consumption estimate (prioritizes manual, then last week, then average)')
-                    ->getStateUsing(fn ($record) => $record->getConsumptionDataValueObject()->getBestEstimate())
+                    ->getStateUsing(fn($record) => $record->getConsumptionDataValueObject()->getBestEstimate())
                     ->numeric(2)
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('consumption_last_week_cost')
                     ->label('Last Week Cost')
                     ->tooltip('Cost of last week\'s consumption')
-                    ->getStateUsing(fn ($record) => $record->getCostDataValueObject()->consumptionLastWeekCost)
+                    ->getStateUsing(fn($record) => $record->getCostDataValueObject()->consumptionLastWeekCost)
                     ->numeric(2)
                     ->toggleable()
                     ->summarize(Sum::make()),
@@ -201,7 +202,7 @@ class StrategyResource extends Resource
                 Tables\Columns\TextColumn::make('consumption_average_cost')
                     ->label('Avg Cost')
                     ->tooltip('Cost of average consumption')
-                    ->getStateUsing(fn ($record) => $record->getCostDataValueObject()->consumptionAverageCost)
+                    ->getStateUsing(fn($record) => $record->getCostDataValueObject()->consumptionAverageCost)
                     ->numeric(2)
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->summarize([Sum::make(), Range::make()]),
@@ -209,14 +210,14 @@ class StrategyResource extends Resource
                 Tables\Columns\TextColumn::make('best_consumption_cost')
                     ->label('Best Cost Est.')
                     ->tooltip('Best consumption cost estimate (prioritizes last week, then average)')
-                    ->getStateUsing(fn ($record) => $record->getCostDataValueObject()->getBestConsumptionCostEstimate())
+                    ->getStateUsing(fn($record) => $record->getCostDataValueObject()->getBestConsumptionCostEstimate())
                     ->numeric(2)
                     ->toggleable(),
 
                 Tables\Columns\TextColumn::make('net_cost')
                     ->label('Net Cost')
                     ->tooltip('Net cost (import cost minus export value)')
-                    ->getStateUsing(fn ($record) => $record->getCostDataValueObject()->getNetCost())
+                    ->getStateUsing(fn($record) => $record->getCostDataValueObject()->getNetCost())
                     ->numeric(2)
                     ->toggleable(),
 
@@ -229,7 +230,7 @@ class StrategyResource extends Resource
 
                 Tables\Columns\TextColumn::make('import_value_inc_vat')
                     ->label('Import')
-                    ->getStateUsing(fn ($record) => $record->getCostDataValueObject()->importValueIncVat)
+                    ->getStateUsing(fn($record) => $record->getCostDataValueObject()->importValueIncVat)
                     ->numeric(2)
                     ->sortable()
                     ->toggleable()
@@ -237,7 +238,7 @@ class StrategyResource extends Resource
 
                 Tables\Columns\TextColumn::make('export_value_inc_vat')
                     ->label('Export')
-                    ->getStateUsing(fn ($record) => $record->getCostDataValueObject()->exportValueIncVat)
+                    ->getStateUsing(fn($record) => $record->getCostDataValueObject()->exportValueIncVat)
                     ->numeric(2)
                     ->toggleable()
                     ->summarize([Average::make(), Range::make()]),
@@ -256,17 +257,18 @@ class StrategyResource extends Resource
             ->defaultPaginationPageOption(48)
             ->defaultSort('period')
             ->filters([
-
                 Tables\Filters\SelectFilter::make('period')
                     ->label('Date')
                     ->options(self::getPeriod())
                     ->query(function (Builder $query, array $data) {
-
                         if (isset($data['value'])) {
-                            $start = Carbon::parse($data['value'], 'Europe/London')
-                                ->startOfDay()->timezone('UTC');
-                            $end = Carbon::parse($data['value'], 'Europe/London')
-                                ->endOfDay()->timezone('UTC');
+                            try {
+                                $day = Carbon::parse($data['value'], 'Europe/London');
+                            } catch (InvalidFormatException $e) {
+                                $day = now('Europe/London');
+                            }
+                            $start = $day->copy()->subDay()->setTime(16, 0)->timezone('UTC');
+                            $end = $start->copy()->addDay();
                             $query->whereBetween('period', [$start, $end]);
                         }
                     })
@@ -308,7 +310,7 @@ class StrategyResource extends Resource
     {
         return [
             'index' => Pages\ListStrategies::route('/'),
-            'edit' => Pages\EditStrategy::route('/{record}/edit'),
+            'edit'  => Pages\EditStrategy::route('/{record}/edit'),
         ];
     }
 
@@ -323,7 +325,11 @@ class StrategyResource extends Resource
 
         $options = [];
         foreach ($periods as $period) {
-            $options[$period->format('Y-m-d')] = $period->format('D jS M');
+            $options[$period->format('Y-m-d')] = sprintf(
+                '%s - %s',
+                $period->copy()->timezone('Europe/London')->subDay()->setTime(16, 0)->format('D jS M H:i'),
+                $period->copy()->timezone('Europe/London')->setTime(16, 0)->format('D jS M H:i')
+            );
         }
 
         return $options;

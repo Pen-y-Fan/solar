@@ -4,6 +4,7 @@ namespace App\Filament\Resources\StrategyResource\Widgets;
 
 use App\Application\Queries\Strategy\StrategyPerformanceSummaryQuery;
 use App\Filament\Resources\StrategyResource\Pages\ListStrategies;
+use Carbon\Exceptions\InvalidFormatException;
 use Filament\Widgets\Concerns\InteractsWithPageTable;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -21,32 +22,27 @@ class StrategyOverview extends BaseWidget
     protected function getStats(): array
     {
         $date = $this->tableFilters['period']['value'] ?? now('Europe/London')->format('Y-m-d');
-
         try {
-            $selectedLondon = Carbon::parse($date, 'Europe/London');
-        } catch (\Throwable) {
-            $selectedLondon = Carbon::now('Europe/London');
+            $startUtc = Carbon::parse($date, 'Europe/London')->subDay()->setTime(16, 0)->timezone('UTC');
+        } catch (InvalidFormatException $e) {
+            $startUtc = now('Europe/London')->subDay()->setTime(16, 0)->timezone('UTC');
         }
 
-        $startLondon = $selectedLondon->copy()->startOfDay();
-        $endLondon = $selectedLondon->copy()->endOfDay();
-
-        $startUtc = $startLondon->copy()->timezone('UTC');
-        $endUtc = $endLondon->copy()->timezone('UTC');
+        $endUtc = $startUtc->copy()->addDay();
 
         /** @var StrategyPerformanceSummaryQuery $query */
         $query = app(StrategyPerformanceSummaryQuery::class);
         $summary = $query->run($startUtc, $endUtc);
 
         $totals = [
-            'import' => (float) $summary->sum('total_import_kwh'),
-            'import_cost' => (float) $summary->sum('import_cost_pence'),
-            'battery' => (float) $summary->sum('total_battery_kwh'),
-            'battery_cost' => (float) $summary->sum('battery_cost_pence'),
-            'export' => (float) $summary->sum('export_kwh'),
-            'export_revenue' => (float) $summary->sum('export_revenue_pence'),
-            'self_consumption' => (float) $summary->sum('self_consumption_kwh'),
-            'net_cost' => (float) $summary->sum('net_cost_pence'),
+            'import'           => (float)$summary->sum('total_import_kwh'),
+            'import_cost'      => (float)$summary->sum('import_cost_pence'),
+            'battery'          => (float)$summary->sum('total_battery_kwh'),
+            'battery_cost'     => (float)$summary->sum('battery_cost_pence'),
+            'export'           => (float)$summary->sum('export_kwh'),
+            'export_revenue'   => (float)$summary->sum('export_revenue_pence'),
+            'self_consumption' => (float)$summary->sum('self_consumption_kwh'),
+            'net_cost'         => (float)$summary->sum('net_cost_pence'),
         ];
 
         return [

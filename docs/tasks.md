@@ -106,22 +106,31 @@ Tasks based on the [User Requirements Document](./user-requests.md).
 
 ### 1.1.3 Make the Agile cost chart interactive
 
-- [x] Dashboard — Make the Agile cost chart interactive, see `docs/make-the-agile-cost-chart-interactive.md` for the full story.
+- [x] Dashboard — Make the Agile cost chart interactive, see `docs/make-the-agile-cost-chart-interactive.md` for the
+  full story.
 
 ### 1.1.3.1 Make the cost chart interactive
 
 Once the dashboard chart is interactive, also update the smilar chart in strategy
 
-- [x] Strategy — Make the cost chart interactive, the strategy cost chart is almost identical to the Agile cost chart. Note: future requirement is to make it interactive from 7PM, so it need to be a different chart.
+- [x] Strategy — Make the cost chart interactive, the strategy cost chart is almost identical to the Agile cost chart.
+  Note: future requirement is to make it interactive from 7PM, so it need to be a different chart.
 
 ### 1.1.4 Monthly large dataset performance checks
 
-- [x] Add monthly large dataset performance checks — see `docs/monthly-large-dataset-performance-checks.md` for the full checklist
+- [x] Add monthly large dataset performance checks — see `docs/monthly-large-dataset-performance-checks.md` for the full
+  checklist
 
 ### 1.1.5 Fix CI build (tests and code-quality)
 
-- [ ] The CI build for tests is failing — see `docs/ci-build-fixes-task-list.md`
-- [ ] The CI code-quality check isn't consistent — see `docs/ci-build-fixes-task-list.md`
+- [x] The CI build for tests is failing — see `docs/ci-build-fixes-task-list.md`
+- [x] The CI code-quality check isn't consistent — see `docs/ci-build-fixes-task-list.md`
+
+### 1.1.6 Improve the strategy charts and widgets
+
+- [x] The forecast charts currently display the current day, it should be extended to display from 4pm
+  the previous day to 4pm (16:00) GMT the current day
+- [x] Change the drop-down to display the period start and end times.
 
 ## 2. Testing and Quality Assurance
 
