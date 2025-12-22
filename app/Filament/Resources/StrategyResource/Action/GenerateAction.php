@@ -40,12 +40,6 @@ class GenerateAction extends Action
             $this->process(function (Table $table) {
                 $periodFilter = $table->getFilter('period')->getState();
                 $periodValue = $periodFilter['value'] ?? null;
-
-                if ($periodValue === null) {
-                    $this->failure();
-                    return;
-                }
-
                 Log::info('Generating strategy for: ' . $periodValue);
                 /** @var CommandBus $bus */
                 $bus = app(CommandBus::class);

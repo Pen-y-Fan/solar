@@ -8,6 +8,7 @@ use App\Domain\Energy\Models\OutgoingOctopus;
 use App\Domain\Energy\Repositories\InverterRepositoryInterface;
 use App\Domain\Energy\ValueObjects\InverterConsumptionData;
 use App\Domain\Forecasting\Models\Forecast;
+use App\Domain\Strategy\Helpers\DateUtils;
 use App\Domain\Strategy\Models\Strategy;
 use App\Domain\Strategy\ValueObjects\CostData;
 use Illuminate\Database\Eloquent\Collection;
@@ -15,6 +16,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use App\Support\Actions\ActionResult;
 use App\Support\Actions\Contracts\ActionInterface;
+use Throwable;
 
 class GenerateStrategyAction implements ActionInterface
 {
@@ -36,7 +38,7 @@ class GenerateStrategyAction implements ActionInterface
     }
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      */
     /**
      * @deprecated Use execute() returning ActionResult instead.
@@ -53,7 +55,7 @@ class GenerateStrategyAction implements ActionInterface
             return $ok
                 ? ActionResult::success(null, 'Strategy generated')
                 : ActionResult::failure('No data available to generate strategy');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             Log::warning('GenerateStrategyAction failed', ['exception' => $e->getMessage()]);
             return ActionResult::failure($e->getMessage());
         }
@@ -63,20 +65,14 @@ class GenerateStrategyAction implements ActionInterface
     {
         Log::info('Start generation of strategy');
 
-        $startDate = Carbon::parse($this->filter, 'Europe/London')
-            ->timezone('Europe/London')
-            ->startOfDay()
-            ->timezone('UTC');
+        [$start, $end] = DateUtils::calculateDateRange($this->filter);
 
         $limit = 48;
 
         $forecastData = Forecast::query()
             ->with(['importCost', 'exportCost'])
             ->orderBy('period_end')
-            ->whereBetween('period_end', [
-                $startDate,
-                $startDate->copy()->timezone('Europe/London')->endOfDay()->timezone('UTC'),
-            ])
+            ->whereBetween('period_end', [$start, $end])
             ->limit($limit)
             ->orderBy('period_end')
             ->get();
@@ -91,8 +87,8 @@ class GenerateStrategyAction implements ActionInterface
             return false;
         }
 
-        $weekAgoStart = $startDate->clone()->timezone('Europe/London')->subWeek()->timezone('UTC');
-        $weekAgoEnd = $startDate->clone()->timezone('Europe/London')->subWeek()->endOfDay()->timezone('UTC');
+        $weekAgoStart = $start->clone()->timezone('Europe/London')->subWeek()->timezone('UTC');
+        $weekAgoEnd = $weekAgoStart->clone()->addDay()->timezone('UTC');
         $weekAgpConsumptions = $this->inverterRepository->getConsumptionForDateRange($weekAgoStart, $weekAgoEnd);
 
         $importCosts = [];
@@ -208,17 +204,6 @@ class GenerateStrategyAction implements ActionInterface
                 consumptionLastWeekCost: null
             );
 
-            try {
-                Log::info(
-                    'Charge at: ' . $forecast->period_end->format('H:i:s') .
-                    ' import cost ' . $costData->importValueIncVat .
-                    ' battery ' . $battery
-                );
-            } catch (\Throwable $e) {
-                // Ignore logging errors in contexts where the Laravel app container isn't bootstrapped
-                // (e.g., pure unit tests)
-            }
-
             /* @var InverterConsumptionData|null $consumptionData */
             $consumptionData = $consumptions->first(function ($item) use ($forecast) {
                 return $item->time === $forecast->period_end->format('H:i:s');
@@ -237,19 +222,16 @@ class GenerateStrategyAction implements ActionInterface
                 $charging = true;
 
                 $battery += self::BATTERY_MAX_STRATEGY_PER_HALF_HOUR;
-                if ($battery > self::BATTERY_MAX) {
-                    $battery = self::BATTERY_MAX;
-                }
             } else {
                 $battery += $estimatedBatteryRequired;
 
                 if ($battery < self::BATTERY_MIN) {
                     $battery = self::BATTERY_MIN;
                 }
+            }
 
-                if ($battery > self::BATTERY_MAX) {
-                    $battery = self::BATTERY_MAX;
-                }
+            if ($battery > self::BATTERY_MAX) {
+                $battery = self::BATTERY_MAX;
             }
 
             $result[$forecast->period_end->format('Hi')] = [

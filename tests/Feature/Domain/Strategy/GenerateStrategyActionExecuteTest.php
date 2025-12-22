@@ -11,6 +11,7 @@ use App\Domain\Energy\ValueObjects\InverterConsumptionData;
 use App\Domain\Forecasting\Models\Forecast;
 use App\Domain\Strategy\Actions\GenerateStrategyAction;
 use App\Domain\Strategy\Models\Strategy;
+use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;
@@ -52,7 +53,7 @@ final class GenerateStrategyActionExecuteTest extends TestCase
     public function testExecutePersistsStrategyRowsWithVoConsistentFields(): void
     {
         // Two contiguous half-hours on a fixed date before the export override cutoff (2025-07-08)
-        $start = \Carbon\CarbonImmutable::create(2025, 7, 1, 0, 30, 0, 'UTC');
+        $start = CarbonImmutable::create(2025, 7, 1, 16, 00, 0, 'UTC');
 
         $f1 = Forecast::create([
             'period_end' => $start,
@@ -107,7 +108,8 @@ final class GenerateStrategyActionExecuteTest extends TestCase
 
         // Run action
         $action = app(GenerateStrategyAction::class);
-        $action->filter = '2025-07-01';
+        // The filter starts the previous day 16:00 to 16:00 the day of the filter.
+        $action->filter = $start->clone()->addDay()->format('Y-m-d');
         $result = $action->execute();
 
         $this->assertTrue($result->isSuccess(), 'ActionResult should be ok');

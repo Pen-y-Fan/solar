@@ -6,7 +6,6 @@ use App\Domain\Strategy\Models\Strategy;
 use App\Domain\Strategy\ValueObjects\CostData;
 use App\Domain\User\Models\User;
 use App\Filament\Resources\StrategyResource;
-use Filament\Actions\DeleteAction;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Carbon;
 use Livewire\Livewire;
@@ -26,8 +25,7 @@ class StrategyResourceTest extends TestCase
         $this->user = User::factory()->create([
             'name' => 'Test User',
             'email' => 'test@example.com',
-            'password' => bcrypt('password'),
-            'email_verified_at' => now(),
+            'password' => bcrypt('password')
         ]);
 
         $this->actingAs($this->user);
@@ -91,7 +89,7 @@ class StrategyResourceTest extends TestCase
     {
         // Create a strategy
         $strategy = Strategy::factory()->create([
-            'period' => now()->startOfHour(),
+            'period' => now()->startOfDay()->addHours(2),
         ]);
 
         // Test the Livewire component for bulk deletion
@@ -117,7 +115,7 @@ class StrategyResourceTest extends TestCase
         $consumptionLastWeek = 6.0;
 
         $strategy = Strategy::factory()->create([
-            'period' => now()->startOfHour(),
+            'period' => now()->startOfDay()->addHours(2),
             'import_value_inc_vat' => $importValue,
             'export_value_inc_vat' => $exportValue,
             'consumption_average' => $consumptionAverage,

@@ -63,6 +63,14 @@ Change the drop-down to display the period start and end times.
 - Current action: Added as task 1.1.6 of  `docs/tasks.md`
 - Status: Completed
 
+#### Update the strategy generator
+
+After updating the charts, the strategy needs to generate the correct consumption data for the period from 16:00 the
+previous day to 16:00 the current day
+
+- Current action: Add a task to section 1.1.7 of  `docs/tasks.md`
+- Status: Completed
+
 #### Add a way to compare strategy based on consumption from last week and three weeks average
 
 The original idea was to have a button or toggle, so the calculate battery button, which re-runs the strategy and
