@@ -33,24 +33,35 @@ On the Solcast vs actual forecasts chart: Solis should be corrected to Solcast.
 Currently, when the generate strategy button is pressed, the strategy (strat1) is true or false, based on a threshold
 under an average cost for a day.
 
-1. Update the strategy to be the best recommended strategy based on three periods (see below), which will allow a
-   maximum of three charge sessions, based on the cheapest charge strategy
-2. If the strat field hasn't been set (is false for the period), also update strat to match strat1.
-3. The forecast chart ('StrategyChart') currnetly displays the current day, it should be extended to display from 7pm
-   the previous day.
+1. Update the strategy to be the best recommended strategy based on two periods (see below), which will allow a
+   maximum of three charge sessions per period, based on the cheapest charge strategy
+2. If the 'strat' field hasn't been set (is false for the period), also update 'strat' to match 'strat1'.
 
 Periods:
 
-- 7pm to 11pm,
-    - it is possible the battery will still be charged, or the evening rate is not "cheap", so no "top up" is required,
-      especially if there is no cost saving
-- 11pm to 8am
+- 16:00 to 23:00,
+    - it is possible the battery will still be charged, or the evening rate is not inexpensive, so no top up is
+      required, especially if there is no cost saving
+- 23:00 to 16:00
     - historically, overnight is normally the cheapest time to top up the battery, before costs rise early morning.
-- 8am to 4pm
     - the battery should be full by 4pm, ready for the expensive period 4pm to 7pm.
 
 - Current action: Add a task to section 1.1.x of  `docs/tasks.md`
 - Status: Not started
+
+#### Improve the strategy charts
+
+The strategy charts currently display the current day, it should be extended to display from 4pm
+the previous day to 4pm (16:00) GMT the current day:
+
+- `app/Filament/Resources/StrategyResource/Widgets/CostChart.php`
+- `app/Filament/Resources/StrategyResource/Widgets/ElectricImportExportChart.php`
+- `app/Filament/Resources/StrategyResource/Widgets/StrategyChart.php`
+
+Change the drop-down to display the period start and end times.
+
+- Current action: Added as task 1.1.6 of  `docs/tasks.md`
+- Status: Completed
 
 #### Add a way to compare strategy based on consumption from last week and three weeks average
 

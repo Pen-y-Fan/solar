@@ -17,75 +17,75 @@ class StrategyChart extends ChartWidget
 
     protected static ?string $maxHeight = '400px';
 
-    protected static ?string $heading = 'Manual charge strategy';
+    protected static ?string $heading = 'Strategy';
 
     protected function getData(): array
     {
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
-            self::$heading = 'No forecast data';
+            self::$heading = 'No strategy data';
 
             return [];
         }
 
         self::$heading = sprintf(
-            'Forecast for %s to %s cost £%0.2f',
+            'Strategy for %s to %s cost £%0.2f',
             $rawData->first()['period_end']
                 ->timezone('Europe/London')
                 ->format('D jS M Y H:i'),
             $rawData->last()['period_end']
                 ->timezone('Europe/London')
                 ->format('jS M H:i'),
-            $rawData->last()['acc_cost']
+            $rawData->last()['acc_cost'] / 100
         );
 
         return [
             'datasets' => [
                 [
-                    'label' => 'Import',
-                    'data' => $rawData->map(fn ($item) => $item['import']),
+                    'label'           => 'Import (p)',
+                    'data'            => $rawData->map(fn($item) => sprintf('%0.2f', $item['import_cost'])),
                     'backgroundColor' => 'rgba(255, 205, 86, 0.2)',
-                    'borderColor' => 'rgb(255, 205, 86)',
-                    'yAxisID' => 'y',
+                    'borderColor'     => 'rgb(255, 205, 86)',
+                    'yAxisID'         => 'y',
                 ],
                 [
-                    'label' => 'Export',
-                    'data' => $rawData->map(fn ($item) => -$item['export']),
+                    'label'           => 'Export (p)',
+                    'data'            => $rawData->map(fn($item) => sprintf('%0.2f', -$item['export_cost'])),
                     'backgroundColor' => 'rgba(54, 162, 235, 0.2)',
-                    'borderColor' => 'rgb(54, 162, 235)',
-                    'yAxisID' => 'y',
+                    'borderColor'     => 'rgb(54, 162, 235)',
+                    'yAxisID'         => 'y',
                 ],
                 [
-                    'label' => 'Acc. Cost',
-                    'type' => 'line',
-                    'data' => $rawData->map(fn ($item) => $item['acc_cost']),
+                    'label'       => 'Acc. Cost',
+                    'type'        => 'line',
+                    'data'        => $rawData->map(fn($item) => $item['acc_cost']),
                     'borderColor' => 'rgb(54, 162, 235)',
-                    'yAxisID' => 'y2',
+                    'yAxisID'     => 'y2',
                 ],
                 [
-                    'label' => 'Acc. import cost',
-                    'type' => 'line',
-                    'data' => $rawData->map(fn ($item) => $item['import_accumulative_cost']),
+                    'label'       => 'Acc. import cost',
+                    'type'        => 'line',
+                    'data'        => $rawData->map(fn($item) => $item['import_accumulative_cost']),
                     'borderColor' => 'rgb(255, 99, 132)',
-                    'yAxisID' => 'y2',
+                    'yAxisID'     => 'y2',
                 ],
                 [
-                    'label' => 'Acc. export cost',
-                    'type' => 'line',
-                    'data' => $rawData->map(fn ($item) => -$item['export_accumulative_cost']),
+                    'label'       => 'Acc. export cost',
+                    'type'        => 'line',
+                    'data'        => $rawData->map(fn($item) => -$item['export_accumulative_cost']),
                     'borderColor' => 'rgb(75, 192, 192)',
-                    'yAxisID' => 'y2',
+                    'yAxisID'     => 'y2',
                 ],
                 [
-                    'label' => 'Battery (%)',
-                    'type' => 'line',
-                    'data' => $rawData->map(fn ($item) => $item['battery_percent']),
+                    'label'       => 'Battery (%)',
+                    'type'        => 'line',
+                    'data'        => $rawData->map(fn($item) => $item['battery_percent']),
                     'borderColor' => 'rgb(255, 159, 64)',
-                    'yAxisID' => 'y1',
+                    'yAxisID'     => 'y1',
                 ],
             ],
-            'labels' => $rawData->map(fn ($item) => sprintf(
+            'labels'   => $rawData->map(fn($item) => sprintf(
                 '%s%s',
                 $item['charging'] ? '* ' : '',
                 $item['period_end']->timezone('Europe/London')->format('H:i')
@@ -126,14 +126,14 @@ class StrategyChart extends ChartWidget
     {
         return [
             'scales' => [
-                'y' => [
-                    'type' => 'linear',
-                    'display' => true,
+                'y'  => [
+                    'type'     => 'linear',
+                    'display'  => true,
                     'position' => 'left',
                 ],
                 'y1' => [
-                    'type' => 'linear',
-                    'display' => true,
+                    'type'     => 'linear',
+                    'display'  => true,
                     'position' => 'right',
 
                     'grid' => [
@@ -142,8 +142,8 @@ class StrategyChart extends ChartWidget
                     ],
                 ],
                 'y2' => [
-                    'type' => 'linear',
-                    'display' => true,
+                    'type'     => 'linear',
+                    'display'  => true,
                     'position' => 'right',
 
                     'grid' => [

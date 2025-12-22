@@ -17,24 +17,24 @@ final class StrategyManualSeriesQueryTest extends TestCase
     {
         // Arrange: create two strategies with simple values to validate accumulation
         $s1 = Strategy::factory()->create([
-            'period' => now()->startOfHour(),
-            'import_amount' => 1.0,
-            'battery_charge_amount' => 0.5,
-            'export_amount' => 0.2,
-            'import_value_inc_vat' => 20.0, // p/kWh
-            'export_value_inc_vat' => 5.0,  // p/kWh
-            'strategy_manual' => true,
+            'period'                    => now()->startOfHour(),
+            'import_amount'             => 1.0,
+            'battery_charge_amount'     => 0.5,
+            'export_amount'             => 0.2,
+            'import_value_inc_vat'      => 20.0, // p/kWh
+            'export_value_inc_vat'      => 5.0,  // p/kWh
+            'strategy_manual'           => true,
             'battery_percentage_manual' => 40,
         ]);
 
         $s2 = Strategy::factory()->create([
-            'period' => now()->startOfHour()->addHour(),
-            'import_amount' => 2.0,
-            'battery_charge_amount' => 0.0,
-            'export_amount' => 0.5,
-            'import_value_inc_vat' => 10.0,
-            'export_value_inc_vat' => 2.0,
-            'strategy_manual' => false,
+            'period'                    => now()->startOfHour()->addHour(),
+            'import_amount'             => 2.0,
+            'battery_charge_amount'     => 0.0,
+            'export_amount'             => 0.5,
+            'import_value_inc_vat'      => 10.0,
+            'export_value_inc_vat'      => 2.0,
+            'strategy_manual'           => false,
             'battery_percentage_manual' => 50,
         ]);
 
@@ -53,37 +53,37 @@ final class StrategyManualSeriesQueryTest extends TestCase
         $this->assertSame(1.5, $first['import']); // 1.0 + 0.5
         $this->assertSame(0.2, $first['export']);
         // importCost = 1.5 * 20p = 30p, exportCost = 0.2 * 5p = 1p, cost = 29p
-        $this->assertEqualsWithDelta(0.29, $first['cost'], 0.0001);
-        $this->assertEqualsWithDelta(0.29, $first['acc_cost'], 0.0001);
+        $this->assertEqualsWithDelta(29.0, $first['cost'], 0.0001);
+        $this->assertEqualsWithDelta(29.0, $first['acc_cost'], 0.0001);
         $this->assertTrue((bool)$first['charging']);
         $this->assertSame(40, $first['battery_percent']);
-        $this->assertEqualsWithDelta(0.30, $first['import_accumulative_cost'], 0.0001);
-        $this->assertEqualsWithDelta(0.01, $first['export_accumulative_cost'], 0.0001);
+        $this->assertEqualsWithDelta(30.0, $first['import_accumulative_cost'], 0.0001);
+        $this->assertEqualsWithDelta(1.0, $first['export_accumulative_cost'], 0.0001);
 
         $last = $result->last();
         $this->assertEquals($s2->period, $last['period_end']);
         $this->assertSame(2.0, $last['import']);
         $this->assertSame(0.5, $last['export']);
         // s2: importCost = 2.0 * 10p = 20p, exportCost = 0.5 * 2p = 1p, cost = 19p
-        // accumulative: 0.29 + 0.19 = 0.48
-        $this->assertEqualsWithDelta(0.19, $last['cost'], 0.0001);
-        $this->assertEqualsWithDelta(0.48, $last['acc_cost'], 0.0001);
+        // accumulative: 0.29 + 0.19 = 48p
+        $this->assertEqualsWithDelta(19, $last['cost'], 0.0001);
+        $this->assertEqualsWithDelta(48, $last['acc_cost'], 0.0001);
         $this->assertFalse((bool)$last['charging']);
         $this->assertSame(50, $last['battery_percent']);
-        $this->assertEqualsWithDelta(0.50, $last['import_accumulative_cost'], 0.0001); // 0.30 + 0.20
-        $this->assertEqualsWithDelta(0.02, $last['export_accumulative_cost'], 0.0001);  // 0.01 + 0.01
+        $this->assertEqualsWithDelta(50, $last['import_accumulative_cost'], 0.0001); // 30 + 20
+        $this->assertEqualsWithDelta(2.0, $last['export_accumulative_cost'], 0.0001);  // 1 + 1
     }
 
     public function testHandlesMissingValues(): void
     {
         $s = Strategy::factory()->create([
-            'period' => now()->startOfHour()->addHours(2),
-            'import_amount' => 0.0,
-            'battery_charge_amount' => 0.0,
-            'export_amount' => 0.0,
-            'import_value_inc_vat' => 0.0,
-            'export_value_inc_vat' => 0.0,
-            'strategy_manual' => null,
+            'period'                    => now()->startOfHour()->addHours(2),
+            'import_amount'             => 0.0,
+            'battery_charge_amount'     => 0.0,
+            'export_amount'             => 0.0,
+            'import_value_inc_vat'      => 0.0,
+            'export_value_inc_vat'      => 0.0,
+            'strategy_manual'           => null,
             'battery_percentage_manual' => null,
         ]);
 

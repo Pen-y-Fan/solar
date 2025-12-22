@@ -59,45 +59,44 @@ final class ElectricImportExportSeriesQuery
 
         $result = [];
         foreach ($data as $exportItem) {
-            $exportValueIncVat = (float) (
-                $exportItem->strategy
-                    ? ($exportItem->strategy->export_value_inc_vat ?? 0)
-                    : 0
+            $exportValueIncVat = (float)(
+            $exportItem->strategy
+                ? ($exportItem->strategy->export_value_inc_vat ?? 0)
+                : 0
             );
-            $importValueIncVat = (float) (
-                $exportItem->importCost
-                    ? ($exportItem->importCost->value_inc_vat ?? 0)
-                    : 0
+            $importValueIncVat = (float)(
+            $exportItem->importCost
+                ? ($exportItem->importCost->value_inc_vat ?? 0)
+                : 0
             );
-            $importConsumption = (float) (
-                $exportItem->octopusImport
-                    ? ($exportItem->octopusImport->consumption ?? 0)
-                    : 0
+            $importConsumption = (float)(
+            $exportItem->octopusImport
+                ? ($exportItem->octopusImport->consumption ?? 0)
+                : 0
             );
             $battery = (float)($exportItem->inverter ? ($exportItem->inverter->battery_soc ?? 0) : 0);
 
-            // Convert pence * kWh to £
-            $exportCost = ($exportValueIncVat * (float)($exportItem->consumption ?? 0)) / 100.0; // £
+            $exportCost = ($exportValueIncVat * (float)($exportItem->consumption ?? 0));
             $exportAccumulativeCost += $exportCost;
 
-            $importCost = (-(float) $importValueIncVat * $importConsumption) / 100.0; // £
-            // negative spend becomes negative value, but chart negates again
+            $importCost = (-(float)$importValueIncVat * $importConsumption);
+            // negative spend becomes negative value, but the chart negates again
             $importAccumulativeCost += $importCost;
 
             $result[] = [
-                'interval_start' => (string)$exportItem->interval_start,
-                'interval_end' => (string)$exportItem->interval_end,
-                'updated_at' => (string)$exportItem->updated_at,
-                'export_consumption' => (float)($exportItem->consumption ?? 0),
-                'import_consumption' => $importConsumption,
-                'export_value_inc_vat' => $exportValueIncVat,
-                'import_value_inc_vat' => $importValueIncVat,
-                'export_cost' => $exportCost,
-                'import_cost' => $importCost,
+                'interval_start'           => (string)$exportItem->interval_start,
+                'interval_end'             => (string)$exportItem->interval_end,
+                'updated_at'               => (string)$exportItem->updated_at,
+                'export_consumption'       => (float)($exportItem->consumption ?? 0),
+                'import_consumption'       => $importConsumption,
+                'export_value_inc_vat'     => $exportValueIncVat,
+                'import_value_inc_vat'     => $importValueIncVat,
+                'export_cost'              => -$exportCost,
+                'import_cost'              => -$importCost,
                 'export_accumulative_cost' => $exportAccumulativeCost,
                 'import_accumulative_cost' => $importAccumulativeCost,
-                'net_accumulative_cost' => $exportAccumulativeCost + $importAccumulativeCost,
-                'battery_percent' => $battery,
+                'net_accumulative_cost'    => $exportAccumulativeCost + $importAccumulativeCost,
+                'battery_percent'          => $battery,
             ];
         }
 
