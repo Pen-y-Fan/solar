@@ -63,7 +63,7 @@ class CostChart extends ChartWidget
             'datasets' => [
                 [
                     'label' => 'Export value',
-                    'data' => $data->map(fn ($item): string => $item['export_value_inc_vat']),
+                    'data' => $data->map(fn ($item): ?string => $item['export_value_inc_vat']),
                     'fill' => true,
                     'backgroundColor' => 'rgba(75, 192, 192, 0.2)',
                     'borderColor' => 'rgb(75, 192, 192)',
@@ -71,7 +71,7 @@ class CostChart extends ChartWidget
                 ],
                 [
                     'label' => 'Import value',
-                    'data' => $data->map(fn ($item): string => $item['import_value_inc_vat']),
+                    'data' => $data->map(fn ($item): ?string => $item['import_value_inc_vat']),
                     'fill' => '-1',
                     'backgroundColor' => 'rgba(255, 99, 132, 0.2)',
                     'borderColor' => 'rgb(255, 99, 132)',

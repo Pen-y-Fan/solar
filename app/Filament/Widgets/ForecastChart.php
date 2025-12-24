@@ -132,7 +132,7 @@ class ForecastChart extends ChartWidget
         if ($enabled) {
             $key = sprintf(
                 'forecast_chart:%s:%s',
-                (string) $this->filter,
+                $this->filter,
                 now('Europe/London')->startOfDay()->format('Y-m-d')
             );
 
@@ -183,14 +183,14 @@ class ForecastChart extends ChartWidget
             return collect();
         }
 
-        // Using DB::raw creates dynamic properties that PHPStan can't detect
-        // We're selecting avg(consumption) as 'value'
+        // Using DB::raw creates dynamic properties that PHPStan can't detect,
+        // we're selecting avg(consumption) as 'value'
         $averageConsumptions = Inverter::query()
             ->select(DB::raw('time(period) as `time`, avg(`consumption`) as `value`'))
             ->where(
                 'period',
                 '>',
-                now()->timezone('Europe/London')->subdays(21)
+                now()->timezone('Europe/London')->subDays(21)
                     ->startOfDay()
                     ->timezone('UTC')
             )
@@ -198,7 +198,7 @@ class ForecastChart extends ChartWidget
             ->get();
 
         if ($averageConsumptions->count() === 0) {
-            return collect([]);
+            return collect();
         }
 
         $battery = self::BATTERY_MIN;
@@ -304,7 +304,7 @@ class ForecastChart extends ChartWidget
         $collection = collect($result);
 
         // Optional downsampling for long ranges (Proposal B)
-        if ((bool) config('perf.forecast_downsample', false)) {
+        if (config('perf.forecast_downsample', false)) {
             $bucket = max(1, (int) config('perf.forecast_bucket_minutes', 30));
             $collection = $this->downsampleForecast($collection, $bucket);
         }
@@ -317,6 +317,7 @@ class ForecastChart extends ChartWidget
      * cumulative series shapes while reducing point count.
      *
      * @param Collection $collection
+     * @param int $bucketMinutes
      * @return Collection
      */
     private function downsampleForecast(Collection $collection, int $bucketMinutes): Collection

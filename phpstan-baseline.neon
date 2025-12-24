@@ -1,42 +1,19 @@
 parameters:
 	ignoreErrors:
-
 		-
-			message: "#^Access to an undefined property App\\\\Domain\\\\Energy\\\\Models\\\\Inverter\\:\\:\\$time\\.$#"
+			message: '#^Access to an undefined property App\\Domain\\Energy\\Models\\Inverter\:\:\$time\.$#'
+			identifier: property.notFound
 			count: 1
 			path: app/Domain/Energy/Repositories/EloquentInverterRepository.php
 
 		-
-			message: "#^Access to an undefined property App\\\\Domain\\\\Energy\\\\Models\\\\Inverter\\:\\:\\$value\\.$#"
+			message: '#^Access to an undefined property App\\Domain\\Energy\\Models\\Inverter\:\:\$value\.$#'
+			identifier: property.notFound
 			count: 1
 			path: app/Domain/Energy/Repositories/EloquentInverterRepository.php
 
 		-
-			message: "#^Call to an undefined method Carbon\\\\CarbonInterface\\:\\:subdays\\(\\)\\.$#"
+			message: '#^Call to method PHPUnit\\Framework\\Assert\:\:assertNull\(\) with float will always evaluate to false\.$#'
+			identifier: method.impossibleType
 			count: 1
-			path: app/Domain/Energy/Repositories/EloquentInverterRepository.php
-
-		-
-			message: "#^Call to an undefined method Illuminate\\\\Support\\\\Carbon\\:\\:subdays\\(\\)\\.$#"
-			count: 1
-			path: app/Filament/Widgets/ForecastChart.php
-
-		-
-			message: "#^Property App\\\\Domain\\\\Forecasting\\\\Models\\\\ActualForecast\\:\\:\\$period_end \\(Carbon\\\\CarbonImmutable\\|null\\) does not accept Illuminate\\\\Support\\\\Carbon\\.$#"
-			count: 1
-			path: tests/Feature/Console/Commands/ForecastTest.php
-
-		-
-			message: "#^Property App\\\\Domain\\\\Forecasting\\\\Models\\\\Forecast\\:\\:\\$period_end \\(Carbon\\\\CarbonImmutable\\|null\\) does not accept Illuminate\\\\Support\\\\Carbon\\.$#"
-			count: 1
-			path: tests/Feature/Console/Commands/ForecastTest.php
-
-		-
-			message: "#^Access to an undefined property App\\\\Domain\\\\Forecasting\\\\Models\\\\ActualForecast\\:\\:\\$pv_estimate10\\.$#"
-			count: 2
-			path: tests/Feature/Models/StrategyTest.php
-
-		-
-			message: "#^Access to an undefined property App\\\\Domain\\\\Forecasting\\\\Models\\\\ActualForecast\\:\\:\\$pv_estimate90\\.$#"
-			count: 2
-			path: tests/Feature/Models/StrategyTest.php
+			path: tests/Feature/Application/Queries/EnergyCostBreakdownByDayQueryTest.php

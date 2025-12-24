@@ -28,8 +28,6 @@ class GenerateStrategyAction implements ActionInterface
 
     private float $chargeStrategy = 0.0;
 
-    private bool $charge = true;
-
     public ?string $filter = 'today';
 
     public function __construct(
@@ -71,7 +69,6 @@ class GenerateStrategyAction implements ActionInterface
 
         $forecastData = Forecast::query()
             ->with(['importCost', 'exportCost'])
-            ->orderBy('period_end')
             ->whereBetween('period_end', [$start, $end])
             ->limit($limit)
             ->orderBy('period_end')
@@ -89,24 +86,14 @@ class GenerateStrategyAction implements ActionInterface
 
         $weekAgoStart = $start->clone()->timezone('Europe/London')->subWeek()->timezone('UTC');
         $weekAgoEnd = $weekAgoStart->clone()->addDay()->timezone('UTC');
-        $weekAgpConsumptions = $this->inverterRepository->getConsumptionForDateRange($weekAgoStart, $weekAgoEnd);
+        $weekAgoConsumptions = $this->inverterRepository->getConsumptionForDateRange($weekAgoStart, $weekAgoEnd);
 
         $importCosts = [];
         $minCost = 0;
         $averageCost = 0;
 
         $forecastData->each(function ($forecast) use (&$importCosts) {
-            $importCost = $forecast->importCost ? $forecast->importCost->value_inc_vat : 0;
-
-            if ($importCost > 0) {
-                $importCosts[] = $importCost;
-            }
-        });
-
-        $importCosts = [];
-
-        $forecastData->each(function ($forecast) use (&$importCosts) {
-            $importCost = $forecast->importCost ? $forecast->importCost->value_inc_vat : null;
+            $importCost = $forecast->importCost?->value_inc_vat;
 
             if ($importCost !== null) {
                 $importCosts[] = $importCost;
@@ -121,19 +108,21 @@ class GenerateStrategyAction implements ActionInterface
 
         $this->chargeStrategy = ($averageCost + $minCost + $minCost) / 3;
         $firstPassStrategy1 = $this->getConsumption($forecastData, $averageConsumptions);
-        $secondPassStrategy1 = $this->getConsumption($forecastData, $weekAgpConsumptions);
+        $secondPassStrategy1 = $this->getConsumption($forecastData, $weekAgoConsumptions);
         $this->chargeStrategy = count($importCosts) > 0 ? ($averageCost + $minCost + $minCost + $minCost) / 4 : 0;
         $thirdPassStrategy2 = $this->getConsumption($forecastData, $averageConsumptions);
 
         $strategies = [];
         $firstPassStrategy1->each(function ($item, $key) use (&$strategies) {
             $strategies[$key]['import_value_inc_vat'] = $item['import_value_inc_vat'];
+            $strategies[$key]['strategy_manual'] = $item['charging'];
             $strategies[$key]['strategy1'] = $item['charging'];
             $strategies[$key]['consumption_average'] = $item['consumption'];
         });
 
         $secondPassStrategy1->each(function ($item, $key) use (&$strategies) {
             $strategies[$key]['consumption_last_week'] = $item['consumption'];
+            $strategies[$key]['consumption_manual'] = $item['consumption'];
         });
 
         $thirdPassStrategy2->each(function ($item, $key) use (&$strategies) {
@@ -177,10 +166,27 @@ class GenerateStrategyAction implements ActionInterface
                 'strategy2',
                 'consumption_last_week',
                 'consumption_average',
+                'consumption_manual',
                 'import_value_inc_vat',
                 'export_value_inc_vat',
             ]
         );
+
+        $missingStrategyManualCount = Strategy::query()
+            ->whereBetween('period', [$start, $end])
+            ->whereNull('strategy_manual')
+            ->limit($limit)
+            ->count();
+
+        if ($missingStrategyManualCount > 5) {
+            Strategy::upsert(
+                $strategies,
+                uniqueBy: ['period'],
+                update: [
+                    'strategy_manual'
+                ]
+            );
+        }
 
         return true;
     }
@@ -193,13 +199,9 @@ class GenerateStrategyAction implements ActionInterface
         $result = [];
 
         foreach ($forecastData as $forecast) {
-            $importValueIncVat = $forecast->importCost ? $forecast->importCost->value_inc_vat : 0;
-            $exportValueIncVat = $forecast->exportCost ? $forecast->exportCost->value_inc_vat : 0;
-
-            // Create a CostData value object for this forecast
             $costData = new CostData(
-                importValueIncVat: $importValueIncVat,
-                exportValueIncVat: $exportValueIncVat,
+                importValueIncVat: $forecast->importCost?->value_inc_vat,
+                exportValueIncVat: $forecast->exportCost?->value_inc_vat,
                 consumptionAverageCost: null,
                 consumptionLastWeekCost: null
             );
@@ -209,7 +211,7 @@ class GenerateStrategyAction implements ActionInterface
                 return $item->time === $forecast->period_end->format('H:i:s');
             });
 
-            $consumption = $consumptionData ? $consumptionData->value : 0;
+            $consumption = $consumptionData?->value ?: 0;
 
             $estimatePV = $forecast->pv_estimate / 2;
 
@@ -218,7 +220,7 @@ class GenerateStrategyAction implements ActionInterface
             $charging = false;
 
             // Use the CostData value object to get the import value
-            if ($this->charge && $costData->importValueIncVat < $this->chargeStrategy) {
+            if ($costData->importValueIncVat !== null && $costData->importValueIncVat < $this->chargeStrategy) {
                 $charging = true;
 
                 $battery += self::BATTERY_MAX_STRATEGY_PER_HALF_HOUR;
@@ -236,7 +238,7 @@ class GenerateStrategyAction implements ActionInterface
 
             $result[$forecast->period_end->format('Hi')] = [
                 'period'               => $forecast->period_end,
-                'import_value_inc_vat' => $costData->importValueIncVat,
+                'import_value_inc_vat' => $forecast->importCost?->value_inc_vat,
                 'charging'             => $charging,
                 'consumption'          => $consumption,
                 'battery_percentage'   => $battery * 25,

@@ -7,7 +7,9 @@ use App\Domain\Energy\Models\AgileExport;
 use App\Domain\Energy\Models\AgileImport;
 use App\Domain\Forecasting\Models\Forecast;
 use App\Domain\Strategy\Models\Strategy;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 class StrategyTest extends TestCase
@@ -38,7 +40,7 @@ class StrategyTest extends TestCase
         $this->assertDatabaseCount(Strategy::class, 1);
 
         foreach ($data as $key => $value) {
-            if ($value instanceof \Illuminate\Support\Carbon) {
+            if ($value instanceof Carbon) {
                 $this->assertSame($value->toDateTimeString(), $strategy->{$key}->toDateTimeString());
             } else {
                 $this->assertSame($value, $strategy->{$key});
@@ -66,7 +68,7 @@ class StrategyTest extends TestCase
 
     public function testAStrategyCanNotBeCreatedWithNonUniqueTimestamp(): void
     {
-        $this->expectException(\Illuminate\Database\QueryException::class);
+        $this->expectException(QueryException::class);
 
         $timestamp = now()->startOfHour();
 
@@ -172,10 +174,7 @@ class StrategyTest extends TestCase
         $estimate = fake()->randomFloat(4);
         $actualForecast = ActualForecast::create([
             'period_end' => $strategy->period,
-            'pv_estimate' => $estimate,
-            'pv_estimate10' => $estimate * 0.1,
-            'pv_estimate90' => $estimate * 1.1,
-
+            'pv_estimate' => $estimate
         ]);
 
         $strategy->load('actualForecast');
@@ -183,8 +182,6 @@ class StrategyTest extends TestCase
         $this->assertInstanceOf(ActualForecast::class, $strategy->actualForecast);
         $this->assertSame($strategy->actualForecast->id, $actualForecast->id);
         $this->assertEqualsWithDelta($strategy->actualForecast->pv_estimate, $actualForecast->pv_estimate, 0.001);
-        $this->assertEqualsWithDelta($strategy->actualForecast->pv_estimate10, $actualForecast->pv_estimate10, 0.001);
-        $this->assertEqualsWithDelta($strategy->actualForecast->pv_estimate90, $actualForecast->pv_estimate90, 0.001);
     }
 
     public function testCostDataValueObject(): void

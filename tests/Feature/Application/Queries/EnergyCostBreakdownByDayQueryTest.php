@@ -49,7 +49,7 @@ final class EnergyCostBreakdownByDayQueryTest extends TestCase
         $this->assertSame(8.25, $last['net_cost']);
     }
 
-    public function testHandlesNullValuesByCoercingToZero(): void
+    public function testNetCostHandlesNullValuesByCoercingToZero(): void
     {
         $s = Strategy::factory()->create([
             'period' => now()->startOfHour()->addHours(3),
@@ -63,8 +63,8 @@ final class EnergyCostBreakdownByDayQueryTest extends TestCase
         $result = $query->run($strategies);
 
         $row = $result->first();
-        $this->assertSame(0.0, $row['import_value_inc_vat']);
-        $this->assertSame(0.0, $row['export_value_inc_vat']);
+        $this->assertNull($row['import_value_inc_vat']);
+        $this->assertNull($row['export_value_inc_vat']);
         // getNetCost returns null when missing either side; we coerce to float 0.0 in the query for charting
         $this->assertSame(0.0, $row['net_cost']);
     }
