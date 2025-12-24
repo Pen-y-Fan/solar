@@ -14,7 +14,7 @@ use App\Domain\Energy\Models\AgileImport;
  * Solcast forecast model.
  *
  * @property int $id
- * @property \Carbon\CarbonImmutable|null $period_end
+ * @property \Illuminate\Support\Carbon|null $period_end
  * @property float|null $pv_estimate
  * @property float|null $pv_estimate10
  * @property float|null $pv_estimate90

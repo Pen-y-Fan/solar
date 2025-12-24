@@ -4,7 +4,6 @@ namespace App\Domain\Forecasting\Models;
 
 use App\Domain\Energy\Models\Inverter;
 use App\Domain\Forecasting\ValueObjects\PvEstimate;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
@@ -12,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  * Solcast actual forecast model.
  *
  * @property int $id
- * @property \Carbon\CarbonImmutable|null $period_end
+ * @property \Illuminate\Support\Carbon|null $period_end
  * @property float|null $pv_estimate
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
@@ -29,8 +28,6 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 class ActualForecast extends Model
 {
-//    use HasFactory;
-
     protected $fillable = [
         'period_end',
         'pv_estimate',

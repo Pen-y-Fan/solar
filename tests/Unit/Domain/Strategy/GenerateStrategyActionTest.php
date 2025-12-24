@@ -61,10 +61,10 @@ final class GenerateStrategyActionTest extends TestCase
 
         // Arrange: 4 half-hour periods with varying import costs
         $forecasts = [
-            $this->forecastEntry('0030', 10.0, 5.0, 0.0),   // cheap -> should charge
-            $this->forecastEntry('0100', 50.0, 5.0, 0.0),   // expensive -> discharge/hold depending on estimate
-            $this->forecastEntry('0130', 10.0, 5.0, 0.0),   // cheap -> charge
-            $this->forecastEntry('0200', null, 5.0, 0.0),   // missing import cost -> treated as 0 -> cheap -> charge
+            $this->forecastEntry('0030', 10.0, 5.0, 0.1),   // cheap -> should charge
+            $this->forecastEntry('0100', 50.0, 5.1, 0.2),   // expensive -> discharge/hold depending on estimate
+            $this->forecastEntry('0130', 10.0, 5.2, 0.3),   // cheap -> charge
+            $this->forecastEntry('0200', null, 5.3, 0.4),   // missing import cost -> treated as 0 -> cheap -> charge
         ];
 
         // Consumption data for those times (H:i:s format)
@@ -103,8 +103,8 @@ final class GenerateStrategyActionTest extends TestCase
         // 01:30 charge
         $this->assertTrue($result->get('0130')['charging']);
 
-        // 02:00 missing import cost treated as 0 -> charge
-        $this->assertTrue($result->get('0200')['charging']);
+        // 02:00 missing import cost (null) -> no charge
+        $this->assertFalse($result->get('0200')['charging']);
     }
 
     public function testGetConsumptionHandlesMissingConsumptionDefaultsToZero(): void

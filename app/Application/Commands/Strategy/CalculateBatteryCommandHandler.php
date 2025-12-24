@@ -10,7 +10,6 @@ use App\Domain\Strategy\Helpers\DateUtils;
 use App\Domain\Strategy\Models\Strategy;
 use App\Helpers\CalculateBatteryPercentage;
 use App\Support\Actions\ActionResult;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 

@@ -22,22 +22,28 @@ final class CopyConsumptionWeekAgoCommandHandler implements CommandHandler
         Log::info('CopyConsumptionWeekAgoCommand started');
 
         try {
-            // Determine date boundaries in Europe/London, then convert to UTC for DB
             [$start, $end] = DateUtils::calculateDateRange($command->date);
-
             $count = 0;
+            $updates = [];
 
-            DB::transaction(function () use (&$count, $start, $end) {
-                $strategies = Strategy::query()->whereBetween('period', [$start, $end])->get();
-                foreach ($strategies as $strategy) {
-                    $consumptionData = $strategy->getConsumptionDataValueObject();
-                    if ($consumptionData->lastWeek !== null) {
-                        $strategy->consumption_manual = $consumptionData->lastWeek;
-                        $strategy->save();
-                        $count++;
-                    }
+            $strategies = Strategy::query()->whereBetween('period', [$start, $end])->get();
+
+            foreach ($strategies as $strategy) {
+                $consumptionData = $strategy->getConsumptionDataValueObject();
+                if ($consumptionData->lastWeek !== null) {
+                    $updates[] = [
+                        'id'                 => $strategy->id,
+                        'consumption_manual' => $consumptionData->lastWeek,
+                    ];
+                    $count++;
                 }
-            });
+            }
+
+            if ($count > 0) {
+                DB::transaction(function () use ($updates) {
+                    Strategy::upsert($updates, 'id');
+                });
+            }
 
             $ms = (int)((microtime(true) - $startedAt) * 1000);
             Log::info('CopyConsumptionWeekAgoCommand finished', [

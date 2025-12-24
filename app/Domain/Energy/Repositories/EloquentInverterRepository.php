@@ -29,7 +29,7 @@ class EloquentInverterRepository implements InverterRepositoryInterface
                 'period',
                 '>',
                 $startDate->timezone('Europe/London')
-                    ->subdays(21)
+                    ->subDays(21)
                     ->startOfDay()
                     ->timezone('UTC')
             )

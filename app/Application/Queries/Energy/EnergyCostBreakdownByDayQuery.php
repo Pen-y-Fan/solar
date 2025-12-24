@@ -34,18 +34,13 @@ final class EnergyCostBreakdownByDayQuery
     {
         /** @var Collection<int, array{valid_from: string, import_value_inc_vat: float, export_value_inc_vat: float, net_cost: float}> $collection */
         $collection = $strategies->map(static function (Strategy $strategy): array {
-            /** @var \Carbon\CarbonImmutable|string|null $period */
-            $period = $strategy->period;
             $cost = $strategy->getCostDataValueObject();
-
-            $import = (float)($cost->importValueIncVat ?? 0);
-            $export = (float)($cost->exportValueIncVat ?? 0);
             $net = (float)$cost->getNetCost();
 
             return [
-                'valid_from' => (string)$period,
-                'import_value_inc_vat' => $import,
-                'export_value_inc_vat' => $export,
+                'valid_from' => (string)$strategy->period,
+                'import_value_inc_vat' => $cost->importValueIncVat,
+                'export_value_inc_vat' => $cost->exportValueIncVat,
                 'net_cost' => $net,
             ];
         });
