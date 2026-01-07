@@ -17,7 +17,7 @@ function triggerLocalGeneration(period = 'today')
 {
     const params = { headers: { 'Content-Type': 'application/json' } };
     const payload = JSON.stringify({ period });
-    return http.post(`${BASE_URL} / _perf / generate - strategy`, payload, params);
+    return http.post(`${BASE_URL}/_perf/generate-strategy`, payload, params);
 }
 
 // Optional Livewire POST flow (gated). Requires providing LIVEWIRE_ENDPOINT (e.g., /livewire/message/strategies.table)

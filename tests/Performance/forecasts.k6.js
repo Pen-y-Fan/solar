@@ -26,7 +26,7 @@ export default function () {
 
     const editId = findFirstEditId(indexRes.body);
     if (editId) {
-        const res = get(` / forecasts / ${editId} / edit`);
+        const res = get(`/forecasts/${editId}/edit`);
         check(res, { 'forecasts edit 200': (r) => r.status === 200 });
     }
 

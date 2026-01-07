@@ -24,3 +24,4 @@ yarn-error.log
 /tests/Performance/out/
 /perf-reports/
 /cookiejar
+/.output.txt

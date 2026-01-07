@@ -28,7 +28,7 @@ export function bootstrapAuthIfNeeded()
     const jar = http.cookieJar();
 
   // Step 1: try local bootstrap endpoint (may 302)
-    const res = http.get(`${BASE_URL} / _auth / bootstrap`, { redirects: 0 });
+    const res = http.get(`${BASE_URL}/_auth/bootstrap`, { redirects: 0 });
 
     function setCookieFrom(resp)
     {
@@ -56,7 +56,7 @@ export function bootstrapAuthIfNeeded()
   // Treat auth as optional; if cookie not received, continue but mark as info-only.
 
   // Probe home for availability
-    const probe = http.get(`${BASE_URL} / `);
+    const probe = http.get(`${BASE_URL}/`);
 
     check(res, {
         'auth bootstrap 2xx/3xx': (r) => r.status >= 200 && r.status < 400,
