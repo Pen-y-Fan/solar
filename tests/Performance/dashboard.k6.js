@@ -17,7 +17,7 @@ function bootstrapAuth()
 {
   // Fetch a session cookie from the local auth bootstrap if running locally
     if ((__ENV.USE_BOOTSTRAP_AUTH || 'true') === 'true') {
-        const res = http.get(`${BASE_URL} / _auth / bootstrap`, { redirects: 0 });
+        const res = http.get(`${BASE_URL}/_auth/bootstrap`, { redirects: 0 });
         check(res, {
             'auth bootstrap 200': (r) => r.status === 200,
             'received session cookie': (r) => !!r.cookies['laravel_session'],
@@ -32,11 +32,11 @@ export default function () {
     }
 
   // Load main dashboard with small warmup retry/backoff to stabilize first-iteration flakiness
-    let res = http.get(`${BASE_URL} / `);
+    let res = http.get(`${BASE_URL}/`);
     if (res.status !== 200) {
       // brief backoff and retry once
         sleep(0.5);
-        res = http.get(`${BASE_URL} / `);
+        res = http.get(`${BASE_URL}/`);
     }
     check(res, {
         'dashboard status 200': (r) => r.status === 200,

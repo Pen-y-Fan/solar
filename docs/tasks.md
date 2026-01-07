@@ -141,6 +141,11 @@ Once the dashboard chart is interactive, also update the smilar chart in strateg
 
 - [x] The strategy generator can include the consumption from last week.
 
+### 1.1.9 Monthly large dataset performance checks Jan 2026
+
+- [x] Add monthly large dataset performance checks — see `docs/monthly-large-dataset-performance-checks.md` for the full
+  checklist
+
 ## 2. Testing and Quality Assurance
 
 [ ] Foundation and Security (Phase 1 alignment)

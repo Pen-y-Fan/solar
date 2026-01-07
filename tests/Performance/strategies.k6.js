@@ -31,7 +31,7 @@ export default function () {
   // Attempt to load first edit page if we can detect an id
     const editId = findFirstEditId(indexRes.body);
     if (editId) {
-        const res = get(` / strategies / ${editId} / edit`);
+        const res = get(`/strategies/${editId}/edit`);
         check(res, {
             'strategies edit 200': (r) => r.status === 200,
         });

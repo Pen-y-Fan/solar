@@ -1,6 +1,6 @@
 # Monthly Large Dataset Performance Checks
 
-Last run: Wed 3-Dec-2025 19:08
+Last run: Wed 7-Jan-2026 20:28
 
 Purpose: Provide a repeatable, check‑off task to run the Large dataset advisory performance checks locally each month
 and record summarized metrics in `docs/performance-testing.md` under “Large Dataset Advisory Results (Local)”. This
@@ -49,24 +49,26 @@ Notes:
       PERF_DATASET_SIZE=large \
       bash tests/Performance/run-all.sh
       ```
-3) Summarize results
+3) Confirm output
+   - `ls -la ./perf-reports/*.large.summary.json` there should be 4 files generated now.
+4) Summarize results
     - [x] For each scenario, collect and summarize: p95 latency, requests-per-second (RPS), and error rate.
     - [x] Paste a concise summary into `docs/performance-testing.md` under “Large Dataset Advisory Results (Local)”,
       including date (UTC), environment, k6 VUs/duration, and any notable observations.
     - [x] Do not commit raw artifacts; only the summary text belongs in the repo.
-4) Quality checks (run regularly during the task)
+5) Quality checks (run regularly during the task)
     - [x] Run full suite locally to ensure quality:
       ```bash
       composer all
       ```
-    - [ ] If style issues are reported, optionally fix:
+    - [x] If style issues are reported, optionally fix: (none found)
       ```bash
       composer cs-fix
       ```
-5) Close out
+6) Close out
     - [x] Commit doc updates to `docs/performance-testing.md` with a message like: "perf: add monthly Large dataset
       advisory summary (YYYY-MM)".
-    - [x] Review `docs/tasks.md` item 1.1.4 and mark as completed for this month if applicable.
+    - [x] Review `docs/tasks.md` item 1.1.9 and mark as completed for this month if applicable.
 
 ## Restart guide (if interrupted)
 

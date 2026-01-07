@@ -15,7 +15,7 @@ const AUTH = __ENV.AUTH_HEADER || '';
 
 export default function () {
     const headers = AUTH ? { Authorization : AUTH } : {};
-    const res = http.get(`${BASE_URL} / `, { headers });
+    const res = http.get(`${BASE_URL}/`, { headers });
     check(res, {
         'status is 200': (r) => r.status === 200,
     });

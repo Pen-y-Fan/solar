@@ -1161,7 +1161,7 @@ Decisions:
 
 ### Large Dataset Advisory Results (Local)
 
-Last update: 2025‑12‑03
+Last update: 2026-01-07 21:13
 
 Use this section to paste summarized metrics from `perf-reports/*.large.summary.json` after running the Large dataset locally. Include hardware notes (CPU/RAM), background load, and any relevant observations. Do not commit the raw perf-reports; only the summaries below.
 
@@ -1205,6 +1205,82 @@ Results (2025‑12‑03, local Mac, low background load; VUS=8, DURATION=90s; `P
   - RPS: ~25.47 req/s
   - Error rate: 0%
   - Notes: Helper path `/_perf/generate-strategy`, single-flight; no duplicate submissions.
+
+Results (2026-01-07, local MacOS arm64 Herd, low background load; VUS=8, DURATION=90s; `PERF_DATASET_SIZE=large`):
+
+- forecasts (Large):
+  - p50: 45.50 ms
+  - p90: 62.74 ms
+  - p95: 68.87 ms
+  - p99: n/a
+  - RPS: ~14.5 req/s
+  - Error rate: 0%
+  - Notes: Auth bootstrap; stable, p95 improved from Dec 89ms.
+
+- inverter (Large):
+  - p50: 44.20 ms
+  - p90: 58.28 ms
+  - p95: 64.13 ms
+  - p99: n/a
+  - RPS: ~14.7 req/s
+  - Error rate: 0%
+  - Notes: Inverter widgets; stable, p95 improved from Dec 92ms.
+
+- strategies (Large):
+  - p50: 44.65 ms
+  - p90: 59.74 ms
+  - p95: 65.36 ms
+  - p99: n/a
+  - RPS: ~14.6 req/s
+  - Error rate: 0%
+  - Notes: Strategies index; stable, p95 improved from Dec 81ms.
+
+- strategy-generation (Large):
+  - p50: 34.66 ms
+  - p90: 42.42 ms
+  - p95: 50.43 ms
+  - p99: n/a
+  - RPS: ~25.8 req/s
+  - Error rate: 0%
+  - Notes: Generation flow; stable, p95 improved from Dec 58ms; summary thresholds shown 'false'.
+
+Results (2026-01-07 21:13, local MacOS arm64 Herd, low background load; VUS=8, DURATION=90s; `PERF_DATASET_SIZE=large`; post k6 helpers whitespace fix):
+
+- forecasts (Large):
+  - p50: 61.24 ms
+  - p90: 81.17 ms
+  - p95: 85.59 ms
+  - p99: n/a
+  - RPS: ~14.3 req/s
+  - Error rate: 0%
+  - Notes: Auth bootstrap; stable; all checks 100%.
+
+- inverter (Large):
+  - p50: 57.32 ms
+  - p90: 78.36 ms
+  - p95: 83.87 ms
+  - p99: n/a
+  - RPS: ~14.4 req/s
+  - Error rate: 0%
+  - Notes: Inverter widgets; stable; all checks 100%.
+
+- strategies (Large):
+  - p50: 58.66 ms
+  - p90: 79.70 ms
+  - p95: 86.06 ms
+  - p99: n/a
+  - RPS: ~14.4 req/s
+  - Error rate: 0%
+  - Notes: Strategies index; stable; all checks 100%.
+
+- strategy-generation (Large):
+  - p50: 34.06 ms
+  - p90: 52.84 ms
+  - p95: 68.43 ms
+  - p99: n/a
+  - RPS: ~25.3 req/s
+  - Error rate: 0%
+  - Notes: Generation flow; stable; summary thresholds shown 'false'; all checks 100%.
 
 ---
 
