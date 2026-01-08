@@ -84,8 +84,8 @@ displays the forecast chart, can compare with last week's data or an average ove
 When the battery is full, it shows a negative value. This is maybe a bug on
 the 'Forecast for'. chart.
 
-- Current action: Add a task to section 1.1.x of  `docs/tasks.md`
-- Status: Not started
+- Current action: Add a task to section 1.1.10 of  `docs/tasks.md`
+- Status: Complete
 
 #### Helper to export strategy
 

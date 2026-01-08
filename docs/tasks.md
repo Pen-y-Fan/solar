@@ -146,6 +146,10 @@ Once the dashboard chart is interactive, also update the smilar chart in strateg
 - [x] Add monthly large dataset performance checks — see `docs/monthly-large-dataset-performance-checks.md` for the full
   checklist
 
+### 1.1.10 The battery cost is sometimes negative when full
+
+- [x] Fix `CalculateBatteryPercentage` calculate method
+
 ## 2. Testing and Quality Assurance
 
 [ ] Foundation and Security (Phase 1 alignment)

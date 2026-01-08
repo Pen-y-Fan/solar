@@ -25,42 +25,39 @@ class CalculateBatteryPercentage
         // Estimate KWh is per hour, we are calculating per 1/2 hour.
         $estimatePV = $this->estimatePV / 2;
 
-        $estimatedBatteryRequired = $estimatePV - $this->consumption;
+        $powerDifference = $estimatePV - $this->consumption;
 
         $import = 0;
         $export = 0;
         $charge = 0;
 
         if ($this->charging) {
-            // Let's charge using inexpensive rate electricity
+            // We are charging, so no battery will be used for consumption.
+            // 1. use any $estimatePV for consumption
+            // 2. use any remaining excess PV for charging
+            // 3. export any remaining excess PV
+            $requiredBatteryCharge = min(self::BATTERY_MAX_CHARGE_PER_HALF_HOUR, self::BATTERY_MAX - $battery);
+            $battery += $requiredBatteryCharge;
 
-            // we are charging so negative $estimatedBatteryRequired means we charge the battery
-            // the import cost is the chargeAmount + $estimatedBatteryRequired
-            // if the battery reaches MAX the export will cut in chargeAmount + PV generated over the max
-            $maxChargeAmount = min(self::BATTERY_MAX_CHARGE_PER_HALF_HOUR, self::BATTERY_MAX - $battery);
-            $charge = $estimatedBatteryRequired > 0 ? $maxChargeAmount - $estimatedBatteryRequired : $maxChargeAmount;
-            $battery += self::BATTERY_MAX_CHARGE_PER_HALF_HOUR;
-            $import = $this->consumption;
+            // Import does not include battery ($charge), this is a separate calculation
+            $import = max(0, $this->consumption - $estimatePV);
+            $excessPv = max(0, $powerDifference);
 
-            // We need to charge the battery from grid
-            // The PV may be supplying some charge
-            // if the battery is over the battery max and PV is more than demand ($estimatedBatteryRequired > 0)
-            // we may be exporting, but only if the $estimatedBatteryRequired > $maxChargeAmount, otherwise we are
-            // importing the difference
-            if ($battery > self::BATTERY_MAX) {
-                if ($estimatedBatteryRequired > 0 && $estimatedBatteryRequired > $maxChargeAmount) {
-                    // battery has reached max, we are exporting excess PV
-                    // e.g. battery was 4.3 we charged to 4.4 and PC is 0.5, consumption is 0.3
-                    // the charge amount is 0.7 we used 0.2 from excess PV
-                    $export = $estimatedBatteryRequired - $maxChargeAmount;
-                }
-
-                // reset the battery to max
-                $battery = self::BATTERY_MAX;
+            // We need to charge the battery from Pv first
+            if ($excessPv > 0) {
+                $charge = max(0, $requiredBatteryCharge - $excessPv);
+                $excessPv = max(0, $excessPv - $requiredBatteryCharge);
+            } else {
+                $charge = $requiredBatteryCharge;
+            }
+            // if we still have excess PV after consumption and charging, it can export
+            if ($excessPv > 0) {
+                $export = $excessPv;
             }
         } else {
-            // We are not charging so use the battery then sort out the import or export
-            $battery += $estimatedBatteryRequired;
+            // We are not charging so use the battery, then sort out the import or export, in reality we will use excess
+            // PV, then battery, if available, import the difference, or export the excess.
+            $battery += $powerDifference;
 
             if ($battery < self::BATTERY_MIN) {
                 $import = self::BATTERY_MIN - $battery;
@@ -85,7 +82,7 @@ class CalculateBatteryPercentage
 
     private function convertFromKhhToBatteryPercentage(float $battery): int
     {
-        return (int) ($battery * 100 / self::BATTERY_MAX);
+        return (int)($battery * 100 / self::BATTERY_MAX);
     }
 
     public function consumption(float $consumption): CalculateBatteryPercentage
