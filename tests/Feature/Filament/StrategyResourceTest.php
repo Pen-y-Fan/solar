@@ -21,6 +21,8 @@ class StrategyResourceTest extends TestCase
     {
         parent::setUp();
 
+        Carbon::setTestNow(Carbon::today()->setTime(12, 0, 0));
+
         // Create and authenticate a user using the factory
         $this->user = User::factory()->create([
             'name' => 'Test User',
