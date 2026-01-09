@@ -97,6 +97,17 @@ Investigate options on how to accurately update the Solis inverter.
 - Current action: Add a task to section 1.1.x of  `docs/tasks.md`
 - Status: Not started
 
+#### Strategy filter
+
+The strategy filter displays the strategy for the current day, after 4pm it needs to display the strategy for the next
+day, by default.
+
+When the user navigates to the strategy page, the strategy filter should automatically update to display the correct
+strategy for the current or next day, 4pm to 4pm period.
+
+- Current action: Add a task to section 1.1.11 of  `docs/tasks.md`
+- Status: Complete
+
 ### Dashboard
 
 #### Make the Agile cost chart interactive

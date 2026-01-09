@@ -272,7 +272,11 @@ class StrategyResource extends Resource
                             $query->whereBetween('period', [$start, $end]);
                         }
                     })
-                    ->default(now()->format('Y-m-d')),
+                    ->default(
+                        fn() => now('Europe/London') < now('Europe/London')->setTime(16, 0)
+                            ? now('Europe/London')->format('Y-m-d')
+                            : now('Europe/London')->addDay()->format('Y-m-d')
+                    ),
             ], layout: FiltersLayout::AboveContent)
             ->headerActions([
                 GenerateAction::make(),

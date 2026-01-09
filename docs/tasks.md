@@ -150,6 +150,10 @@ Once the dashboard chart is interactive, also update the smilar chart in strateg
 
 - [x] Fix `CalculateBatteryPercentage` calculate method
 
+### 1.1.11 Update the strategy filter
+
+- [x] Update the strategy filter to display the correct strategy for the current or next day, 4pm to 4pm period.
+
 ## 2. Testing and Quality Assurance
 
 [ ] Foundation and Security (Phase 1 alignment)
