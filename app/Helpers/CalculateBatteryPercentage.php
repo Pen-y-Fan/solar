@@ -2,6 +2,8 @@
 
 namespace App\Helpers;
 
+use App\Application\Commands\Strategy\DTOs\BatteryCalculationResult;
+
 class CalculateBatteryPercentage
 {
     private const BATTERY_MIN = 0.4;
@@ -18,7 +20,7 @@ class CalculateBatteryPercentage
 
     private float $estimatePV = 0.0;
 
-    public function calculate(): array
+    public function calculate(): BatteryCalculationResult
     {
         $battery = $this->calculateFromBatteryPercentageTokWh();
 
@@ -72,7 +74,13 @@ class CalculateBatteryPercentage
 
         $this->batteryPercentage = $this->convertFromKhhToBatteryPercentage($battery);
 
-        return [$this->batteryPercentage, $charge, $import, $export];
+        return new BatteryCalculationResult(
+            $this->batteryPercentage,
+            $charge,
+            $import,
+            $export
+        );
+//        return [$this->batteryPercentage, $charge, $import, $export];
     }
 
     private function calculateFromBatteryPercentageTokWh(): float

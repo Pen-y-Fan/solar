@@ -15,14 +15,14 @@ class CalculateBatteryPercentageTest extends TestCase
             ->estimatePVkWh(4.0)
             ->isCharging(true);
 
-        [$batteryPercentage, $chargeAmount, $importAmount, $exportAmount] = $calculator->calculate();
+        $result = $calculator->calculate();
 
         // Pv per 30 min = 2 - 1.1 (consumption) (0 import) = 0.9 remaining - 1.0 battery required (charge 0.1)
         // = 0.0 excess
-        $this->assertEquals(50, $batteryPercentage);
-        $this->assertEqualsWithDelta(0, $importAmount, 0.01);
-        $this->assertEqualsWithDelta(0.1, $chargeAmount, 0.01);
-        $this->assertEqualsWithDelta(0, $exportAmount, 0.01);
+        $this->assertEquals(50, $result->batteryPercentage);
+        $this->assertEqualsWithDelta(0, $result->importAmount, 0.01);
+        $this->assertEqualsWithDelta(0.1, $result->chargeAmount, 0.01);
+        $this->assertEqualsWithDelta(0, $result->exportAmount, 0.01);
     }
 
     public function testCalculateWhenChargingAndWithinBatteryLimitsExcessPvWillGoToConsumptionBatteryAndSomeExport()
@@ -33,14 +33,14 @@ class CalculateBatteryPercentageTest extends TestCase
             ->estimatePVkWh(4.0)
             ->isCharging(true);
 
-        [$batteryPercentage, $chargeAmount, $importAmount, $exportAmount] = $calculator->calculate();
+        $result = $calculator->calculate();
 
         // Pv per 30 min = 2 - 0.5 (consumption) (0 import) = 1.5 remaining - 1.0 battery required (charge 0)
         // = 0.5 excess
-        $this->assertEquals(50, $batteryPercentage);
-        $this->assertEqualsWithDelta(0, $importAmount, 0.01);
-        $this->assertEqualsWithDelta(0, $chargeAmount, 0.01);
-        $this->assertEqualsWithDelta(0.5, $exportAmount, 0.01);
+        $this->assertEquals(50, $result->batteryPercentage);
+        $this->assertEqualsWithDelta(0, $result->importAmount, 0.01);
+        $this->assertEqualsWithDelta(0, $result->chargeAmount, 0.01);
+        $this->assertEqualsWithDelta(0.5, $result->exportAmount, 0.01);
     }
 
     public function testCalculateWhenChargingWithExcessPvImportIsHighWillCoverConsumptionBatteryAndGoToExport()
@@ -51,13 +51,13 @@ class CalculateBatteryPercentageTest extends TestCase
             ->estimatePVkWh(1.0)
             ->isCharging(true);
 
-        [$batteryPercentage, $chargeAmount, $importAmount, $exportAmount] = $calculator->calculate();
+        $result = $calculator->calculate();
 
         // Pv per 30 min = 1 - 1 (consumption) (0 import) = 0 remaining - 1.0 battery required (1 charge) = 0 export
-        $this->assertEquals(50, $batteryPercentage);
-        $this->assertEqualsWithDelta(0, $importAmount, 0.01);
-        $this->assertEqualsWithDelta(1, $chargeAmount, 0.01);
-        $this->assertEqualsWithDelta(0, $exportAmount, 0.01);
+        $this->assertEquals(50, $result->batteryPercentage);
+        $this->assertEqualsWithDelta(0, $result->importAmount, 0.01);
+        $this->assertEqualsWithDelta(1, $result->chargeAmount, 0.01);
+        $this->assertEqualsWithDelta(0, $result->exportAmount, 0.01);
     }
 
     public function testCalculateWhenChargingAndExceedsBatteryMax()
@@ -68,14 +68,15 @@ class CalculateBatteryPercentageTest extends TestCase
             ->estimatePVkWh(2.0)
             ->isCharging(true);
 
-        [$batteryPercentage, $chargeAmount, $importAmount, $exportAmount] = $calculator->calculate();
+        $result = $calculator->calculate();
         // Pv per 30 min = 1 - 0.5 (consumption) (0 import) = 0.5 remaining - 0.2 battery required (0 charge)
         // = 0.3 excess
-        $this->assertEquals(100, $batteryPercentage);
-        $this->assertEqualsWithDelta(0, $chargeAmount, 0.01);
-        $this->assertEqualsWithDelta(0, $importAmount, 0.01);
-        $this->assertEqualsWithDelta(0.3, $exportAmount, 0.01);
+        $this->assertEquals(100, $result->batteryPercentage);
+        $this->assertEqualsWithDelta(0, $result->chargeAmount, 0.01);
+        $this->assertEqualsWithDelta(0, $result->importAmount, 0.01);
+        $this->assertEqualsWithDelta(0.3, $result->exportAmount, 0.01);
     }
+
     public function testCalculateWhenChargingAndEBatteryAlreadyFull()
     {
         $calculator = (new CalculateBatteryPercentage())
@@ -84,13 +85,13 @@ class CalculateBatteryPercentageTest extends TestCase
             ->estimatePVkWh(2.0)
             ->isCharging(true);
 
-        [$batteryPercentage, $chargeAmount, $importAmount, $exportAmount] = $calculator->calculate();
+        $result = $calculator->calculate();
         // Pv per 30 min = 1 - 0.5 (consumption) (0 import) = 0.5 remaining - 0 battery required (0 charge)
         // = 0.5 excess
-        $this->assertEquals(100, $batteryPercentage);
-        $this->assertEqualsWithDelta(0, $chargeAmount, 0.01);
-        $this->assertEqualsWithDelta(0, $importAmount, 0.01);
-        $this->assertEqualsWithDelta(0.5, $exportAmount, 0.01);
+        $this->assertEquals(100, $result->batteryPercentage);
+        $this->assertEqualsWithDelta(0, $result->chargeAmount, 0.01);
+        $this->assertEqualsWithDelta(0, $result->importAmount, 0.01);
+        $this->assertEqualsWithDelta(0.5, $result->exportAmount, 0.01);
     }
 
     public function testCalculateWithoutChargingAndWithinBatteryLimits()
@@ -101,13 +102,13 @@ class CalculateBatteryPercentageTest extends TestCase
             ->estimatePVkWh(1.0)
             ->isCharging(false);
 
-        [$batteryPercentage, $chargeAmount, $importAmount, $exportAmount] = $calculator->calculate();
+        $result = $calculator->calculate();
         // Pv per 30 min = 0.5 - 0.5 (consumption) (0 import) = 0 remaining - 0 battery required (50% battery)
         // = 0 excess
-        $this->assertEquals(50, $batteryPercentage);
-        $this->assertEqualsWithDelta(0, $importAmount, 0.01);
-        $this->assertEqualsWithDelta(0, $chargeAmount, 0.01);
-        $this->assertEqualsWithDelta(0, $exportAmount, 0.01);
+        $this->assertEquals(50, $result->batteryPercentage);
+        $this->assertEqualsWithDelta(0, $result->importAmount, 0.01);
+        $this->assertEqualsWithDelta(0, $result->chargeAmount, 0.01);
+        $this->assertEqualsWithDelta(0, $result->exportAmount, 0.01);
     }
 
     public function testCalculateWithoutChargingAndBatteryDropsBelowMin()
@@ -118,12 +119,12 @@ class CalculateBatteryPercentageTest extends TestCase
             ->estimatePVkWh(0.0)
             ->isCharging(false);
 
-        [$batteryPercentage, $chargeAmount, $importAmount, $exportAmount] = $calculator->calculate();
+        $result = $calculator->calculate();
         // Pv per 30 min = 0 - 1.5 (consumption) = 1.5 required - 0.6 battery available (15% battery) = 0 excess
-        $this->assertEquals(10, $batteryPercentage);
-        $this->assertEqualsWithDelta(0.9, $importAmount, 0.01);
-        $this->assertEqualsWithDelta(0, $chargeAmount, 0.01);
-        $this->assertEqualsWithDelta(0, $exportAmount, 0.01);
+        $this->assertEquals(10, $result->batteryPercentage);
+        $this->assertEqualsWithDelta(0.9, $result->importAmount, 0.01);
+        $this->assertEqualsWithDelta(0, $result->chargeAmount, 0.01);
+        $this->assertEqualsWithDelta(0, $result->exportAmount, 0.01);
     }
 
     public function testCalculateWithoutChargingAndBatteryExceedsMax()
@@ -134,11 +135,11 @@ class CalculateBatteryPercentageTest extends TestCase
             ->estimatePVkWh(4.0)
             ->isCharging(false);
 
-        [$batteryPercentage, $chargeAmount, $importAmount, $exportAmount] = $calculator->calculate();
+        $result = $calculator->calculate();
 
-        $this->assertEquals(100, $batteryPercentage);
-        $this->assertEqualsWithDelta(0, $chargeAmount, 0.01);
-        $this->assertEqualsWithDelta(0, $importAmount, 0.01);
-        $this->assertEqualsWithDelta(0.6, $exportAmount, 0.01);
+        $this->assertEquals(100, $result->batteryPercentage);
+        $this->assertEqualsWithDelta(0, $result->chargeAmount, 0.01);
+        $this->assertEqualsWithDelta(0, $result->importAmount, 0.01);
+        $this->assertEqualsWithDelta(0.6, $result->exportAmount, 0.01);
     }
 }
