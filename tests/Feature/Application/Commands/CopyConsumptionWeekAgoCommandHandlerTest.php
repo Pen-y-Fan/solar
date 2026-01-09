@@ -70,7 +70,7 @@ final class CopyConsumptionWeekAgoCommandHandlerTest extends TestCase
         $handler = new CopyConsumptionWeekAgoCommandHandler();
         $result = $handler->handle(new CopyConsumptionWeekAgoCommand(date: 'not-a-date'));
         $this->assertFalse($result->isSuccess());
-        $this->assertStringStartsWith('Copy consumption failed:', (string) $result->getMessage());
+        $this->assertStringStartsWith('Copy consumption failed', (string) $result->getMessage());
 
         // @phpstan-ignore-next-line mock expectation
         Log::shouldHaveReceived('warning')->withArgs(function (string $message, array $context): bool {

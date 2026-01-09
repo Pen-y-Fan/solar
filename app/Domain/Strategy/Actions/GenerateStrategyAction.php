@@ -63,7 +63,7 @@ class GenerateStrategyAction implements ActionInterface
     {
         Log::info('Start generation of strategy');
 
-        [$start, $end] = DateUtils::calculateDateRange($this->filter);
+        [$start, $end] = DateUtils::calculateDateRange1600to1600($this->filter);
 
         $limit = 48;
 

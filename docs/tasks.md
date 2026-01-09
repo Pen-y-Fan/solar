@@ -154,6 +154,11 @@ Once the dashboard chart is interactive, also update the smilar chart in strateg
 
 - [x] Update the strategy filter to display the correct strategy for the current or next day, 4pm to 4pm period.
 
+### 1.1.12 Battery start percentage
+
+- [x] the battery start percentage should be 15:30 end battery percentage, the 16:00 end battery percentage will then be
+  correctly calculated.
+
 ## 2. Testing and Quality Assurance
 
 [ ] Foundation and Security (Phase 1 alignment)
