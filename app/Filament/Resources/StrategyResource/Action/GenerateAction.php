@@ -39,7 +39,7 @@ class GenerateAction extends Action
         $this->action(function (): void {
             $this->process(function (Table $table) {
                 $periodFilter = $table->getFilter('period')->getState();
-                $periodValue = $periodFilter['value'] ?? null;
+                $periodValue = $periodFilter['value'] ?? now()->toDateString();
                 Log::info('Generating strategy for: ' . $periodValue);
                 /** @var CommandBus $bus */
                 $bus = app(CommandBus::class);
@@ -48,12 +48,12 @@ class GenerateAction extends Action
                 if (!$this->result) {
                     $this->failureNotificationTitle($result->getMessage() ?? 'Failed');
                     $this->failure();
+                    return;
                 }
-            });
-
-            if ($this->result) {
+                Log::info('Generated strategy for: ' . $periodValue, ['result' => $this->result]);
+                $this->successNotificationTitle($result->getMessage() ?? 'Generated');
                 $this->success();
-            }
+            });
         });
     }
 }

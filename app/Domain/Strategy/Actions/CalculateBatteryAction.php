@@ -22,9 +22,9 @@ class CalculateBatteryAction extends Action
     {
         parent::setUp();
 
-        $this->label('Calculate battery');
+        $this->label('Recalculate battery');
 
-        $this->color('success');
+        $this->color('info');
 
         $this->modalSubmitActionLabel('Calculate');
 

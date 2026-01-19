@@ -3,7 +3,6 @@
 namespace App\Filament\Resources;
 
 use App\Domain\Strategy\Actions\CalculateBatteryAction;
-use App\Domain\Strategy\Actions\CopyConsumptionWeekAgoAction;
 use App\Filament\Resources\StrategyResource\Action\GenerateAction;
 use App\Filament\Resources\StrategyResource\Pages;
 use App\Filament\Resources\StrategyResource\Widgets\CostChart;
@@ -21,6 +20,7 @@ use Filament\Tables;
 use Filament\Tables\Columns\Summarizers\Average;
 use Filament\Tables\Columns\Summarizers\Range;
 use Filament\Tables\Columns\Summarizers\Sum;
+use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -279,16 +279,17 @@ class StrategyResource extends Resource
                     ),
             ], layout: FiltersLayout::AboveContent)
             ->headerActions([
-                GenerateAction::make(),
-                CopyConsumptionWeekAgoAction::make(),
-                CalculateBatteryAction::make(),
+                GenerateAction::make()
+                    ->visible(fn (HasTable $livewire) => $livewire->getAllTableRecordsCount() < 20),
+                CalculateBatteryAction::make()
+                    ->visible(fn (HasTable $livewire) => $livewire->getAllTableRecordsCount() >= 20),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
                 ]),
             ]);
     }

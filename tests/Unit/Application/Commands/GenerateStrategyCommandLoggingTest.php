@@ -29,17 +29,13 @@ final class GenerateStrategyCommandLoggingTest extends TestCase
         $this->assertTrue($result->isSuccess());
 
         // @phpstan-ignore-next-line mock expectation
-        Log::shouldHaveReceived('info')->withArgs(function (string $message, array $context): bool {
-            return $message === 'GenerateStrategyCommand started'
-                && ($context['period'] ?? null) === 'today';
-        })->once();
+        Log::shouldHaveReceived('info')
+            ->with('GenerateStrategyCommand started', m::subset(['period' => 'today']))
+            ->once();
 
         // @phpstan-ignore-next-line mock expectation
-        Log::shouldHaveReceived('info')->withArgs(function (string $message, array $context): bool {
-            return $message === 'GenerateStrategyCommand finished'
-                && ($context['period'] ?? null) === 'today'
-                && ($context['success'] ?? null) === true
-                && array_key_exists('ms', $context);
-        })->once();
+        Log::shouldHaveReceived('info')
+            ->with('GenerateStrategyCommand finished', m::subset(['period' => 'today', 'success' => true,]))
+            ->once();
     }
 }

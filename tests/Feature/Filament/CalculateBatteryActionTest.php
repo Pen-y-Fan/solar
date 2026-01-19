@@ -10,6 +10,8 @@ use App\Domain\Strategy\Models\Strategy;
 use App\Domain\User\Models\User;
 use App\Filament\Resources\StrategyResource;
 use App\Support\Actions\ActionResult;
+use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Mockery as m;
@@ -19,14 +21,29 @@ final class CalculateBatteryActionTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function testCalculateBatteryActionShowsErrorToastOnFailure(): void
+    protected function setUp(): void
     {
+        parent::setUp();
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        // Ensure the table has at least one row
-        Strategy::factory()->create(['period' => now()->timezone('UTC')->startOfDay()->addHours(12)]);
+        Carbon::setTestNow('2025-11-20 10:00:00');
+        // Ensure the table has at least 21 rows
+        $strategy = Strategy::factory()->create(['period' => now('UTC')]);
+        $periods = new CarbonPeriod(now()->addMinutes(5), '5 minutes', 20);
+        $strategyArray = $strategy->toArray();
+        unset($strategyArray['id']);
 
+        $updates = [];
+        foreach ($periods as $period) {
+            $strategyArray['period'] = $period;
+            $updates[] = $strategyArray;
+        }
+        Strategy::insert($updates);
+    }
+
+    public function testCalculateBatteryActionShowsErrorToastOnFailure(): void
+    {
         /** @var m\MockInterface&CommandBus $bus */
         $bus = m::mock(CommandBus::class);
         // @phpstan-ignore-next-line Mockery dynamic expectation count method
@@ -36,7 +53,7 @@ final class CalculateBatteryActionTest extends TestCase
             ->andReturn(ActionResult::failure('Battery calculation failed'));
         $this->app->instance(CommandBus::class, $bus);
 
-        Livewire::actingAs($user)
+        Livewire::actingAs(auth()->user())
             ->test(StrategyResource\Pages\ListStrategies::class)
             ->callTableAction('Calculate battery')
             ->assertNotified('Battery calculation failed');
@@ -44,11 +61,6 @@ final class CalculateBatteryActionTest extends TestCase
 
     public function testCalculateBatteryActionShowsSuccessToastOnSuccess(): void
     {
-        $user = User::factory()->create();
-        $this->actingAs($user);
-
-        Strategy::factory()->create(['period' => now()->timezone('UTC')->startOfDay()->addHours(12)]);
-
         /** @var m\MockInterface&CommandBus $bus */
         $bus = m::mock(CommandBus::class);
         // @phpstan-ignore-next-line Mockery dynamic expectation count method
@@ -58,7 +70,7 @@ final class CalculateBatteryActionTest extends TestCase
             ->andReturn(ActionResult::success(null, 'Calculated'));
         $this->app->instance(CommandBus::class, $bus);
 
-        Livewire::actingAs($user)
+        Livewire::actingAs(auth()->user())
             ->test(StrategyResource\Pages\ListStrategies::class)
             ->callTableAction('Calculate battery')
             ->assertNotified('Calculated');
