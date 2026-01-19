@@ -159,6 +159,10 @@ Once the dashboard chart is interactive, also update the smilar chart in strateg
 - [x] the battery start percentage should be 15:30 end battery percentage, the 16:00 end battery percentage will then be
   correctly calculated.
 
+### 1.1.13 Improve the strategy algorithm
+
+- [x] Detailed TDD tasks: [improve-the-strategy-algorithm.md](improve-the-strategy-algorithm.md)
+
 ## 2. Testing and Quality Assurance
 
 [ ] Foundation and Security (Phase 1 alignment)

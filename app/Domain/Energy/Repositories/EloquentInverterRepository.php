@@ -28,7 +28,8 @@ class EloquentInverterRepository implements InverterRepositoryInterface
             ->where(
                 'period',
                 '>',
-                $startDate->timezone('Europe/London')
+                $startDate->clone()
+                    ->timezone('Europe/London')
                     ->subDays(21)
                     ->startOfDay()
                     ->timezone('UTC')

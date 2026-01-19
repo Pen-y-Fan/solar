@@ -1,20 +1,41 @@
 <?php
 
+/** @noinspection PhpExpressionResultUnusedInspection */
+
 declare(strict_types=1);
 
 namespace Tests\Unit\Domain\Strategy;
 
 use App\Domain\Energy\Repositories\InverterRepositoryInterface;
-use App\Domain\Energy\ValueObjects\InverterConsumptionData;
 use App\Domain\Strategy\Actions\GenerateStrategyAction;
 use Carbon\CarbonImmutable;
 use Carbon\CarbonInterface;
+use Carbon\CarbonPeriod;
 use Illuminate\Support\Collection;
 use PHPUnit\Framework\TestCase;
+use Mockery;
+use ReflectionException;
+use ReflectionMethod;
 use ReflectionProperty;
+use Tests\Fixtures\StrategyTestDto;
 
 final class GenerateStrategyActionTest extends TestCase
 {
+    protected function tearDown(): void
+    {
+        Mockery::close();
+        parent::tearDown();
+    }
+
+    public function buildStrategyObject(int $id, CarbonInterface $start, object $forecastData): StrategyTestDto
+    {
+        $strategy = new StrategyTestDto();
+        $strategy->id = $id;
+        $strategy->period = $start;
+        $strategy->forecast = $forecastData;
+        return $strategy;
+    }
+
     private function makeAction(): GenerateStrategyAction
     {
         $stubRepo = new class implements InverterRepositoryInterface {
@@ -23,6 +44,7 @@ final class GenerateStrategyActionTest extends TestCase
             ): Collection {
                 return collect();
             }
+
             public function getConsumptionForDateRange(
                 CarbonInterface $startDate,
                 CarbonInterface $endDate
@@ -34,101 +56,306 @@ final class GenerateStrategyActionTest extends TestCase
         return new GenerateStrategyAction($stubRepo);
     }
 
-    private function forecastEntry(string $timeHi, ?float $import, ?float $export, float $pv): object
+    private function forecastEntry(CarbonInterface $period, ?float $import, ?float $export, float $pv): object
     {
-        $period = CarbonImmutable::createFromFormat('Hi', $timeHi, 'UTC');
-
         // Create simple value objects with value_inc_vat properties like Eloquent models would expose
-        $importCost = $import === null ? null : (object) ['value_inc_vat' => $import];
-        $exportCost = $export === null ? null : (object) ['value_inc_vat' => $export];
+        $importCost = $import === null ? null : (object)['value_inc_vat' => $import];
+        $exportCost = $export === null ? null : (object)['value_inc_vat' => $export];
 
-        return (object) [
-            'period_end' => $period,
-            'importCost' => $importCost,
-            'exportCost' => $exportCost,
+        return (object)[
+            'period_end'  => $period,
+            'importCost'  => $importCost,
+            'exportCost'  => $exportCost,
             'pv_estimate' => $pv,
         ];
     }
 
-    private function consumption(string $timeHis, float $value): InverterConsumptionData
+    /**
+     * @throws ReflectionException
+     */
+    public function testCalculateBaselineCostsSetsBaselineCostAndValidatesEndBatteryWhenPvHigh(): void
     {
-        return new InverterConsumptionData(time: $timeHis, value: $value);
-    }
-
-    public function testGetConsumptionUsesCostVoAndBoundsBattery(): void
-    {
+        // Arrange
         $action = $this->makeAction();
 
-        // Arrange: 4 half-hour periods with varying import costs
-        $forecasts = [
-            $this->forecastEntry('0030', 10.0, 5.0, 0.1),   // cheap -> should charge
-            $this->forecastEntry('0100', 50.0, 5.1, 0.2),   // expensive -> discharge/hold depending on estimate
-            $this->forecastEntry('0130', 10.0, 5.2, 0.3),   // cheap -> charge
-            $this->forecastEntry('0200', null, 5.3, 0.4),   // missing import cost -> treated as 0 -> cheap -> charge
-        ];
+        // Set in BST to confirm UTC conversion works.
+        $start = CarbonImmutable::create(2025, 7, 2, 14, 00, 0, 'Europe/London')->timezone('UTC');
 
-        // Consumption data for those times (H:i:s format)
-        $consumptions = new Collection([
-            $this->consumption('00:30:00', 0.5),
-            $this->consumption('01:00:00', 0.5),
-            $this->consumption('01:30:00', 0.5),
-            $this->consumption('02:00:00', 0.5),
-        ]);
+        $strategies = collect();
+        $periods = new CarbonPeriod($start, '30 minutes', 4);
+        foreach ($periods as $key => $period) {
+            $forecast = $this->forecastEntry($period, 0.50, 0.11, 1.0);
+            $strategies->add($this->buildStrategyObject($key, $period, $forecast));
+        }
+        $action->baseStrategy = $strategies;
 
-        // Prime internal threshold to a value between 10 and 50 to force selective charging
-        $refChargeStrategy = new ReflectionProperty($action, 'chargeStrategy');
-        $refChargeStrategy->setAccessible(true);
-        $refChargeStrategy->setValue($action, 20.0);
+        $refMethod = new ReflectionMethod($action, 'calculateBaselineCosts');
+        $refMethod->setAccessible(true);
+        $refMethod->invoke($action);
+
+        $this->assertNotNull($action->baselineCost);
+        $this->assertEqualsWithDelta(0.0, $action->baselineCost, 1e-6);
+        $this->assertCount(4, $action->baselineBatteryResults);
+
+        $action->baseStrategy->each(
+            fn($strategy) => $this->assertFalse($strategy->strategy_manual, 'Charge should be false')
+        );
+        $this->assertGreaterThanOrEqual(90.0, $action->baselineEndBattery);
+        $this->assertTrue($action->baselineValid);
+        $this->assertEmpty($action->errors);
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public function testCalculateBaselineCostsChargesTrailingPeriodsToMaintainEndBattery(): void
+    {
+        // Arrange
+        $action = $this->makeAction();
+
+        // Set in BST to confirm UTC conversion works.
+        $start = CarbonImmutable::create(2025, 7, 2, 14, 00, 0, 'Europe/London')->timezone('UTC');
+
+        $strategies = collect();
+        $periods = new CarbonPeriod($start, '30 minutes', 4);
+        foreach ($periods as $key => $period) {
+            $forecast = $this->forecastEntry($period, 0.30, 0.15, 0.0);
+            $strategies->add($this->buildStrategyObject($key, $period, $forecast));
+        }
+        $action->baseStrategy = $strategies;
+
+        $refMethod = new ReflectionMethod($action, 'calculateBaselineCosts');
+        $refMethod->setAccessible(true);
+        $refMethod->invoke($action);
+
+        $this->assertNotNull($action->baselineCost);
+        $this->assertGreaterThan(0.0, $action->baselineCost);
+        $this->assertEquals(
+            [false, false, true, true],
+            $action->baseStrategy->map(fn($strategy) => $strategy->strategy2)->toArray()
+        );
+        $this->assertGreaterThanOrEqual(90.0, $action->baselineEndBattery);
+        $this->assertTrue($action->baselineValid);
+        $this->assertEmpty($action->errors);
+    }
+    public function testCalculateBaselineCostsFailsWhenEndBatteryLow(): void
+    {
+        // Arrange
+        $action = $this->makeAction();
+
+        // Set in BST to confirm UTC conversion works.
+        $start = CarbonImmutable::create(2025, 7, 2, 14, 00, 0, 'Europe/London')->timezone('UTC');
+
+        $strategies = collect();
+        // It is not possible to fully charge in three periods
+        $periods = new CarbonPeriod($start, '30 minutes', 2);
+        foreach ($periods as $key => $period) {
+            $forecast = $this->forecastEntry($period, 0.30, 0.15, 0.0);
+            $strategies->add($this->buildStrategyObject($key, $period, $forecast));
+        }
+        $action->baseStrategy = $strategies;
+        $refBattery = new ReflectionProperty(GenerateStrategyAction::class, 'startBatteryPercentage');
+        $refBattery->setAccessible(true);
+        $refBattery->setValue($action, 10);
+
+        $refMethod = new ReflectionMethod($action, 'calculateBaselineCosts');
+        $refMethod->setAccessible(true);
+        $refMethod->invoke($action);
+
+        $this->assertNull($action->baselineCost);
+
+        // Baseline will try and charge the battery
+        $this->assertEquals(
+            [true, true],
+            $action->baseStrategy->map(fn($strategy) => $strategy->strategy2)->toArray()
+        );
+        $this->assertLessThanOrEqual(90.0, $action->baselineCost);
+        $this->assertFalse($action->baselineValid);
+        $this->assertNotEmpty($action->errors);
+        $this->assertStringStartsWith("Baseline end battery", $action->errors[0]);
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public function testCalculateStrategyCostsSetsOptimizedCostAndValidatesEndBattery(): void
+    {
+        // Arrange
+        $action = $this->makeAction();
+
+        // Set in BST to confirm UTC conversion works.
+        $start = CarbonImmutable::create(2025, 7, 2, 14, 00, 0, 'Europe/London')->timezone('UTC');
+
+        $strategies = collect();
+        $periods = new CarbonPeriod($start, '30 minutes', 4);
+        foreach ($periods as $key => $period) {
+            $forecast = $this->forecastEntry($period, 0.30, 0.15, 0.2);
+            $strategies->add($this->buildStrategyObject($key, $period, $forecast));
+        }
+        $action->baseStrategy = $strategies;
+
+        $refMethod = new ReflectionMethod($action, 'calculateStrategyCosts');
+        $refMethod->setAccessible(true);
 
         // Act
-        $result = $action->getConsumption($forecasts, $consumptions);
+        $refMethod->invoke($action);
 
-        // Assert shape and VO-derived fields
-        $this->assertSame(4, $result->count());
-
-        // 00:30 should charge (10 < 20)
-        $p0030 = $result->get('0030');
-        $this->assertTrue($p0030['charging']);
-        $this->assertEqualsWithDelta(10.0, $p0030['import_value_inc_vat'], 1e-6);
-        $this->assertGreaterThanOrEqual(0, $p0030['battery_percentage']);
-        $this->assertLessThanOrEqual(100, $p0030['battery_percentage']);
-
-        // 01:00 should not charge (50 >= 20)
-        $p0100 = $result->get('0100');
-        $this->assertFalse($p0100['charging']);
-        $this->assertEqualsWithDelta(50.0, $p0100['import_value_inc_vat'], 1e-6);
-        $this->assertGreaterThanOrEqual(0, $p0100['battery_percentage']);
-        $this->assertLessThanOrEqual(100, $p0100['battery_percentage']);
-
-        // 01:30 charge
-        $this->assertTrue($result->get('0130')['charging']);
-
-        // 02:00 missing import cost (null) -> no charge
-        $this->assertFalse($result->get('0200')['charging']);
+        // Assert
+        $this->assertNotNull($action->optimizedCost);
+        $this->assertGreaterThan(0.0, $action->optimizedCost);
+        $this->assertGreaterThanOrEqual(90.0, $action->optimizedEndBattery);
+        $this->assertTrue($action->optimizedValid);
+        $this->assertEmpty($action->errors);
     }
 
-    public function testGetConsumptionHandlesMissingConsumptionDefaultsToZero(): void
+    /**
+     * @throws ReflectionException
+     */
+    public function testCalculateStrategyCostsFailsWhenEndBatteryLow(): void
     {
         $action = $this->makeAction();
+        // Set in BST to confirm UTC conversion works.
+        $start = CarbonImmutable::create(2025, 7, 2, 14, 00, 0, 'Europe/London')->timezone('UTC');
 
-        $forecasts = [
-            $this->forecastEntry('0030', 15.0, 5.0, 0.0),
-        ];
+        $strategies = collect();
+        // It is not possible to fully charge in two periods
+        $periods = new CarbonPeriod($start, '30 minutes', 2);
 
-        // No matching consumption time provided
-        $consumptions = new Collection([
-            $this->consumption('01:00:00', 0.5),
-        ]);
+        foreach ($periods as $key => $period) {
+            $forecast = $this->forecastEntry($period, 0.30, 0.15, 0.1);
+            $strategies->add($this->buildStrategyObject($key, $period, $forecast));
+        }
 
-        // Set threshold above 15 so it charges only when cheaper than 15
-        $refChargeStrategy = new ReflectionProperty($action, 'chargeStrategy');
-        $refChargeStrategy->setAccessible(true);
-        $refChargeStrategy->setValue($action, 20.0);
+        $refBattery = new ReflectionProperty(GenerateStrategyAction::class, 'startBatteryPercentage');
+        $refBattery->setAccessible(true);
+        $refBattery->setValue($action, 10);
 
-        $result = $action->getConsumption($forecasts, $consumptions);
+        $action->baseStrategy = $strategies;
 
-        $row = $result->get('0030');
-        $this->assertSame(0, $row['consumption']); // default to zero
-        $this->assertTrue($row['charging']);       // 15 < 20
+        $refMethod = new ReflectionMethod($action, 'calculateStrategyCosts');
+        $refMethod->setAccessible(true);
+        $refMethod->invoke($action);
+
+        $this->assertNotNull($action->optimizedCost);
+        $this->assertGreaterThan(0.0, $action->optimizedCost);
+        $this->assertLessThanOrEqual(90.0, $action->optimizedEndBattery);
+        $this->assertFalse($action->optimizedValid);
+        $this->assertNotEmpty($action->errors);
+        $this->assertStringStartsWith("Optimise end battery", $action->errors[0]);
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public function testCalculateStrategyCostsPassesWhenBaselineChargingUsed(): void
+    {
+        $action = $this->makeAction();
+        // Set in BST to confirm UTC conversion works.
+        $start = CarbonImmutable::create(2025, 7, 2, 14, 00, 0, 'Europe/London')->timezone('UTC');
+
+        $strategies = collect();
+        $periods = new CarbonPeriod($start, '30 minutes', 4);
+
+        foreach ($periods as $key => $period) {
+            $forecast = $this->forecastEntry($period, 0.30, 0.15, 0.1);
+            $chargedBaseStrategy = $this->buildStrategyObject($key, $period, $forecast);
+            $chargedBaseStrategy->strategy2 = true;
+            $strategies->add($chargedBaseStrategy);
+        }
+
+        $action->baseStrategy = $strategies;
+
+        $refMethod = new ReflectionMethod($action, 'calculateStrategyCosts');
+        $refMethod->setAccessible(true);
+        $refMethod->invoke($action);
+
+        $this->assertNotNull($action->optimizedCost);
+        $this->assertGreaterThan(0.0, $action->optimizedCost);
+        $this->assertGreaterThanOrEqual(90.0, $action->optimizedEndBattery);
+        $this->assertTrue($action->optimizedValid);
+        $this->assertEmpty($action->errors);
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public function testCalculateFinalCostPopulatesManualWithBestWhenNullOptimizedBattery(): void
+    {
+        $action = $this->makeAction();
+        $start = CarbonImmutable::now();
+        $strategies = collect();
+        $periods = new CarbonPeriod($start, '30 minutes', 4);
+        foreach ($periods as $i => $period) {
+            $forecast = $this->forecastEntry($period, 0.35, 0.15, 0.0);
+            $strategy = $this->buildStrategyObject($i, $period, $forecast);
+            $strategy->consumption_manual = 0.0;
+            $strategy->import_value_inc_vat = 0.35;
+            $strategy->strategy1 = $i === 0; // charge first
+            $strategy->strategy2 = false;
+            $strategy->strategy_manual = false;
+            $strategies->add($strategy);
+        }
+        $action->baseStrategy = $strategies;
+        $refProp = new ReflectionProperty(GenerateStrategyAction::class, 'startBatteryPercentage');
+        $refProp->setAccessible(true);
+        $refProp->setValue($action, 100);
+        $refCostProp = new ReflectionProperty(GenerateStrategyAction::class, 'optimizedCost');
+        $refCostProp->setAccessible(true);
+        $refCostProp->setValue($action, 5.0);
+        $refBaseProp = new ReflectionProperty(GenerateStrategyAction::class, 'baselineCost');
+        $refBaseProp->setAccessible(true);
+        $refBaseProp->setValue($action, 10.0);
+
+        $refMethod = new ReflectionMethod($action, 'calculateFinalCost');
+        $refMethod->setAccessible(true);
+        $refMethod->invoke($action);
+
+        $action->baseStrategy->each(function ($strategy, $index) {
+            $expectedManual = $index === 0;
+            $this->assertSame($expectedManual, $strategy->strategy_manual);
+            $this->assertEqualsWithDelta(100.0, $strategy->battery_percentage1, 1e-6);
+            $this->assertEqualsWithDelta(0.0, $strategy->battery_charge_amount, 1e-6);
+            $this->assertEqualsWithDelta(100.0, $strategy->battery_percentage_manual, 1e-6);
+            $this->assertEqualsWithDelta(0.0, $strategy->import_amount, 1e-6);
+            $this->assertEqualsWithDelta(0.0, $strategy->export_amount, 1e-6);
+        });
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    public function testCalculateFinalCostPreservesExistingManualFlags(): void
+    {
+        $action = $this->makeAction();
+        $start = CarbonImmutable::now();
+        $strategies = collect();
+        $periods = new CarbonPeriod($start, '30 minutes', 4);
+        foreach ($periods as $i => $period) {
+            $forecast = $this->forecastEntry($period, 0.35, 0.15, 0.0);
+            $strategy = $this->buildStrategyObject($i, $period, $forecast);
+            $strategy->consumption_manual = 0.0;
+            $strategy->import_value_inc_vat = 0.35;
+            $strategy->strategy1 = false;
+            $strategy->strategy2 = false;
+            $strategy->strategy_manual = $i === 1; // preserve middle
+            $strategies->add($strategy);
+        }
+        $action->baseStrategy = $strategies;
+        $refProp = new ReflectionProperty(GenerateStrategyAction::class, 'startBatteryPercentage');
+        $refProp->setAccessible(true);
+        $refProp->setValue($action, 100);
+        $refCostProp = new ReflectionProperty(GenerateStrategyAction::class, 'optimizedCost');
+        $refCostProp->setAccessible(true);
+        $refCostProp->setValue($action, 5.0); // opt battery, but preserve
+        $refBaseProp = new ReflectionProperty(GenerateStrategyAction::class, 'baselineCost');
+        $refBaseProp->setAccessible(true);
+        $refBaseProp->setValue($action, 10.0);
+
+        $refMethod = new ReflectionMethod($action, 'calculateFinalCost');
+        $refMethod->setAccessible(true);
+        $refMethod->invoke($action);
+
+        $this->assertTrue($action->baseStrategy[1]->strategy_manual); // preserved
+        $this->assertFalse($action->baseStrategy[0]->strategy_manual); // set to strategy1=false
     }
 }

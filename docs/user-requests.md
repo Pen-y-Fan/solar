@@ -46,8 +46,8 @@ Periods:
     - historically, overnight is normally the cheapest time to top up the battery, before costs rise early morning.
     - the battery should be full by 4pm, ready for the expensive period 4pm to 7pm.
 
-- Current action: Add a task to section 1.1.x of  `docs/tasks.md`
-- Status: Not started
+- Current action: Add a task to section 1.1.13 of  `docs/tasks.md`
+- Status: Complete
 
 #### Improve the strategy charts
 
@@ -113,7 +113,7 @@ strategy for the current or next day, 4pm to 4pm period.
 When the strategy is calculated and re-calculated, the battery start percentage is the current first period, which is
 re-calculated and reduced. The battery start percentage should be based on the previous period end battery percentage.
 
-e.g. the battery start percentage should be 15:30 end battery percentage, the 16:00 end battery percentage will then be
+e.g., the battery start percentage should be 15:30 end battery percentage, the 16:00 end battery percentage will then be
 correctly calculated.
 
 - Current action: Add a task to section 1.1.12 of  `docs/tasks.md`

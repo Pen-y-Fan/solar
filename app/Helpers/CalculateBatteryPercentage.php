@@ -80,7 +80,6 @@ class CalculateBatteryPercentage
             $import,
             $export
         );
-//        return [$this->batteryPercentage, $charge, $import, $export];
     }
 
     private function calculateFromBatteryPercentageTokWh(): float
@@ -90,7 +89,7 @@ class CalculateBatteryPercentage
 
     private function convertFromKhhToBatteryPercentage(float $battery): int
     {
-        return (int)($battery * 100 / self::BATTERY_MAX);
+        return (int) round($battery * 100 / self::BATTERY_MAX, 0);
     }
 
     public function consumption(float $consumption): CalculateBatteryPercentage
