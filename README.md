@@ -22,7 +22,7 @@ project, it requires a **Solis inverter** and energy supplied by **Octopus energ
 This is a Laravel 12 project. The requirements are the same as a
 new [Laravel 12 project](https://laravel.com/docs/12.x/installation).
 
-- PHP 8.2 or higher
+- PHP 8.3 or higher
 - Composer
 - Laravel Herd (recommended) or Docker
 
