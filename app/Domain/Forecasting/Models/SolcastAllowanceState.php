@@ -18,7 +18,7 @@ use App\Domain\Forecasting\Events\SolcastAllowanceReset;
  * @property \Illuminate\Support\Carbon|null $last_success_at_forecast
  * @property \Illuminate\Support\Carbon|null $last_success_at_actual
  * @property \Illuminate\Support\Carbon|null $backoff_until
- * @property \Illuminate\Support\Carbon $reset_at
+ * @property \Illuminate\Support\Carbon|null $reset_at
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @method static \Illuminate\Database\Eloquent\Builder<static>|SolcastAllowanceState newModelQuery()

@@ -271,8 +271,8 @@ Bump Laravel / Filament to see if symfony/process > 7.3.11. Filament is locked t
 the issue. We may need to bump the PHP min requirement to 8.3 to satisfy openspout/openspout v4.30.1, which is blocking
 a Dependabot upgrade. Update docs with the new requirements.
 
-- Current action: Add a task to section 1.1.x of  `docs/tasks.md`
-- Status: Not started
+- Current action: Added as task 1.1.17 of `docs/tasks.md`
+- Status: Completed
 
 ## Solis API
 
