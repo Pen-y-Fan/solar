@@ -5,11 +5,11 @@ Last updated: 2025-11-19 22:01
 This document provides a comprehensive checklist of improvement tasks for the Solar project. Each task is marked with a
 checkbox [ ] that can be checked off when completed.
 
-Note on prioritization: Tasks are grouped and ordered to align with the phased approach in docs/plan.md (Phase 1:
+Note on prioritisation: Tasks are grouped and ordered to align with the phased approach in docs/plan.md (Phase 1:
 Foundation and Security, Phase 2: Performance and Data Management, Phase 3: User Experience and Documentation). When
 updating progress, ensure work proceeds broadly in this order unless justified otherwise.
 
-## 1. Code Organization and Architecture
+## 1. Code Organisation and Architecture
 
 [x] **Implement Domain-Driven Design (DDD) principles**
 
@@ -19,7 +19,7 @@ updating progress, ensure work proceeds broadly in this order unless justified o
     - [x] Energy
     - [x] Equipment
     - [x] User
-- [x] Create clear boundaries between different domains (e.g., Forecasting, Strategy, Energy Import/Export)
+- [x] Create clear boundaries between different domains (e.g. Forecasting, Strategy, Energy Import/Export)
 - [ ] Define value objects for domain concepts
     - [x]  app/Domain/Strategy/ValueObjects/StrategyType.php
     - [x] Update `Strategy` model to use `StrategyType` value object for `strategy1`, `strategy2`, and `strategy_manual`
@@ -71,22 +71,22 @@ updating progress, ensure work proceeds broadly in this order unless justified o
 
 [x] **Refactor Actions for consistency**
 
-- [x] Standardize input/output formats across all Actions
+- [x] Standardise input/output formats across all Actions
 - [x] Implement consistent error handling in all Actions
 - [x] Add proper validation for all Action inputs
 
 [x] **Improve dependency injection**
 
 - [x] Review service container bindings
-- [x] Reduce direct instantiation of classes in favor of dependency injection
+- [x] Reduce direct instantiation of classes in favour of dependency injection
 - [x] Create interfaces for key services to improve testability
 
 [x] **Implement CQRS pattern for complex operations — Completed**
 
 - [x] Phase 1 CQRS introduced Commands for complex writes and Queries for reads.
-- [x] Filament actions updated to dispatch commands via CommandBus.
+- [x] Filament actions are updated to dispatch commands via CommandBus.
 - [x] Widgets/Charts updated to use dedicated Queries.
-- [x] Comprehensive tests and developer docs added.
+- [x] Comprehensive tests and developer docs are added.
 
 Details and the full checklist have been moved to docs/cqrs-tasks.md.
 
@@ -96,7 +96,7 @@ Tasks based on the [User Requirements Document](./user-requests.md).
 
 ### 1.1.1 Forecasting — Solcast API Allowance
 
-- [x] Implement unified Solcast API allowance policy (daily cap, per-endpoint min intervals, global backoff, DB row
+- [x] Implement a unified Solcast API allowance policy (daily cap, per-endpoint min intervals, global backoff, DB row
   lock) — see docs/solcast-api-allowance-task.md
 
 ### 1.1.2 Bug: Correct Solcast forecasts charts: Solis should be corrected to Solcast.
@@ -111,10 +111,10 @@ Tasks based on the [User Requirements Document](./user-requests.md).
 
 ### 1.1.3.1 Make the cost chart interactive
 
-Once the dashboard chart is interactive, also update the smilar chart in strategy
+Once the dashboard chart is interactive, also update the similar chart in strategy
 
 - [x] Strategy — Make the cost chart interactive, the strategy cost chart is almost identical to the Agile cost chart.
-  Note: future requirement is to make it interactive from 7PM, so it need to be a different chart.
+  Note: a future requirement is to make it interactive from 7PM, so it needs to be a different chart.
 
 ### 1.1.4 Monthly large dataset performance checks
 
@@ -124,7 +124,7 @@ Once the dashboard chart is interactive, also update the smilar chart in strateg
 ### 1.1.5 Fix CI build (tests and code-quality)
 
 - [x] The CI build for tests is failing — see `docs/ci-build-fixes-task-list.md`
-- [x] The CI code-quality check isn't consistent — see `docs/ci-build-fixes-task-list.md`
+- [x] The CI code-quality check is not consistent — see `docs/ci-build-fixes-task-list.md`
 
 ### 1.1.6 Improve the strategy charts and widgets
 
@@ -163,11 +163,21 @@ Once the dashboard chart is interactive, also update the smilar chart in strateg
 
 - [x] Detailed TDD tasks: [improve-the-strategy-algorithm.md](improve-the-strategy-algorithm.md)
 
+### 1.1.14 Helper or API
+
+- [x] Solis has an API, see [Solis API](user-requests.md#solis-api). API access has been requested and granted.
+- [ ] Create a command which will call the Solis API to update the charge start and end times for each period.
+
+## 1.1.15 Solis API download inverter list PoC
+
+- [x] Create a command which will call the Solis API to get the inverter list. See `docs/solis-api-poc.md` for more
+  details.
+
 ## 2. Testing and Quality Assurance
 
 [ ] Foundation and Security (Phase 1 alignment)
 
-- Ensure security and initial QA items are prioritized per `docs/plan.md`.
+- Ensure security and initial QA items are prioritised per `docs/plan.md`.
 
 [ ] **Increase test coverage**
 
@@ -190,8 +200,8 @@ Once the dashboard chart is interactive, also update the smilar chart in strateg
     - [x] Energy: EloquentInverterRepository returns InverterConsumptionData with correct averages, clamping, and time
       periods
 
-Note: Progress — repository-level VO mapping tests added for EloquentInverterRepository. VO edge-case unit tests added
-for Energy VOs (MonetaryValue VAT helpers; TimeInterval invalid ranges/overlaps/contains). Feature tests for key
+Note: Progress — repository-level VO mapping tests are added for EloquentInverterRepository. VO edge-case unit tests
+added for Energy VOs (MonetaryValue VAT helpers; TimeInterval invalid ranges/overlaps/contains). Feature tests for key
 Filament resources (StrategyResource, ForecastResource) implemented exercising VO-backed forms and lists. Unit-testing
 milestone for VO mapping and core Actions is now complete and passing `composer all`. Next step — proceed with
 integration tests for critical flows and plan E2E coverage.
@@ -221,7 +231,7 @@ integration tests for critical flows and plan E2E coverage.
         - [x] ConsumptionData — add tests for clamping negatives, null safety, derived totals where applicable
         - [x] BatteryState — add tests for bounds [0..100], manual vs calculated percentage, charge/discharge helpers
     - Energy Value Objects
-        - [x] BatteryStateOfCharge — add tests for percent/Wh conversions, bounds, add/subtract operations, edge cases
+        - [x] BatteryStateOfCharge — add tests for percentage/Wh conversions, bounds, add/subtract operations
         - [x] EnergyFlow — add tests for import/export sign conventions, derived metrics, and zero-consumption case
         - [x] InverterConsumptionData — unit tests added for VO helpers; repository Feature tests cover
           bucketing/averaging/clamping
@@ -249,7 +259,7 @@ integration tests for critical flows and plan E2E coverage.
           actions
         - [x] Filament\\Widgets\\ForecastChart — add feature test asserting labels from minimal seeded forecasts or
           faked source
-        - [x] Filament\\Widgets\\OctopusChart — add base chart behavior tests with faked actions
+        - [x] Filament\\Widgets\\OctopusChart — add base chart behaviour tests with faked actions
 
   Next step: Filament widget coverage complete. Begin performance testing as outlined in docs/performance-testing.md.
   After establishing baselines and CI smoke checks, proceed to integration tests per this document.
@@ -272,18 +282,18 @@ changes, re‑seed Medium and run perf suite; refresh baselines only when two co
 record justification. Monthly Large advisory remains local/docs‑only on the first Monday (UTC). CI PR smoke remains
 informational‑only. Quality suite (`composer all`) green as of 21:43.
 
-- Status: Baselines unchanged; no remediation open. DB index verification completed based on recent profiling (no new
-  indexes required).
+- Status: Baselines are unchanged; no remediation is open. DB index verification completed based on recent profiling
+  (no new indexes required).
 - [x] Medium re‑seed and local k6 runs completed for Dashboard, Forecasts, Inverter, Strategies, and
   Strategy‑Generation (VUS=5, 30s)
 - [x] Committed new `tests/Performance/baselines/dashboard.medium.baseline.json`
-- [x] Updated `tests/Performance/baselines/strategies.medium.baseline.json` (improved p95; error rate 0%)
-- [x] Updated `tests/Performance/baselines/inverter.medium.baseline.json` (p95 stable within tolerance across two runs;
+- [x] Updated `tests/Performance/baselines/strategies.medium.baseline.json` (improved p.95; error rate 0%)
+- [x] Updated `tests/Performance/baselines/inverter.medium.baseline.json` (p.95 stable within tolerance across two runs;
   error rate 0%)
 - [x] Validated `forecasts.medium.baseline.json` and `strategy-generation.medium.baseline.json` against Tolerance Policy
   via two Medium runs; both within tolerance and left unchanged by policy (0% error rate)
-- [x] Perf maintenance SOP established — Champion: Michael Pritchard; cadence: Medium re‑baseline on relevant merges (
-  24–48h) and monthly Large advisory (local, docs‑only).
+- [x] Perf maintenance SOP established — Champion: Michael Pritchard; cadence: Medium re‑baseline on relevant merges
+  (24–48h) and monthly Large advisory (local, docs‑only).
 
 - [x] Benchmark database queries
 - [x] Test application under load
@@ -299,10 +309,10 @@ informational‑only. Quality suite (`composer all`) green as of 21:43.
           `forecasts.period_end` UNIQUE; no `user_id`/`valid_from` columns — no additional indexes needed)
         - [x] Task: Add eager loading in Forecast widgets/queries to remove N+1 (reviewed: no N+1 observed; no change
           needed)
-        - [x] Task: Consider caching aggregated series for hot windows (e.g., last 24h) (assessed; feature cache behind
+        - [x] Task: Consider caching aggregated series for hot windows (e.g. last 24h) (assessed; feature cache behind
           flags, off by default)
-        - [ ] Task: Medium p95 regression follow‑up — re‑profile with query logging, verify no local interference (
-          browser tabs, background load), re‑run Medium once; if still high, file targeted remediation (e.g.,
+        - [ ] Task: Medium p95 regression follow‑up — re‑profile with query logging, verify no local interference
+          (browser tabs, background load), re‑run Medium once; if still high, file targeted remediation (e.g.
           pre‑aggregations)
     - [ ] Inverter scenario — profile widget/JSON endpoints; eager-load relations; verify indices on timestamps and
       device IDs; consider downsampling for charts
@@ -315,8 +325,8 @@ informational‑only. Quality suite (`composer all`) green as of 21:43.
           remain OFF; re‑run Medium; consider tightening select columns if needed (stable across two runs; baseline
           updated)
     - [x] Strategies scenario — profile index and edit views; add eager loading for related models; index frequently
-      filtered columns; cache computed summaries (Validation complete on 2025‑11‑18; no N+1 or slow queries >100ms
-      observed; baselines unchanged)
+      filtered columns; cache computed summaries (Validation was completed on 2025‑11‑18; no N+1 or slow queries >
+      100 ms observed; baselines unchanged)
         - [x] Task: Profile index/edit pages including related XHR calls
         - [x] Task: Add eager loading for related models (user, forecasts, costs) to avoid N+1 (reviewed: no N+1
           observed on current queries)
@@ -328,20 +338,20 @@ informational‑only. Quality suite (`composer all`) green as of 21:43.
           `LIVEWIRE_PAYLOAD_BASE64` accordingly (Livewire optional; prefer local helper `/_perf/generate-strategy` for
           perf runs)
         - [x] Task: Ensure CSRF extraction/submission in k6 helper for generation POST is correct (not required for
-          local helper path; Livewire path remains documented and optional)
-        - [x] Task: Add small backoff or single-flight behavior in k6 scenario to avoid concurrent duplicate generation
-          requests
-        - [x] Task: Review server-side guards/rate limiting for generation; document expected behavior under concurrent
+          a local helper path; a Livewire path remains documented and optional)
+        - [x] Task: Add small backoff or single-flight behaviour in the k6 scenario to avoid concurrent duplicate
+          generation requests
+        - [x] Task: Review server-side guards/rate limiting for generation; document expected behaviour under concurrent
           requests (local-only route; CSRF disabled; no rate-limit middleware; documented in perf plan)
         - [x] Task: Medium p95 variance follow‑up — profile strategy verification/index endpoints and generation POST
-          path; confirm single‑flight behavior; re‑run two consecutive Medium runs; evaluate minor optimizations if
-          persistence layer shows hotspots
+          path; confirm single‑flight behaviour; re‑run two consecutive Medium runs; evaluate minor optimisations if
+          the persistence layer shows hotspots
 
-## 3. Performance Optimization
+## 3. Performance Optimisation
 
 Phase alignment: Phase 2 — Performance and Data Management (see docs/plan.md)
 
-[x] DB index verification completed based on profiling; no new indexes required at this time.
+[x] DB index verification is completed based on profiling; no new indexes are required at this time.
 
 [ ] **Optimize database queries**
 
@@ -353,14 +363,14 @@ Phase alignment: Phase 2 — Performance and Data Management (see docs/plan.md)
 
 - [ ] Cache frequently accessed data
 - [ ] Use Redis for cache storage
-- [ ] Add Redis to laravel sail
+- [ ] Add Redis to Laravel sail
 - [ ] Implement cache invalidation strategy
 
 [ ] **Low‑risk, feature‑flagged optimizations (from performance-testing Findings)**
 
 - [x] Implement `FEATURE_CACHE_FORECAST_CHART` with `FORECAST_CHART_TTL` (default 60s); cache prepared Chart.js dataset
   in `ForecastChart` widget
-- [x] Implement `FEATURE_CACHE_STRAT_SUMMARY` with `STRAT_SUMMARY_TTL` (default 10m); cache
+- [x] Implement `FEATURE_CACHE_STRAT_SUMMARY` with `STRAT_SUMMARY_TTL` (default 10 m); cache
   `StrategyPerformanceSummaryQuery` by day range
 - [x] Add optional downsampling toggles for chart endpoints: `FORECAST_DOWNSAMPLE`, `FORECAST_BUCKET_MINUTES`,
   `INVERTER_DOWNSAMPLE`, `INVERTER_BUCKET_MINUTES`
@@ -368,10 +378,10 @@ Phase alignment: Phase 2 — Performance and Data Management (see docs/plan.md)
 
 [ ] **k6 scenario stability**
 
-- [x] Deflake forecasts scenario warmup: add small retry/backoff for “dashboard reachable (200)” or soften to
+- [x] De-flak forecasts scenario warmup: add a small retry / backoff for “dashboard reachable (200)” or soften to
   informational during warmup; ensure auth bootstrap timing is robust
 
-[ ] **Optimize front-end assets**
+[ ] **Optimise front-end assets**
 
 - [ ] Minify and bundle JavaScript and CSS
 - [ ] Optimize image loading
@@ -389,7 +399,7 @@ Phase alignment: Phase 1 — Foundation and Security (see docs/plan.md)
 
 [ ] **Conduct security audit**
 
-- [ ] Review authentication and authorization mechanisms
+- [ ] Review authentication and authorisation mechanisms
 - [ ] Check for CSRF, XSS, and SQL injection vulnerabilities
 - [ ] Verify proper input validation throughout the application
 
@@ -403,7 +413,7 @@ Phase alignment: Phase 1 — Foundation and Security (see docs/plan.md)
 
 - [ ] Encrypt sensitive data at rest
 - [ ] Ensure HTTPS is enforced
-- [ ] Add self signed certificates for local development, using laravel sail
+- [ ] Add self-signed certificates for local development, using laravel sail
 - [ ] Implement proper data backup strategy
 
 [ ] **Add security headers**
@@ -424,7 +434,7 @@ Phase alignment: Phase 3 — User Experience and Documentation (see docs/plan.md
 
 [ ] **Add user onboarding flow**
 
-- [ ] Create guided tour for new users
+- [ ] Create a guided tour for new users
 - [ ] Add contextual help throughout the interface
 - [ ] Develop documentation for common tasks
 
@@ -444,12 +454,12 @@ Phase alignment: Phase 3 — User Experience and Documentation (see docs/plan.md
 [ ] **Create user documentation**
 
 - [ ] Write user guides for common tasks
-- [ ] Add FAQ section
+- [ ] Add an FAQ section
 
 [ ] **Document development processes**
 
-- [x] Create local setup guidelines (expand on existing guide in README.md)
-- [x] Add troubleshooting guide
+- [x] Create local setup guidelines (expand on an existing guide in README.md)
+- [x] Add a troubleshooting guide
 
 ## 7. Data Management
 
@@ -469,9 +479,9 @@ Phase alignment: Phase 2 — Performance and Data Management (see docs/plan.md)
 
 [ ] **Implement data archiving strategy**
 
-- [ ] Create policy for archiving old data
-- [ ] Implement automated archiving process
-- [ ] Provide interface for accessing archived data
+- [ ] Create a policy for archiving old data
+- [ ] Implement an automated archiving process
+- [ ] Provide an interface for accessing archived data
 
 [ ] **Add data visualization tools**
 
