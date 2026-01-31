@@ -187,8 +187,8 @@ Once the dashboard chart is interactive, also update the similar chart in strate
 - [x] Update composer.json `"php": "^8.3"`
 - [x] Update README.md `- PHP 8.3 or higher`
 - [x] `composer update laravel/framework` (to 12.49.0, fixes symfony?)
-- [x] `composer update filament/filament` (to latest 3.3.x)
-- [x] `composer audit` clean
+- [x] `composer update filament/filament` (to 3.3.47)
+- [x] `composer audit` clean (psysh dev vuln acceptable)
 - [x] Update phpunit if needed `composer update phpunit/phpunit --with-all-dependencies`
 - [x] `composer all` passes
 - [x] App runs at https://solar.test
