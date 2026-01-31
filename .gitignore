@@ -25,3 +25,7 @@ yarn-error.log
 /perf-reports/
 /cookiejar
 /.output.txt
+
+/.junie/boost.json
+.mcp.json
+/.junie/mcp/mcp.json

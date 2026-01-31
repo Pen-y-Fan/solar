@@ -46,7 +46,7 @@ Periods:
     - historically, overnight is normally the cheapest time to top up the battery, before costs rise early morning.
     - the battery should be full by 4pm, ready for the expensive period 4pm to 7pm.
 
-- Current action: Add a task to section 1.1.13 of  `docs/tasks.md`
+- Current action: Added as task 1.1.13 of  `docs/tasks.md`
 - Status: Complete
 
 #### Improve the strategy charts
@@ -68,7 +68,7 @@ Change the drop-down to display the period start and end times.
 After updating the charts, the strategy needs to generate the correct consumption data for the period from 16:00 the
 previous day to 16:00 the current day
 
-- Current action: Add a task to section 1.1.7 of  `docs/tasks.md`
+- Current action: Added as task 1.1.7 of  `docs/tasks.md`
 - Status: Completed
 
 #### Add a way to compare strategy based on consumption from last week and three-week average
@@ -84,7 +84,7 @@ displays the forecast chart, can compare with last week's data or an average ove
 When the battery is full, it shows a negative value. This is maybe a bug on
 the 'Forecast for' chart. Fixed the bug in the battery calculator.
 
-- Current action: Add a task to section 1.1.10 of  `docs/tasks.md`
+- Current action: Added as task 1.1.10 of  `docs/tasks.md`
 - Status: Complete
 
 #### Helper to export strategy
@@ -94,7 +94,7 @@ charge start time and end time for each period must be manually entered.
 
 Investigate options on how to accurately update the Solis inverter.
 
-- Current action: Add a task to section 1.1.14 of  `docs/tasks.md`
+- Current action: Added as task 1.1.14 of  `docs/tasks.md`
 - Status: Created task 1.1.14
 
 #### Strategy filter
@@ -105,7 +105,7 @@ day, by default.
 When the user navigates to the strategy page, the strategy filter should automatically update to display the correct
 strategy for the current or next day, 4pm to 4pm period.
 
-- Current action: Add a task to section 1.1.11 of  `docs/tasks.md`
+- Current action: Added as task 1.1.11 of  `docs/tasks.md`
 - Status: Complete
 
 #### Battery start percentage
@@ -116,7 +116,7 @@ re-calculated and reduced. The battery start percentage should be based on the p
 e.g. the battery start percentage should be 15:30 end battery percentage, the 16:00 end battery percentage will then be
 correctly calculated.
 
-- Current action: Add a task to section 1.1.12 of  `docs/tasks.md`
+- Current action: Added as task 1.1.12 of  `docs/tasks.md`
 - Status: Complete
 
 #### Add cost widgets
@@ -185,7 +185,6 @@ failing for .js' code being incorrectly formated. Update the commands so they ar
 
 - 'PHPCBF CAN FIX THE nn MARKED SNIFF VIOLATIONS AUTOMATICALLY' so after updating the config, run `composer cs-fix`
 
-- Current action: Add a task to section 1.1.x of  `docs/tasks.md`
 - Status: Complete → the CI uses composer cs now.
 
 #### The CI build for tests is failing
@@ -196,7 +195,7 @@ When building, the CI fails to complete the build, probably due to a missing ste
 
 Illuminate\Foundation\ViteManifestNotFoundException
 
-- Current action: Added a task to section 1.1.5 of  `docs/tasks.md` and completed
+- Current action: Added as task to section 1.1.5 of  `docs/tasks.md` and completed
   `docs/monthly-large-dataset-performance-checks.md`
 - Status: Complete
 
@@ -257,10 +256,10 @@ always be a forecast.
 
 ## Laravel AI Helper - Boost
 
-Add Laravel Boost MCP server to help AI Pro / Junie, see <https://laravel.com/docs/12.x/boost>
+Add Laravel Boost MCP server to help AI Pro / Junie, see `docs/boost.md`
 
-- Current action: Add a task to section 1.1.x of  `docs/tasks.md`
-- Status: Not started
+- Current action: Added as task 1.1.16 of  `docs/tasks.md`
+- Status: Complete
 
 ## Security
 
@@ -284,8 +283,8 @@ We now have access to the Solis API. The inverter data can be downloaded using t
 The Solis documentation has a call to get the list of inverters. The API endpoint is `/api/v1/inverter/list`. As a proof
 of concept (PoC) create a console command to call an Action which will get the list of inverters and log the response.
 
-- Current action: Add a task to section 1.1.15 of  `docs/tasks.md`
-- Status: Completed
+- Current action: Added as task 1.1.15 of  `docs/tasks.md`
+- Status: Complete
 
 ### Get inverter data
 

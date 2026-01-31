@@ -250,7 +250,7 @@ Notes:
 
 - All Solcast requests are governed by `SolcastAllowanceService` (daily cap, per-endpoint min intervals, and 429
   backoff). There is a maximum of eight requests per day (UTC) using a free hobbyist plan.
- 
+
 ## Packages
 
 The following packages have been used:
@@ -479,6 +479,34 @@ Verifying in the browser:
   `id: 'solarTooltipHelper'`.
 - On a page with charts, mouse‑wheel/pinch to zoom on the X‑axis, drag to pan, and click the “Reset Zoom” button in the
   widget header to restore the full range.
+
+## Laravel Boost
+
+Laravel Boost provides AI guidelines, skills, and an MCP server with Laravel-specific tools (e.g., DB schema, Tinker,
+docs search).
+
+### Quick MCP Server Setup
+
+Configure your IDE/agent per [docs/boost.md#installation](docs/boost.md#installation):
+
+#### Junie (PhpStorm/JetBrains)
+
+1. `Shift x2` → "MCP Settings".
+2. Check `laravel-boost` → "Apply".
+
+#### Cursor
+
+1. `Cmd/Ctrl+Shift+P` → "/open MCP Settings".
+2. Toggle `laravel-boost` on.
+
+#### GitHub Copilot (VS Code)
+
+1. `Cmd/Ctrl+Shift+P` → "MCP: List Servers".
+2. `laravel-boost` → "Start server".
+
+**Manual:** `php artisan boost:mcp`.
+
+**Note:** `.junie/`, `boost.json`, `.mcp.json` auto-generated / gitignored.
 
 ## Contributing
 

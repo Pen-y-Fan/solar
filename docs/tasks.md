@@ -173,6 +173,15 @@ Once the dashboard chart is interactive, also update the similar chart in strate
 - [x] Create a command which will call the Solis API to get the inverter list. See `docs/solis-api-poc.md` for more
   details.
 
+### 1.1.16 Install Laravel Boost
+
+- [x] Confirm installation instructions from `docs/boost.md`
+- [x] `composer require laravel/boost --dev`
+- [x] `php artisan boost:install`
+- [x] Add MCP config file for AI Pro
+- [x] Update composer to automatically update boost on update
+- [x] Update README.md and guidelines.md and/or .env.example if a new config is needed
+
 ## 2. Testing and Quality Assurance
 
 [ ] Foundation and Security (Phase 1 alignment)
