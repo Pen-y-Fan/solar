@@ -7,8 +7,8 @@ namespace App\Support\Actions\Contracts;
 use App\Support\Actions\ActionResult;
 
 /**
- * Generic contract for domain actions to standardize execution.
- * Implementations should be side-effect aware and exception-safe.
+ * Generic contract for domain actions to standardise execution.
+ * Implementations should be side-effect-aware and exception-safe.
  */
 interface ActionInterface
 {

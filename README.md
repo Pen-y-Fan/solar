@@ -14,7 +14,8 @@ project, it requires a **Solis inverter** and energy supplied by **Octopus energ
 - Battery charging strategy
 - Create a comparison with Octopus Outgoing (currently 15p/kwh export)
     - https://api.octopus.energy/v1/products/OUTGOING-VAR-24-10-26/electricity-tariffs/E-1R-OUTGOING-VAR-24-10-26-K/standard-unit-rates/
-- update the output from Account commend to display current tariffs.
+- update the output from the "OctopusAccount command" `app:octopus-account` to display the current tariffs.
+- See [user request](./docs/user-requests.md) for other suggested improvements.
 
 ## Requirements
 
@@ -32,7 +33,7 @@ Recommended:
 ## Clone
 
 See [Cloning a repository](https://help.github.com/en/articles/cloning-a-repository) for details on how to create a
-local copy of this project on your computer.
+local copy of this project.
 
 e.g.
 
@@ -69,15 +70,15 @@ Seed a realistic dataset before running perf scenarios:
 php artisan migrate:fresh --seed --seeder=PerformanceSeeder
 ```
 
-If Composer is not installed locally see **Docker (optional)** below.
+If Composer is not installed locally, see **Docker (optional)** below.
 
 ### Local Setup with Laravel Herd
 
-If you use Laravel Herd (recommended on macOS):
+Laravel Herd (recommended on macOS):
 
 1. Install Laravel Herd from https://herd.laravel.com/
 2. Ensure PHP 8.2+ and Composer are enabled in Herd settings
-3. Map a site to this project directory with the domain solar.test
+3. Map a site to this project directory with the domain <solar.test>
 4. Trust Herd’s certificate so https://solar.test works locally
 
 Quickstart (first time):
@@ -94,7 +95,7 @@ Then open https://solar.test and login with:
 - Email: test@example.com
 - Password: password
 
-If you change the domain, update APP_URL in .env accordingly.
+If the domain is changed or different, update the APP_URL in `.env` accordingly.
 
 ## Create .env
 
@@ -106,7 +107,7 @@ cp .env.example .env
 
 ## Configure Laravel
 
-Configure the Laravel **.env** as per you local setup. e.g.
+Configure the Laravel **.env** as per the local setup:
 
 ```ini
 APP_NAME = Solar
@@ -124,11 +125,13 @@ OCTOPUS_EXPORT_MPAN =
 OCTOPUS_IMPORT_MPAN =
 OCTOPUS_EXPORT_SERIAL_NUMBER =
 OCTOPUS_IMPORT_SERIAL_NUMBER =
-```
 
-This Laravel 12 project is configured to use **sqlite**, other databases are supported by Laravel.  
-The **2025_02_26_174701_add_auto_cost_calculator_to_strategies_table.php** migration is specific to sqlite, it will
-need to be modified to use other databases.
+# Solis API access (optional). Solis customers and sign up for support and request an API for personal
+# use: https://solis-service.solisinverters.com
+SOLIS_KEY_ID =
+SOLIS_KEY_SECRET =
+SOLIS_API_URL = https://www.soliscloud.com:13333
+```
 
 ## Create the database
 
@@ -138,35 +141,58 @@ The **sqlite** database will need to be manually created e.g.
 php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
 ```
 
+This Laravel 12 project is configured to use **sqlite**, other databases are supported by Laravel.  
+The **2025_02_26_174701_add_auto_cost_calculator_to_strategies_table.php** migration is specific to sqlite, it will
+need to be modified to use other databases.
+
 ### Solcast
 
-The app will display actual and forecast data based on your solar panel's location,
+The app will display actual and forecast data based on the solar panel's location;
 a [free account](https://toolkit.solcast.com.au/register) can be created for home user hobbyists.
 
-Once registered, enter your **API key** and **resource id** in the **.env** file.
+Once registered, enter the **API key** and **resource id** in the **.env** file.
 
 #### Solcast API Allowance configuration
 
-You can tune how often the app calls Solcast and how the daily cap/backoff works via these `.env` variables (defaults shown):
+When using a hobbyist account, there is a maximum allowance of eight calls per day to fetch the Solcast API data. The
+app can be set to tune how often it calls Solcast and how the daily cap/backoff works via these `.env`
+variables (defaults shown):
 
 ```ini
 # Combined daily cap across forecast + actual requests
-SOLCAST_DAILY_CAP=6
+SOLCAST_DAILY_CAP = 6
 # ISO-8601 durations for minimum intervals and 429 backoff
-SOLCAST_FORECAST_MIN_INTERVAL=PT4H
-SOLCAST_ACTUAL_MIN_INTERVAL=PT8H
-SOLCAST_429_BACKOFF=PT8H
+SOLCAST_FORECAST_MIN_INTERVAL = PT4H
+SOLCAST_ACTUAL_MIN_INTERVAL = PT8H
+SOLCAST_429_BACKOFF = PT8H
 # Reset window timezone (IANA tz) for daily allowance reset
-SOLCAST_RESET_TZ=UTC
+SOLCAST_RESET_TZ = UTC
 ```
 
-These are read from `config/solcast.php` under the `allowance` section. See `docs/solcast-api-allowance.md` for the full policy and rationale.
+These are read from `config/solcast.php` under the `allowance` section. See `docs/solcast-api-allowance.md` for the full
+policy and rationale.
 
 ### Octopus energy
 
 Existing customers can generate a key: https://octopus.energy/dashboard/new/accounts/personal-details/api-access
 
-Once generated, update your OCTOPUS_ACCOUNT, API_KEY, MPANs and SERIAL_NUMBERs in the **.env** file.
+Once generated, update the OCTOPUS_ACCOUNT, API_KEY, MPANs, and SERIAL_NUMBERs in the **.env** file.
+
+### Solis API access (optional)
+
+Solis customers and sign up for support and request an API for personal use: https://solis-service.solisinverters.com
+
+The process is to sign up for support and request an API for home use. Once signed up and requested, Solcast will end an
+email granting the request. Follow the instructions in the email to complete the process.
+
+SOLIS_KEY_ID=
+SOLIS_KEY_SECRET=
+SOLIS_API_URL=https://www.soliscloud.com:13333
+
+Without Solis API access:
+
+- the inverter report Microsoft Excel document will need to be uploaded regularly.
+- Charging strategies will need to be manually input in the Solis cloud website.
 
 ## Generate APP_KEY
 
@@ -197,14 +223,17 @@ Login with the seeded user:
 
 ## CLI/Artisan Commands
 
-The project provides a few artisan commands to run data refreshes and maintenance tasks. Run `php artisan list` to see all, or the following key commands:
+The project provides a few artisan commands to run data refreshes and maintenance tasks. Run `php artisan list` to see
+all, or the following key commands:
 
 - Forecasting (Solcast):
     - `php artisan app:forecast [--force]`
-        - Fetches Solcast forecast and estimated actuals via the Command Bus.
-        - `--force` bypasses only the per-endpoint minimum-interval check. Daily cap and active backoff are still enforced by policy.
+        - Fetches Solcast forecast and estimated actual via the Command Bus.
+        - `--force` bypasses only the per-endpoint minimum-interval check. Policy still
+          enforces the daily cap and active backoff.
     - `php artisan forecasts:refresh {--date=}`
-        - Refresh both actuals and future forecasts for the optional date (YYYY-MM-DD); defaults to today. Uses Command Bus.
+        - Refresh both actual and future forecasts for the optional date (YYYY-MM-DD); defaults to today. Uses Command
+          Bus.
 - Octopus Energy:
     - `php artisan app:octopus`
         - Fetch usage/cost data and Agile tariffs.
@@ -218,22 +247,25 @@ The project provides a few artisan commands to run data refreshes and maintenanc
         - Prune `solcast_allowance_logs` older than the retention window (default 14 days, or override with `--days`).
 
 Notes:
-- All Solcast requests are governed by `SolcastAllowanceService` (daily cap, per-endpoint min intervals, and 429 backoff).
 
+- All Solcast requests are governed by `SolcastAllowanceService` (daily cap, per-endpoint min intervals, and 429
+  backoff). There is a maximum of eight requests per day (UTC) using a free hobbyist plan.
+ 
 ## Packages
 
 The following packages have been used:
 
-- [Filament admin panel](https://filamentphp.com/docs/3.x/admin/installation) - Admin panel restricted to authenticated users.
-- [Laravel Livewire](https://laravel-livewire.com/) - Included with Filament.
+- [Filament admin panel](https://filamentphp.com/docs/3.x/admin/installation) - Admin panel restricted to authenticated
+  users.
+- [Livewire](https://laravel-livewire.com/) – Included with Filament.
 
 ## Architecture: CQRS and Domain-Driven Design
 
-This project uses a pragmatic CQRS (Command Query Responsibility Segregation) approach alongside Domain-Driven Design (
-DDD) for complex operations. In short:
+This project uses a pragmatic CQRS (Command Query Responsibility Segregation) approach alongside Domain-Driven
+Design (DDD) for complex operations. In short:
 
 - Writes (state-changing operations) go through Commands handled by dedicated Handlers via a CommandBus.
-- Reads (reporting/queries) are executed by Query classes returning read-optimized data structures.
+- Reads (reporting/queries) are executed by Query classes returning read-optimised data structures.
 - Domain logic (entities, repositories, value objects, and actions/use-cases) lives under app/Domain and is exercised
   from Commands/Queries.
 
@@ -270,7 +302,7 @@ Further reading and task history:
 ### Development Tools
 
 - [Laravel Herd](https://herd.laravel.com/) - Mac-based development environment for PHP and Laravel
-- [IDE Helper](https://github.com/barryvdh/laravel-ide-helper) - Provides better IDE auto-completion for Laravel
+- [IDE Helper](https://github.com/barryvdh/laravel-ide-helper) – Provides better IDE auto-completion for Laravel
 
 ### Docker (optional)
 
@@ -352,7 +384,7 @@ composer phpstan-baseline
 
 The project uses PHPUnit for testing. The configuration is in `phpunit.xml` at the root of the project.
 
-If you need to run only tests:
+To run all tests:
 
 ```shell
 composer test
@@ -392,7 +424,7 @@ composer all
 
 ## Debugging
 
-For debugging, you can use Laravel's built-in debugging tools:
+For debugging, Laravel has built-in debugging tools:
 
 ```php
 // Dump and continue
@@ -414,7 +446,8 @@ How it works:
 
 - Plugins are provided to Filament by pushing them onto `window.filamentChartJsPlugins` in
   `resources/js/filament-chart-js-plugins.js` (per the Filament docs: widgets/charts → Using custom Chart.js plugins).
-- The JS file is included in the Vite build via `vite.config.js` (see the `input` array) and registered for the App panel
+- The JS file is included in the Vite build via `vite.config.js` (see the `input` array) and registered for the App
+  panel
   in `App\\Providers\\Filament\\AppPanelProvider` using `Js::make(...)->module()` with `Vite::asset(...)`.
 
 Local development steps:
@@ -437,7 +470,8 @@ Local development steps:
    npm run build
    ```
 
-3. If you change `resources/js/filament-chart-js-plugins.js`, hard‑refresh the browser (Cmd+Shift+R) to bypass cache.
+3. If plugins are change `resources/js/filament-chart-js-plugins.js`, hard‑refresh the browser (Cmd+Shift+R) to bypass
+   cache.
 
 Verifying in the browser:
 
@@ -449,7 +483,7 @@ Verifying in the browser:
 ## Contributing
 
 This is a **personal project**. Contributions are **not** required. Anyone interested is welcome to fork or clone for
-your own use.
+their own use.
 
 ## Credits
 
@@ -457,4 +491,4 @@ your own use.
 
 ## License
 
-MIT License (MIT). Please see [License File](LICENSE.md) for more information.
+MIT Licence (MIT). Please see [Licence File](LICENSE.md) for more information.
