@@ -508,6 +508,32 @@ Configure your IDE/agent per [docs/boost.md#installation](docs/boost.md#installa
 
 **Note:** `.junie/`, `boost.json`, `.mcp.json` auto-generated / gitignored.
 
+## Git Hooks (Prevent Direct Pushes to Main)
+
+Protects against accidental `git push origin main`. Complements GitHub branch protection.
+
+### Quick Setup
+
+```shell
+cp scripts/git-hooks/pre-push .git/hooks/pre-push
+chmod +x .git/hooks/pre-push
+```
+
+### Test It
+
+```shell
+# From main: should BLOCK with error message
+git checkout main
+echo "# Test Hook" >> README.md  # (discard changes after)
+git add README.md && git commit -m "Test direct push" && git push origin main
+# Discard: git reset --hard HEAD~1
+```
+
+**How it works:** Pre-push hook inspects push refs; blocks local `main` → remote `main`. Allows feature branches, PR
+workflows, branch deletes.
+
+**Optional:** Add `.git/hooks/pre-push` to `.gitignore`.
+
 ## Contributing
 
 This is a **personal project**. Contributions are **not** required. Anyone interested is welcome to fork or clone for

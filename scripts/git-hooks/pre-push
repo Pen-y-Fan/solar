@@ -1,0 +1,38 @@
+#!/usr/bin/env sh
+# Git pre-push hook: Block direct pushes to main branch.
+#
+# To install:
+#   cp scripts/git-hooks/pre-push .git/hooks/pre-push
+#   chmod +x .git/hooks/pre-push
+#
+# Allows: feature branch pushes, deletes (zero SHA), fast-forwards.
+# Blocks: direct 'git push origin main'
+
+protected_branch='main'
+remote_name='origin'
+
+zero_sha='0000000000000000000000000000000000000000'
+
+while read local_ref local_sha remote_ref remote_sha; do
+  # Skip deletes
+  if [ "$remote_sha" = "$zero_sha" ]; then
+    continue
+  fi
+
+  # Block pushes from local main to remote main
+  if printf '%s\n' "$local_ref" | grep -q "^refs/heads/$protected_branch\$" &&
+     printf '%s\n' "$remote_ref" | grep -q "^refs/heads/$protected_branch\$"; then
+    echo >&2 "🚫 Error: Direct push to protected branch '$protected_branch' blocked."
+    echo >&2 "   Local ref: $local_ref"
+    echo >&2 "   Remote: $remote_name/$protected_branch"
+    echo >&2 ""
+    echo >&2 "💡 Workflow:"
+    echo >&2 "   1. git checkout -b feature/xyz"
+    echo >&2 "   2. git push -u origin feature/xyz"
+    echo >&2 "   3. Create PR → Merge to main"
+    echo >&2 ""
+    exit 1
+  fi
+done
+
+exit 0
