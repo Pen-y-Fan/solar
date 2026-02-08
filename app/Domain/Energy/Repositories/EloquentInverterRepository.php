@@ -105,4 +105,13 @@ class EloquentInverterRepository implements InverterRepositoryInterface
             );
         });
     }
+
+    public function upsertFromSolisData(array $data): void
+    {
+        Inverter::upsert(
+            $data,
+            uniqueBy: ['period'],
+            update: ['yield', 'to_grid', 'from_grid', 'consumption', 'battery_soc']
+        );
+    }
 }

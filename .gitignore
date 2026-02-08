@@ -26,6 +26,12 @@ yarn-error.log
 /cookiejar
 /.output.txt
 
+# Laravel Boost auto generated settings, per dev environment
 /.junie/boost.json
-.mcp.json
 /.junie/mcp/mcp.json
+/.ai/mcp/mcp.json
+
+# Solis documention (not public)
+/docs/SolisCloud Platform API Document V2.0.3.md
+/docs/API SOP.md
+

@@ -291,8 +291,8 @@ of concept (PoC) create a console command to call an Action which will get the l
 Now we have access to the Solis API. The inverter data can be downloaded using the API instead of downloading and
 parsing Excel. We can also automatically update the charge times for each period, based on the strategy.
 
-- Current action: Add a task to section 1.1.x of  `docs/tasks.md`
-- Status: Not started
+- Current action: Task 1.1.18 in docs/tasks.md
+- Status: Complete
 
 ### Update inverter charge times
 

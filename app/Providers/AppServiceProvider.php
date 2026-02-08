@@ -4,39 +4,41 @@ namespace App\Providers;
 
 use App\Application\Commands\Bus\CommandBus;
 use App\Application\Commands\Bus\SimpleCommandBus;
-use App\Application\Commands\Strategy\GenerateStrategyCommand;
-use App\Application\Commands\Strategy\GenerateStrategyCommandHandler;
-use App\Application\Commands\Strategy\CalculateBatteryCommand;
-use App\Application\Commands\Strategy\CalculateBatteryCommandHandler;
-use App\Application\Commands\Strategy\CopyConsumptionWeekAgoCommand;
-use App\Application\Commands\Strategy\CopyConsumptionWeekAgoCommandHandler;
-use App\Application\Commands\Energy\ImportAgileRatesCommand;
-use App\Application\Commands\Energy\ImportAgileRatesCommandHandler;
 use App\Application\Commands\Energy\ExportAgileRatesCommand;
 use App\Application\Commands\Energy\ExportAgileRatesCommandHandler;
+use App\Application\Commands\Energy\ImportAgileRatesCommand;
+use App\Application\Commands\Energy\ImportAgileRatesCommandHandler;
 use App\Application\Commands\Energy\SyncOctopusAccountCommand;
 use App\Application\Commands\Energy\SyncOctopusAccountCommandHandler;
 use App\Application\Commands\Forecasting\RefreshForecastsCommand;
 use App\Application\Commands\Forecasting\RefreshForecastsCommandHandler;
-use App\Application\Commands\Forecasting\RequestSolcastForecast;
-use App\Application\Commands\Forecasting\RequestSolcastForecastHandler;
 use App\Application\Commands\Forecasting\RequestSolcastActual;
 use App\Application\Commands\Forecasting\RequestSolcastActualHandler;
+use App\Application\Commands\Forecasting\RequestSolcastForecast;
+use App\Application\Commands\Forecasting\RequestSolcastForecastHandler;
+use App\Application\Commands\Strategy\CalculateBatteryCommand;
+use App\Application\Commands\Strategy\CalculateBatteryCommandHandler;
+use App\Application\Commands\Strategy\CopyConsumptionWeekAgoCommand;
+use App\Application\Commands\Strategy\CopyConsumptionWeekAgoCommandHandler;
+use App\Application\Commands\Strategy\GenerateStrategyCommand;
+use App\Application\Commands\Strategy\GenerateStrategyCommandHandler;
+use App\Application\Commands\Strategy\GetInverterDayDataCommand;
+use App\Application\Commands\Strategy\GetInverterDayDataHandler;
 use App\Application\Commands\Strategy\RecalculateStrategyCostsCommand;
 use App\Application\Commands\Strategy\RecalculateStrategyCostsCommandHandler;
-use Illuminate\Database\Events\QueryExecuted;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\ServiceProvider;
-use Illuminate\Support\Facades\Event;
-use App\Domain\Forecasting\Events\SolcastRequestAttempted;
-use App\Domain\Forecasting\Events\SolcastRequestSucceeded;
-use App\Domain\Forecasting\Events\SolcastRequestSkipped;
-use App\Domain\Forecasting\Events\SolcastRateLimited;
 use App\Domain\Forecasting\Events\SolcastAllowanceReset;
+use App\Domain\Forecasting\Events\SolcastRateLimited;
+use App\Domain\Forecasting\Events\SolcastRequestAttempted;
+use App\Domain\Forecasting\Events\SolcastRequestSkipped;
+use App\Domain\Forecasting\Events\SolcastRequestSucceeded;
 use App\Domain\Forecasting\Models\SolcastAllowanceLog;
 use App\Domain\Forecasting\Services\Contracts\SolcastAllowanceContract;
 use App\Domain\Forecasting\Services\SolcastAllowanceService;
+use Illuminate\Database\Events\QueryExecuted;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -61,6 +63,8 @@ class AppServiceProvider extends ServiceProvider
             // Solcast allowance commands
             $bus->register(RequestSolcastForecast::class, RequestSolcastForecastHandler::class);
             $bus->register(RequestSolcastActual::class, RequestSolcastActualHandler::class);
+            // Solis commands
+            $bus->register(GetInverterDayDataCommand::class, GetInverterDayDataHandler::class);
             return $bus;
         });
     }
