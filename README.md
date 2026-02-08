@@ -16,6 +16,7 @@ project, it requires a **Solis inverter** and energy supplied by **Octopus energ
     - https://api.octopus.energy/v1/products/OUTGOING-VAR-24-10-26/electricity-tariffs/E-1R-OUTGOING-VAR-24-10-26-K/standard-unit-rates/
 - update the output from the "OctopusAccount command" `app:octopus-account` to display the current tariffs.
 - See [user request](./docs/user-requests.md) for other suggested improvements.
+- See [.junie/guidelines.md](.junie/guidelines.md) for development guidelines, testing, and architecture details.
 
 ## Requirements
 
@@ -85,9 +86,12 @@ Quickstart (first time):
 
 ```sh
 cp .env.example .env
+# Edit .env and add SOLIS_KEY_ID and SOLIS_KEY_SECRET
 php -r "file_exists('database/database.sqlite') || touch('database/database.sqlite');"
 php artisan key:generate
 php artisan migrate --seed
+php artisan solis:inverter-list
+# Copy the inverterId from the output and add it to .env as SOLIS_INVERTER_ID
 ```
 
 Then open https://solar.test and login with:
@@ -128,8 +132,11 @@ OCTOPUS_IMPORT_SERIAL_NUMBER =
 
 # Solis API access (optional). Solis customers and sign up for support and request an API for personal
 # use: https://solis-service.solisinverters.com
+# to find SOLIS_INVERTER_ID fill in SOLIS_KEY_ID and SOLIS_KEY_SECRET then run `php artisan solis:inverter-list`
+# Copy the `inverterId` number
 SOLIS_KEY_ID =
 SOLIS_KEY_SECRET =
+SOLIS_INVERTER_ID =
 SOLIS_API_URL = https://www.soliscloud.com:13333
 ```
 
@@ -242,9 +249,15 @@ all, or the following key commands:
 - Inverter import:
     - `php artisan app:inverter`
         - Import Solis inverter XLS files from `storage/app/uploads/`.
+    - `php artisan solis:inverter-data {date?}`
+        - Fetch and upsert daily inverter data from Solis API for the optional date (YYYY-MM-DD); defaults to yesterday.
+    - `php artisan solis:inverter-list`
+        - Fetch the inverter list from the Solis API and find the first inverter's id (useful for setting `SOLIS_INVERTER_ID` in `.env`).
 - Maintenance:
     - `php artisan solcast:prune-logs {--days=}`
         - Prune `solcast_allowance_logs` older than the retention window (default 14 days, or override with `--days`).
+    - `php artisan test:coverage {--format=html} {--open}`
+        - Run PHPUnit tests with code coverage. Format defaults to `html`; use `--open` to open the report in the browser.
 
 Notes:
 
@@ -258,6 +271,9 @@ The following packages have been used:
 - [Filament admin panel](https://filamentphp.com/docs/3.x/admin/installation) - Admin panel restricted to authenticated
   users.
 - [Livewire](https://laravel-livewire.com/) – Included with Filament.
+- [Laravel Pint](https://laravel.com/docs/12.x/pint) – Opinionated PHP code style fixer.
+- [PHPStan](https://phpstan.org/) – PHP Static Analysis Tool.
+- [Chart.js](https://www.chartjs.org/) – Flexible JavaScript charting (Included with Filament)
 
 ## Architecture: CQRS and Domain-Driven Design
 

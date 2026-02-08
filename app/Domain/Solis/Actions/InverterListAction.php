@@ -26,7 +26,7 @@ class InverterListAction implements ActionInterface
 
         $bodyData = [
             'pageNo'   => 1,
-            'pageSize' => 10,
+            'pageSize' => 1,
         ];
         $body = json_encode($bodyData);
         $contentMd5 = $this->getDigest($body);
@@ -46,15 +46,26 @@ class InverterListAction implements ActionInterface
         $response = Http::withHeaders($headers)
             ->post($url, $bodyData);
 
+        $body = $response->json();
         Log::info('Solis inverter list response', [
             'status' => $response->status(),
-            'json'   => $response->json(), // Decoded body
+            'json'   => $body, // Decoded body
         ]);
 
         if ($response->successful()) {
-            return ActionResult::success(['status' => $response->status()], 'Solis inverter list fetched successfully');
+            return ActionResult::success(
+                [
+                    'status'     => $response->status(),
+                    'inverterId' => $body['data']['page']['records'][0]['inverterId'] ?? '',
+                ],
+                'Solis inverter list fetched successfully'
+            );
         } else {
-            return ActionResult::failure("Solis API failed: {$response->status()} - {$response->body()}");
+            return ActionResult::failure(sprintf(
+                "Solis API failed: %s - %s",
+                $response->status(),
+                $response->body()
+            ));
         }
     }
 

@@ -193,7 +193,23 @@ Once the dashboard chart is interactive, also update the similar chart in strate
 - [x] `composer all` passes
 - [x] App runs at https://solar.test
 
-[ ] Foundation and Security (Phase 1 alignment)
+### 1.1.18 Get inverter data via Solis API *
+
+- POC implemented (simplistic first-second delta); full implementation in progress
+  * Parse full API array: sort timeStr (Carbon UTC), bucket to 48x 30min periods (00:00-23:30), compute cumulative deltas (eToday/grid*/homeLoad deltas → yield/from_grid/to_grid/consumption), clamp negatives=0 like Excel, battery_soc avg/first per bucket
+  * Handle empty/short data/HTTP timeout: log warning, return []
+  * Update unit test: multi-point mock → multiple bucketted records
+  * Feature test: command mock → assert Inverter::count() increases N
+  * Repo: upsertFromSolisData guards (validate periods sequential, floats)
+- Reuse auth from existing InverterListAction (app/Domain/Solis/Actions) ✓
+- New SolisInverterDayDataAction -> array records (not VO array) ✓
+- Update EloquentInverterRepository::upsertFromSolisData(array $data) ✓
+- Console command: php artisan solis:inverter-data [--date=YYYY-MM-DD] (yesterday default) ✓
+- TDD: unit/feature tests ✓ (expand)
+- composer all passes ✓ (fix CS if needed)
+- Verify inverter widgets/charts unchanged behavior ✓
+
+## 1.2 Foundation and Security (Phase 1 alignment)
 
 - Ensure security and initial QA items are prioritised per `docs/plan.md`.
 
