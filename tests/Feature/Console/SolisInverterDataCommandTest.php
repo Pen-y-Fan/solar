@@ -16,7 +16,12 @@ class SolisInverterDataCommandTest extends TestCase
 
     public function testCommandFetchesAndDispatchesUpsertForGivenDate(): void
     {
-        Config::set('solis.inverter_id', 'test-id');
+        Config::set('solis', [
+            'key_id' => 'test-key',
+            'key_secret' => 'test-secret',
+            'api_url' => 'https://test.solis/',
+            'inverter_id' => 'test-id',
+        ]);
         Http::fake([
             '*inverterDay*' => Http::response(['success' => true, 'data' => []], 200),
         ]);
@@ -33,7 +38,12 @@ class SolisInverterDataCommandTest extends TestCase
 
     public function testCommandDefaultsToYesterday(): void
     {
-        Config::set('solis.inverter_id', 'test-id');
+        Config::set('solis', [
+            'key_id' => 'test-key',
+            'key_secret' => 'test-secret',
+            'api_url' => 'https://test.solis/',
+            'inverter_id' => 'test-id',
+        ]);
         Http::fake([
             '*inverterDay*' => Http::response(['success' => true, 'data' => []], 200),
         ]);
