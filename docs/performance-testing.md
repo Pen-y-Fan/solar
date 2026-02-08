@@ -1171,6 +1171,8 @@ Template per scenario (example keys):
 - Error rate
 - Notes (hardware, background load, observations)
 
+#### Dec 2025
+
 Results (2025‑12‑03, local Mac, low background load; VUS=8, DURATION=90s; `PERF_DATASET_SIZE=large`):
 
 - forecasts (Large):
@@ -1205,6 +1207,8 @@ Results (2025‑12‑03, local Mac, low background load; VUS=8, DURATION=90s; `P
   - RPS: ~25.47 req/s
   - Error rate: 0%
   - Notes: Helper path `/_perf/generate-strategy`, single-flight; no duplicate submissions.
+
+#### Jan 2026
 
 Results (2026-01-07, local MacOS arm64 Herd, low background load; VUS=8, DURATION=90s; `PERF_DATASET_SIZE=large`):
 
@@ -1281,6 +1285,46 @@ Results (2026-01-07 21:13, local MacOS arm64 Herd, low background load; VUS=8, D
   - RPS: ~25.3 req/s
   - Error rate: 0%
   - Notes: Generation flow; stable; summary thresholds shown 'false'; all checks 100%.
+
+#### Feb 2026
+
+Results (2026-02-08 16:03, local MacOS arm64 Herd, low background load; VUS=8, DURATION=90s; `PERF_DATASET_SIZE=large`):
+
+- forecasts (Large):
+  - p50: 50.01 ms
+  - p90: 71.56 ms
+  - p95: 96.87 ms
+  - p99: n/a
+  - RPS: ~14.5 req/s
+  - Error rate: 0%
+  - Notes: Auth bootstrap; stable; p95 slightly higher than Jan 85ms but within targets.
+
+- inverter (Large):
+  - p50: 52.48 ms
+  - p90: 70.62 ms
+  - p95: 79.40 ms
+  - p99: n/a
+  - RPS: ~14.4 req/s
+  - Error rate: 0%
+  - Notes: Inverter widgets; stable; p95 improved from Jan 83ms.
+
+- strategies (Large):
+  - p50: 47.78 ms
+  - p90: 68.30 ms
+  - p95: 73.76 ms
+  - p99: n/a
+  - RPS: ~14.1 req/s
+  - Error rate: 0%
+  - Notes: Strategies index; stable; p95 improved from Jan 86ms.
+
+- strategy-generation (Large):
+  - p50: 34.89 ms
+  - p90: 50.70 ms
+  - p95: 62.99 ms
+  - p99: n/a
+  - RPS: ~25.3 req/s
+  - Error rate: 0%
+  - Notes: Generation flow; stable; p95 improved from Jan 68ms.
 
 ---
 

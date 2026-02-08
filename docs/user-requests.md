@@ -195,7 +195,7 @@ When building, the CI fails to complete the build, probably due to a missing ste
 
 Illuminate\Foundation\ViteManifestNotFoundException
 
-- Current action: Added as task to section 1.1.5 of  `docs/tasks.md` and completed
+- Current action: Added as a task to section 1.1.5 of  `docs/tasks.md` and completed
   `docs/monthly-large-dataset-performance-checks.md`
 - Status: Complete
 
@@ -276,9 +276,9 @@ a Dependabot upgrade. Update docs with the new requirements.
 
 ## Solis API
 
-We now have access to the Solis API. The inverter data can be downloaded using the API instead of Excel!
+We now have access to the Solis API. The inverter data can be downloaded using the API instead of Excel.
 
-### Inverter list
+### Inverter list PoC
 
 The Solis documentation has a call to get the list of inverters. The API endpoint is `/api/v1/inverter/list`. As a proof
 of concept (PoC) create a console command to call an Action which will get the list of inverters and log the response.
@@ -293,6 +293,42 @@ parsing Excel. We can also automatically update the charge times for each period
 
 - Current action: Task 1.1.18 in docs/tasks.md
 - Status: Complete
+
+### Automate inverter data fetching
+
+Inverter data is now fetched using the Solis API. The command `php artisan solis:inverter-data` will fetch
+the data for the configured inverter and dispatch an event to update the database.
+
+The next step is to automate the fetching of inverter data. We can fetch the same time as Solcast data is fetched in the
+Solcast actual chart.
+
+- Current action: Add a task to section 1.1.x of  `docs/tasks.md`
+- Status: Not started
+
+### Update inverter list artisan command
+
+Inverter list was a quick PoC (1.1.15), the artisan command calls the action directly. For consistency update to use the command pattern.
+
+- Current action: Add a task to section 1.1.x of  `docs/tasks.md`
+- Status: Not started
+
+### Inverter resource
+
+Inverter resource is a model that represents an inverter. The resource is used to store and retrieve inverter data from
+the database. There maybe times when inverter data is not fetched for a given day, when this happens, it would be good
+to go to the inverter resource and click a filament action to fetch the inverted data for that day.
+
+The default view for an inverter resource is yesterday, the 48 x 30 minute periods. The user can select another day from a filter of days similar to the Strategies resource, except it will be a full day from midnight, not 4 pm.
+
+- Current action: Add a task to section 1.1.x of `docs/tasks.md`
+- Status: Not started
+
+### Fetch inverter data for multiple days
+
+The inverter data command will allow data to be fetched for one day. Expand the command to accept and range of days, that allows the user to fetch inverter data for multiple consecutive days at once. This feature is useful when the user needs to fetch missing inverter data for a range of days. E.g. a holiday period.
+
+- Current action: Add a task to section 1.1.x of `docs/tasks.md`
+- Status: Not started
 
 ### Update inverter charge times
 
@@ -310,6 +346,12 @@ Create a comparison with Octopus Outgoing (currently 15p/kwh export)
 - https://api.octopus.energy/v1/products/OUTGOING-VAR-24-10-26/electricity-tariffs/E-1R-OUTGOING-VAR-24-10-26-K/standard-unit-rates/
 - compare consumption with other available tariffs to see which is best.
 
+- Current action: Add a task to section 1.1.x of  `docs/tasks.md`
+- Status: Not started
+
 ## Octopus account
 
 Update the output from the "OctopusAccount command" `app:octopus-account` to display the current tariffs.
+
+- Current action: Add a task to section 1.1.x of  `docs/tasks.md`
+- Status: Not started
