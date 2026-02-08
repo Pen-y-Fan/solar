@@ -92,56 +92,56 @@ Details and the full checklist have been moved to docs/cqrs-tasks.md.
 
 ## 1.1 User requirements
 
-Tasks based on the [User Requirements Document](./user-requests.md).
+Tasks based on the [User Requirements Document](user-requests.md).
 
-### 1.1.1 Forecasting — Solcast API Allowance
+### 1.1.01 Forecasting — Solcast API Allowance
 
 - [x] Implement a unified Solcast API allowance policy (daily cap, per-endpoint min intervals, global backoff, DB row
   lock) — see docs/solcast-api-allowance-task.md
 
-### 1.1.2 Bug: Correct Solcast forecasts charts: Solis should be corrected to Solcast.
+### 1.1.02 Bug: Correct Solcast forecasts charts: Solis should be corrected to Solcast.
 
 - [x] Investigate all charts that display 'Forecast' and 'ActualForecast' model data. Update any Solis reference to
   Solcast.
 
-### 1.1.3 Make the Agile cost chart interactive
+### 1.1.03 Make the Agile cost chart interactive
 
 - [x] Dashboard — Make the Agile cost chart interactive, see `docs/make-the-agile-cost-chart-interactive.md` for the
   full story.
 
-### 1.1.3.1 Make the cost chart interactive
+### 1.1.03.1 Make the cost chart interactive
 
 Once the dashboard chart is interactive, also update the similar chart in strategy
 
 - [x] Strategy — Make the cost chart interactive, the strategy cost chart is almost identical to the Agile cost chart.
   Note: a future requirement is to make it interactive from 7PM, so it needs to be a different chart.
 
-### 1.1.4 Monthly large dataset performance checks
+### 1.1.04 Monthly large dataset performance checks
 
 - [x] Add monthly large dataset performance checks — see `docs/monthly-large-dataset-performance-checks.md` for the full
   checklist
 
-### 1.1.5 Fix CI build (tests and code-quality)
+### 1.1.05 Fix CI build (tests and code-quality)
 
 - [x] The CI build for tests is failing — see `docs/ci-build-fixes-task-list.md`
 - [x] The CI code-quality check is not consistent — see `docs/ci-build-fixes-task-list.md`
 
-### 1.1.6 Improve the strategy charts and widgets
+### 1.1.06 Improve the strategy charts and widgets
 
 - [x] The forecast charts currently display the current day, it should be extended to display from 4pm
   the previous day to 4pm (16:00) GMT the current day
 - [x] Change the drop-down to display the period start and end times.
 
-### 1.1.7 Update the strategy generator
+### 1.1.07 Update the strategy generator
 
 - [x] The strategy generator needs to align with the charts, which now display from 4pm the previous day to 4pm (16:00)
   GMT the current day
 
-### 1.1.8 Consolidate strategy generator
+### 1.1.08 Consolidate strategy generator
 
 - [x] The strategy generator can include the consumption from last week.
 
-### 1.1.9 Monthly large dataset performance checks Jan 2026
+### 1.1.09 Monthly large dataset performance checks Jan 2026
 
 - [x] Add monthly large dataset performance checks — see `docs/monthly-large-dataset-performance-checks.md` for the full
   checklist
@@ -178,7 +178,7 @@ Once the dashboard chart is interactive, also update the similar chart in strate
 - [x] Confirm installation instructions from `docs/boost.md`
 - [x] `composer require laravel/boost --dev`
 - [x] `php artisan boost:install`
-- [x] Add MCP config file for AI Pro
+- [x] Add an MCP config file for AI Pro
 - [x] Update composer to automatically update boost on update
 - [x] Update README.md and guidelines.md and/or .env.example if a new config is needed
 
@@ -198,7 +198,7 @@ Once the dashboard chart is interactive, also update the similar chart in strate
 - POC implemented (simplistic first-second delta); full implementation in progress
   * Parse full API array: sort timeStr (Carbon UTC), bucket to 48x 30min periods (00:00-23:30), compute cumulative deltas (eToday/grid*/homeLoad deltas → yield/from_grid/to_grid/consumption), clamp negatives=0 like Excel, battery_soc avg/first per bucket
   * Handle empty/short data/HTTP timeout: log warning, return []
-  * Update unit test: multi-point mock → multiple bucketted records
+  * Update unit test: multipoint mock → multiple bucketed records
   * Feature test: command mock → assert Inverter::count() increases N
   * Repo: upsertFromSolisData guards (validate periods sequential, floats)
 - Reuse auth from existing InverterListAction (app/Domain/Solis/Actions) ✓
@@ -208,6 +208,11 @@ Once the dashboard chart is interactive, also update the similar chart in strate
 - TDD: unit/feature tests ✓ (expand)
 - composer all passes ✓ (fix CS if needed)
 - Verify inverter widgets/charts unchanged behavior ✓
+
+### 1.1.19 Monthly large dataset performance checks Feb 2026
+
+- [x] Add monthly large dataset performance checks — see `docs/monthly-large-dataset-performance-checks.md` for the full
+  checklist
 
 ## 1.2 Foundation and Security (Phase 1 alignment)
 
