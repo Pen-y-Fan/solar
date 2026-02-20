@@ -324,6 +324,39 @@ Further reading and task history:
 
 Laravel Sail has been installed as a composer package, if composer is not installed locally, it can be run using:
 
+Once the **.env** file and database have already been configured, the project can be initialized and started:
+
+Note: The docker url is http://localhost (not https) and port 80 (can be configured in .env).
+
+```ini
+APP_URL=http://localhost
+APP_PORT=80
+```
+
+Run `npm install` using the official node docker image
+
+```shell
+docker run --rm \
+  -u "$(id -u):$(id -g)" \
+  -v "$(pwd):/var/www/html" \
+  -w /var/www/html \
+  node:20-alpine \
+  npm install
+```
+
+Then run `npm run build` using the same node image
+
+```shell
+docker run --rm \
+  -u "$(id -u):$(id -g)" \
+  -v "$(pwd):/var/www/html" \
+  -w /var/www/html \
+  node:20-alpine \
+  npm run build
+```
+
+Install composer dependencies
+
 ```shell
 docker run --rm \
     -u "$(id -u):$(id -g)" \
@@ -333,7 +366,7 @@ docker run --rm \
     composer install --ignore-platform-reqs
 ```
 
-Once the **.env** file and database have already been configured, the project can be run:
+The project can then be started
 
 ```shell
 ./vendor/bin/sail up -d
