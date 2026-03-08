@@ -1,6 +1,6 @@
 # Monthly Large Dataset Performance Checks
 
-Last run: Sun 8-Feb-2026 16:03
+Last run: Sun 8-Mar-2026 11:55
 
 Purpose: Provide a repeatable, check‑off task to run the Large dataset advisory performance checks locally each month
 and record summarised metrics in `docs/performance-testing.md` under “Large Dataset Advisory Results (Local)”. This

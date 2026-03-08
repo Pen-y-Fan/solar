@@ -47,7 +47,7 @@ git clone git@github.com:Pen-y-Fan/solar.git
 Install all the dependencies using Composer.
 
 ```sh
-cd solar
+# cd solar
 composer install
 ```
 
