@@ -219,6 +219,19 @@ Once the dashboard chart is interactive, also update the similar chart in strate
 - [x] Add monthly large dataset performance checks — see `docs/monthly-large-dataset-performance-checks.md` for the full
   checklist
 
+### 1.1.21 Change the Octopus export tariff from 1st March
+
+- [x] Update `app/Domain/Energy/Models/OutgoingOctopus.php` to add a static method `getRate(CarbonInterface $date)` that
+  returns the correct export rate based on the date.
+    - Before 8th July 2025: Use the `exportCost` model value if available, otherwise 0.
+    - Between 8th July 2025 and 1st March 2026: 15p/kWh.
+    - From 1st March 2026: 12p/kWh.
+- [x] Update `app/Filament/Widgets/OctopusChart.php` to use the new `getRate` method instead of the constant.
+- [x] Update `app/Domain/Strategy/Actions/GenerateStrategyAction.php` and its dependencies (like `StrategyCostCalculator`)
+  to use the new `getRate` method to ensure correct strategy and cost calculations.
+- [x] Add unit tests for `OutgoingOctopus::getRate` to verify the correct rate is returned for different dates.
+- [x] Verify that the Octopus chart and strategy generation still work as expected and use the correct rates.
+
 ## 1.2 Foundation and Security (Phase 1 alignment)
 
 - Ensure security and initial QA items are prioritised per `docs/plan.md`.

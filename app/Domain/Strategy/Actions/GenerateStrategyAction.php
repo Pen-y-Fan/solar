@@ -161,16 +161,15 @@ class GenerateStrategyAction implements ActionInterface
         $weekAgoEnd = $weekAgoStart->clone()->addDay()->timezone('UTC');
         $weekAgoConsumptions = $this->inverterRepository->getConsumptionForDateRange($weekAgoStart, $weekAgoEnd);
 
-        // Create base data
         $strategies = [];
-        $eighthJuly2025 = Carbon::createFromFormat('Y-m-d', '2025-07-08', 'UTC');
-
+        // Create base data
         foreach ($forecastData as $forecast) {
             $dateTimePeriod = $forecast->period_end->format('YmdHi');
             $importValue = optional($forecast->importCost)->value_inc_vat ?? 0.0;
-            $exportValue = $forecast->period_end->isAfter($eighthJuly2025)
-                ? OutgoingOctopus::EXPORT_COST
-                : optional($forecast->exportCost)->value_inc_vat ?? 0.0;
+            $exportValue = OutgoingOctopus::getRate(
+                $forecast->period_end,
+                optional($forecast->exportCost)->value_inc_vat
+            );
 
             $avgConsumptionData = $averageConsumptions->first(function ($item) use ($forecast) {
                 return $item->time === $forecast->period_end->format('H:i:s');
