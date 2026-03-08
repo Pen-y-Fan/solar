@@ -254,6 +254,23 @@ always be a forecast.
 - Current action: Add a task to section 1.1.x of  `docs/tasks.md`
 - Status: Not started
 
+### Change the octopus export tariff from 1st March
+
+Tariff history:
+
+- From 1st March 2026, the Outgoing Octopus variable export rate will move to 12p/kWh.
+- Between 8th March 2025 and 1 March 2026 the tariff was 15p/kWh.
+- Before 8th March 2025 the tariff based on Forecast export cost.
+
+The `app/Domain/Energy/Models/OutgoingOctopus.php` has been updated to reflect the new tariff. I would suggest a new
+static method `GetOutgoingOctopus($date)` switch or match to return the correct tariff.
+
+Then update the chart `app/Filament/Widgets/OctopusChart.php` and the
+`app/Domain/Strategy/Actions/GenerateStrategyAction.php` to use the new method, instead of the constant.
+
+- Current action: Add a task to section 1.1.21 of `docs/tasks.md`
+- Status: Complete
+
 ## Laravel AI Helper - Boost
 
 Add Laravel Boost MCP server to help AI Pro / Junie, see `docs/boost.md`
@@ -307,7 +324,8 @@ Solcast actual chart.
 
 ### Update inverter list artisan command
 
-Inverter list was a quick PoC (1.1.15), the artisan command calls the action directly. For consistency update to use the command pattern.
+Inverter list was a quick PoC (1.1.15), the artisan command calls the action directly. For consistency update to use the
+command pattern.
 
 - Current action: Add a task to section 1.1.x of  `docs/tasks.md`
 - Status: Not started
@@ -318,14 +336,17 @@ Inverter resource is a model that represents an inverter. The resource is used t
 the database. There maybe times when inverter data is not fetched for a given day, when this happens, it would be good
 to go to the inverter resource and click a filament action to fetch the inverted data for that day.
 
-The default view for an inverter resource is yesterday, the 48 x 30 minute periods. The user can select another day from a filter of days similar to the Strategies resource, except it will be a full day from midnight, not 4 pm.
+The default view for an inverter resource is yesterday, the 48 x 30 minute periods. The user can select another day from
+a filter of days similar to the Strategies resource, except it will be a full day from midnight, not 4 pm.
 
 - Current action: Add a task to section 1.1.x of `docs/tasks.md`
 - Status: Not started
 
 ### Fetch inverter data for multiple days
 
-The inverter data command will allow data to be fetched for one day. Expand the command to accept and range of days, that allows the user to fetch inverter data for multiple consecutive days at once. This feature is useful when the user needs to fetch missing inverter data for a range of days. E.g. a holiday period.
+The inverter data command will allow data to be fetched for one day. Expand the command to accept and range of days,
+that allows the user to fetch inverter data for multiple consecutive days at once. This feature is useful when the user
+needs to fetch missing inverter data for a range of days. E.g. a holiday period.
 
 - Current action: Add a task to section 1.1.x of `docs/tasks.md`
 - Status: Not started
@@ -341,7 +362,7 @@ For working .NET code, see the project [Solis Agile Manager](https://github.com/
 
 ## Octopus comparison
 
-Create a comparison with Octopus Outgoing (currently 15p/kwh export)
+Create a comparison with Octopus Outgoing (currently 12p/kwh export)
 
 - https://api.octopus.energy/v1/products/OUTGOING-VAR-24-10-26/electricity-tariffs/E-1R-OUTGOING-VAR-24-10-26-K/standard-unit-rates/
 - compare consumption with other available tariffs to see which is best.

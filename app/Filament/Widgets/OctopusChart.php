@@ -133,13 +133,13 @@ class OctopusChart extends ChartWidget
         $importAccumulativeCost = 0;
 
         $result = [];
-        $eighthJuly2025 = Carbon::createFromFormat('Y-m-d', '2025-07-08', 'UTC');
 
         /** @var OctopusExport $exportItem */
         foreach ($data as $exportItem) {
-            $exportValueIncVat = $exportItem->interval_start->isAfter($eighthJuly2025)
-                ? OutgoingOctopus::EXPORT_COST
-                : ($exportItem->exportCost ? $exportItem->exportCost->value_inc_vat : 0);
+            $exportValueIncVat = OutgoingOctopus::getRate(
+                $exportItem->interval_start,
+                $exportItem->exportCost ? (float) $exportItem->exportCost->value_inc_vat : null
+            );
             $importValueIncVat = $exportItem->importCost ? $exportItem->importCost->value_inc_vat : 0;
             $importConsumption = $exportItem->octopusImport ? $exportItem->octopusImport->consumption : 0;
 
