@@ -1159,9 +1159,10 @@ Decisions:
 
 ---
 
+
 ### Large Dataset Advisory Results (Local)
 
-Last update: 2026-01-07 21:13
+Last update: 2026-03-08 11:55
 
 Use this section to paste summarized metrics from `perf-reports/*.large.summary.json` after running the Large dataset locally. Include hardware notes (CPU/RAM), background load, and any relevant observations. Do not commit the raw perf-reports; only the summaries below.
 
@@ -1326,6 +1327,47 @@ Results (2026-02-08 16:03, local MacOS arm64 Herd, low background load; VUS=8, D
   - Error rate: 0%
   - Notes: Generation flow; stable; p95 improved from Jan 68ms.
 
+#### Mar 2026
+
+Results (2026-03-08, local MacOS arm64 Herd, low background load; VUS=8, DURATION=90s; `PERF_DATASET_SIZE=large`):
+
+- forecasts (Large):
+    - p50: 34.36 ms
+    - p90: 49.59 ms
+    - p95: 57.03 ms
+    - p99: n/a
+    - RPS: ~14.97 req/s
+    - Error rate: 0%
+    - Notes: Auth bootstrap; stable.
+
+- inverter (Large):
+    - p50: 33.22 ms
+    - p90: 43.07 ms
+    - p95: 48.66 ms
+    - p99: n/a
+    - RPS: ~14.94 req/s
+    - Error rate: 0%
+    - Notes: Inverter widgets; stable.
+
+- strategies (Large):
+    - p50: 33.40 ms
+    - p90: 43.37 ms
+    - p95: 50.08 ms
+    - p99: n/a
+    - RPS: ~15.04 req/s
+    - Error rate: 0%
+    - Notes: Strategies index; stable.
+
+- strategy-generation (Large):
+    - p50: 31.90 ms
+    - p90: 42.10 ms
+    - p95: 48.92 ms
+    - p99: n/a
+    - RPS: ~25.66 req/s
+    - Error rate: 0%
+    - Notes: Generation flow; stable.
+
+Observation: macOS was reinstalled in February, the March results are showing a big improvement in performance.
 ---
 
 ### 9) Set the Next Step

@@ -214,6 +214,11 @@ Once the dashboard chart is interactive, also update the similar chart in strate
 - [x] Add monthly large dataset performance checks — see `docs/monthly-large-dataset-performance-checks.md` for the full
   checklist
 
+### 1.1.20 Monthly large dataset performance checks Mar 2026
+
+- [x] Add monthly large dataset performance checks — see `docs/monthly-large-dataset-performance-checks.md` for the full
+  checklist
+
 ## 1.2 Foundation and Security (Phase 1 alignment)
 
 - Ensure security and initial QA items are prioritised per `docs/plan.md`.

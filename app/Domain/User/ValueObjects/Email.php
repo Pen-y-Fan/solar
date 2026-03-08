@@ -80,7 +80,7 @@ class Email
     /**
      * Create a new Email instance with verified status
      */
-    public function withVerification(CarbonInterface $verifiedAt = null): self
+    public function withVerification(?CarbonInterface $verifiedAt = null): self
     {
         $verifiedAtImmutable = $verifiedAt instanceof CarbonImmutable
             ? $verifiedAt
