@@ -23,7 +23,7 @@ project, it requires a **Solis inverter** and energy supplied by **Octopus energ
 This is a Laravel 12 project. The requirements are the same as a
 new [Laravel 12 project](https://laravel.com/docs/12.x/installation).
 
-- PHP 8.3 or higher
+- PHP 8.5 or higher
 - Composer
 - Laravel Herd (recommended) or Docker
 
@@ -78,7 +78,7 @@ If Composer is not installed locally, see **Docker (optional)** below.
 Laravel Herd (recommended on macOS):
 
 1. Install Laravel Herd from https://herd.laravel.com/
-2. Ensure PHP 8.2+ and Composer are enabled in Herd settings
+2. Ensure PHP 8.5+ and Composer are enabled in Herd settings
 3. Map a site to this project directory with the domain <solar.test>
 4. Trust Herd’s certificate so https://solar.test works locally
 
@@ -363,7 +363,7 @@ docker run --rm \
     -u "$(id -u):$(id -g)" \
     -v "$(pwd):/var/www/html" \
     -w /var/www/html \
-    laravelsail/php83-composer:latest \
+    laravelsail/php85-composer:latest \
     composer install --ignore-platform-reqs
 ```
 

@@ -296,11 +296,15 @@ a Dependabot upgrade. Update docs with the new requirements.
 
 - Filament is locked to v3.3.33, I would like to upgrade to v5.3.4. 
 - Locally we are using PHP 8.4, I would like to upgrade to 8.5, which was released 4 months ago. 
+- Also Laravel Sail upgrade to v1.53.0 with PHP 8.5
 
 This will allow us to use the latest version of Filament.
 
 We will need to follow the Filament upgrade guide, using the Filament MCP server. I believe Filament need to be upgraded
 to v4 before we can upgrade to v5.
+
+- Current action: Added as task 1.1.23 of `docs/tasks.md`
+- Status: Completed
 
 ## Solis API
 

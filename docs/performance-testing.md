@@ -920,7 +920,7 @@ three baseline JSON files, and open remediation tasks based on findings. CI rema
 ### 1) Prerequisites and Environment
 
 - PHP/Laravel
-    - PHP 8.2+ (Laravel Herd) and Composer dependencies installed
+    - PHP 8.5+ (Laravel Herd) and Composer dependencies installed
     - `.env` present, `APP_KEY` set
     - Local domain resolves: `https://solar-dev.test`
 - k6 availability
