@@ -21,6 +21,5 @@ parameters:
 
     # Ignore errors from Laravel magic methods
     ignoreErrors:
-#        - '#Call to an undefined method [a-zA-Z0-9\\_]+::newQuery\(\)#'
-#        - '#Call to an undefined method [a-zA-Z0-9\\_]+::query\(\)#'
-#        - '#Access to an undefined property [a-zA-Z0-9\\_]+\\:\\:\$[a-zA-Z0-9_]+\\.$#'
+        - '#Call to an undefined method Illuminate\\Testing\\TestResponse::(assertCanSeeTableRecords|fillForm|assertFormSet|assertSet|assertNotified|assertSuccessful|assertHasNoErrors|assertVisible|assertTableActionVisible|assertTableActionHidden|assertCanNotSeeTableRecords|assertTableColumnExists|assertTableColumnStateSet|assertCount|assertSet|assertSee|assertDispatched|assertStatus)\(\)#'
+        - '#Call to an undefined method Mockery\\ExpectationInterface\|Mockery\\HigherOrderMessage::(once|twice|times|with|andReturn|andThrow|atLeast|atMost|never|shouldReceive|shouldNotReceive|zeroOrMoreTimes|andReturnSelf|byDefault|andReturnNull)\(\)#'

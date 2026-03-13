@@ -14,13 +14,13 @@ class ForecastChart extends ChartWidget
 {
     protected int|string|array $columnSpan = 2;
 
-    protected static ?string $maxHeight = '400px';
+    protected ?string $maxHeight = '400px';
 
-    protected static ?string $heading = 'Solcast forecast';
+    protected ?string $heading = 'Solcast forecast';
 
     public ?string $filter = 'today';
 
-    protected static ?string $pollingInterval = '120s';
+    protected ?string $pollingInterval = '120s';
 
     private const BATTERY_MIN = 0.4;
 
@@ -58,7 +58,7 @@ class ForecastChart extends ChartWidget
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
-            self::$heading = 'No solcast forecast data';
+            $this->heading = 'No solcast forecast data';
 
             return [];
         }
@@ -69,7 +69,7 @@ class ForecastChart extends ChartWidget
             $strategy = '(without charging battery)';
         }
 
-        self::$heading = sprintf(
+        $this->heading = sprintf(
             'Solcast forecast for %s to %s cost £%0.2f %s',
             $rawData->first()['period_end']
                 ->timezone('Europe/London')

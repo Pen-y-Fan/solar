@@ -123,6 +123,7 @@ SOLCAST_API_KEY =
 SOLCAST_RESOURCE_ID =
 
 # Existing customers can generate a key: https://octopus.energy/dashboard/new/accounts/personal-details/api-access
+# account is available from the account dashboard or bills
 OCTOPUS_API_KEY =
 OCTOPUS_ACCOUNT =
 OCTOPUS_EXPORT_MPAN =

@@ -17,7 +17,6 @@ final class ImportAgileRatesCommandHandlerTest extends TestCase
     {
         /** @var m\MockInterface&AgileImportAction $action */
         $action = m::mock(AgileImportAction::class);
-        // @phpstan-ignore-next-line
         $action->shouldReceive('execute')
             ->once()
             ->andReturn(ActionResult::success(['records' => 1], 'Agile import updated'));

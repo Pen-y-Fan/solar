@@ -13,8 +13,9 @@ use App\Domain\Strategy\Models\Strategy;
 use Carbon\CarbonPeriod;
 use Carbon\Exceptions\InvalidFormatException;
 use Exception;
+use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\Summarizers\Average;
@@ -30,11 +31,11 @@ class StrategyResource extends Resource
 {
     protected static ?string $model = Strategy::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-puzzle-piece';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-puzzle-piece';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\DateTimePicker::make('period')->readOnly(),
                 Forms\Components\Toggle::make('strategy_manual')
@@ -285,11 +286,11 @@ class StrategyResource extends Resource
                     ->visible(fn (HasTable $livewire) => $livewire->getAllTableRecordsCount() >= 20),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
+                Actions\EditAction::make()
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make()
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make()
                 ]),
             ]);
     }

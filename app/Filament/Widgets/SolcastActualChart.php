@@ -13,22 +13,22 @@ use Throwable;
 
 class SolcastActualChart extends ChartWidget
 {
-    protected static ?string $heading = 'Solcast actual';
+    protected ?string $heading = 'Solcast actual';
 
-    protected static ?string $pollingInterval = '120s';
+    protected ?string $pollingInterval = '120s';
 
     protected function getData(): array
     {
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
-            self::$heading = 'No data for Solcast actual';
+            $this->heading = 'No data for Solcast actual';
 
             return [];
         }
         $lastRecord = $rawData->last();
 
-        self::$heading = sprintf(
+        $this->heading = sprintf(
             'Solcast actual from %s to %s (last updated %s)',
             Carbon::parse($rawData->first()['period_end'], 'UTC')
                 ->timezone('Europe/London')

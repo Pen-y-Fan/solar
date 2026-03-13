@@ -10,11 +10,11 @@ class ForecastChartWidget extends ChartWidget
 {
     protected int|string|array $columnSpan = 2;
 
-    protected static ?string $maxHeight = '400px';
+    protected ?string $maxHeight = '400px';
 
-    protected static ?string $heading = 'Solcast forecast';
+    protected ?string $heading = 'Solcast forecast';
 
-    protected static ?string $pollingInterval = '120s';
+    protected ?string $pollingInterval = '120s';
 
     public function getData(): array
     {

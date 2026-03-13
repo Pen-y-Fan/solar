@@ -9,9 +9,9 @@ use Illuminate\Support\Collection;
 
 class InverterChart extends ChartWidget
 {
-    protected static ?string $heading = 'Inverter consumption';
+    protected ?string $heading = 'Inverter consumption';
 
-    protected static ?string $pollingInterval = '120s';
+    protected ?string $pollingInterval = '120s';
 
     public int $count = 1;
 
@@ -23,7 +23,7 @@ class InverterChart extends ChartWidget
         $endLondon = Carbon::now('Europe/London');
         $startLondon = $endLondon->copy()->subDay()->startOfDay();
 
-        self::$heading = sprintf(
+        $this->heading = sprintf(
             'Consumption from %s to %s was %0.2f kWh',
             $startLondon->format('D jS M Y H:i'),
             $endLondon->format('jS M H:i'),

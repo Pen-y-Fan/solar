@@ -241,6 +241,13 @@ Once the dashboard chart is interactive, also update the similar chart in strate
     - [x] Verify that the test now passes (returns a successful response or redirect to login).
 - [x] Verify `composer all` passes.
 
+### 1.1.23 Upgrade Filament and PHP
+
+- [ ] Upgrade PHP from 8.4 to 8.5 using Laravel Herd.
+- [ ] Upgrade Filament from v3.3 to v5.3.4 (via v4 intermediate step).
+- [ ] Update documentation and requirements to reflect new versions.
+- [ ] Verify `composer all` passes.
+
 ## 1.2 Foundation and Security (Phase 1 alignment)
 
 - Ensure security and initial QA items are prioritised per `docs/plan.md`.

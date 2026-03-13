@@ -23,16 +23,13 @@ final class RequestSolcastActualHandlerTest extends TestCase
         /** @var m\MockInterface&ActualForecastAction $action */
         $action = m::mock(ActualForecastAction::class);
 
-        // @phpstan-ignore-next-line mock expectation
         $svc->shouldReceive('checkAndLock')
             ->once()
             ->with(Endpoint::ACTUAL, false)
             ->andReturn(AllowanceDecision::allow('reserved'));
-        // @phpstan-ignore-next-line mock expectation
         $action->shouldReceive('execute')
             ->once()
             ->andReturn(ActionResult::success(['records' => 10], 'Actual forecast updated'));
-        // @phpstan-ignore-next-line mock expectation
         $svc->shouldReceive('recordSuccess')->once()->with(Endpoint::ACTUAL);
 
         $handler = new RequestSolcastActualHandler($svc, $action);
@@ -49,7 +46,6 @@ final class RequestSolcastActualHandlerTest extends TestCase
         /** @var m\MockInterface&ActualForecastAction $action */
         $action = m::mock(ActualForecastAction::class);
 
-        // @phpstan-ignore-next-line mock expectation
         $svc->shouldReceive('checkAndLock')
             ->once()
             ->with(Endpoint::ACTUAL, false)
@@ -72,16 +68,13 @@ final class RequestSolcastActualHandlerTest extends TestCase
         /** @var m\MockInterface&ActualForecastAction $action */
         $action = m::mock(ActualForecastAction::class);
 
-        // @phpstan-ignore-next-line mock expectation
         $svc->shouldReceive('checkAndLock')
             ->once()
             ->with(Endpoint::ACTUAL, true)
             ->andReturn(AllowanceDecision::allow('reserved'));
-        // @phpstan-ignore-next-line mock expectation
         $action->shouldReceive('execute')
             ->once()
             ->andReturn(ActionResult::failure('Rate limit exceeded'));
-        // @phpstan-ignore-next-line mock expectation
         $svc->shouldReceive('recordFailure')->once()->with(Endpoint::ACTUAL, 429);
 
         $handler = new RequestSolcastActualHandler($svc, $action);
