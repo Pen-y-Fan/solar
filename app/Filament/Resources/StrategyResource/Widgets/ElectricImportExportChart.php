@@ -15,11 +15,11 @@ class ElectricImportExportChart extends ChartWidget
 
     protected int|string|array $columnSpan = 2;
 
-    protected static ?string $maxHeight = '400px';
+    protected ?string $maxHeight = '400px';
 
-    protected static ?string $heading = 'Electricity export and import';
+    protected ?string $heading = 'Electricity export and import';
 
-    protected static ?string $pollingInterval = '120s';
+    protected ?string $pollingInterval = '120s';
 
     public ?string $filter = '';
 
@@ -28,12 +28,12 @@ class ElectricImportExportChart extends ChartWidget
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
-            self::$heading = 'No electric export data';
+            $this->heading = 'No electric export data';
 
             return [];
         }
 
-        self::$heading = sprintf(
+        $this->heading = sprintf(
             'Actual electric export and import from %s to %s cost £%0.2f',
             Carbon::parse($rawData->first()['interval_start'], 'Europe/London')
                 ->timezone('UTC')

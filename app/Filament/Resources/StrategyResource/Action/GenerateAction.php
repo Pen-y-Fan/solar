@@ -5,7 +5,7 @@ namespace App\Filament\Resources\StrategyResource\Action;
 use App\Application\Commands\Bus\CommandBus;
 use App\Application\Commands\Strategy\GenerateStrategyCommand;
 use Filament\Actions\Concerns\CanCustomizeProcess;
-use Filament\Tables\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Log;
 

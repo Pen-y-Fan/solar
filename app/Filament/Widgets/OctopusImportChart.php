@@ -14,21 +14,21 @@ class OctopusImportChart extends ChartWidget
 {
     private const UPDATE_FREQUENCY_HOURS = 4;
 
-    protected static ?string $heading = 'Electricity import';
+    protected ?string $heading = 'Electricity import';
 
-    protected static ?string $pollingInterval = '120s';
+    protected ?string $pollingInterval = '120s';
 
     protected function getData(): array
     {
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
-            self::$heading = 'No electric usage data';
+            $this->heading = 'No electric usage data';
 
             return [];
         }
 
-        self::$heading = sprintf(
+        $this->heading = sprintf(
             'Electric import from %s to %s (£%.2f)',
             $rawData->first()['interval_start']
                 ->timezone('Europe/London')

@@ -14,21 +14,21 @@ class OctopusExportChart extends ChartWidget
 {
     private const UPDATE_FREQUENCY_HOURS = 4;
 
-    protected static ?string $heading = 'Electricity export';
+    protected ?string $heading = 'Electricity export';
 
-    protected static ?string $pollingInterval = '120s';
+    protected ?string $pollingInterval = '120s';
 
     protected function getData(): array
     {
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
-            self::$heading = 'No electric export data';
+            $this->heading = 'No electric export data';
 
             return [];
         }
 
-        self::$heading = sprintf(
+        $this->heading = sprintf(
             'Electric export from %s to %s (last updated %s) (£%.2f)',
             Carbon::parse($rawData->first()['interval_start'], 'UTC')
                 ->timezone('Europe/London')

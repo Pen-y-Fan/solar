@@ -5,7 +5,7 @@ namespace App\Domain\Strategy\Actions;
 use App\Application\Commands\Bus\CommandBus;
 use App\Application\Commands\Strategy\CalculateBatteryCommand;
 use Filament\Actions\Concerns\CanCustomizeProcess;
-use Filament\Tables\Actions\Action;
+use Filament\Actions\Action;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\App;
 

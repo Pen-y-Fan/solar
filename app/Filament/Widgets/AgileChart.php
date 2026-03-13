@@ -18,13 +18,13 @@ class AgileChart extends ChartWidget
 {
     protected int|string|array $columnSpan = 2;
 
-    protected static ?string $maxHeight = '400px';
+    protected ?string $maxHeight = '400px';
 
     protected static bool $isLazy = false;
 
-    protected static ?string $heading = 'Agile forecast';
+    protected ?string $heading = 'Agile forecast';
 
-    protected static ?string $pollingInterval = '120s';
+    protected ?string $pollingInterval = '120s';
 
     /**
      * @var float The minimum value for the chart's y-axis
@@ -43,7 +43,7 @@ class AgileChart extends ChartWidget
 
         $data = $this->getDatabaseData();
 
-        self::$heading = sprintf(
+        $this->heading = sprintf(
             'Agile costs from %s to %s',
             Carbon::parse($data->first()['valid_from'], 'UTC')
                 ->timezone('Europe/London')

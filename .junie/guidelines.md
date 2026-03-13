@@ -14,7 +14,7 @@ familiar with the Laravel framework and its ecosystem. You should be able to com
 
 ### Prerequisites
 
-- PHP 8.2 or higher (managed by Laravel Herd)
+- PHP 8.5 or higher (managed by Laravel Herd)
 - Composer (managed by Laravel Herd)
 - Laravel Herd installed on your Mac
 

@@ -7,9 +7,10 @@ use App\Filament\Resources\ForecastResource\Widgets\ForecastChartWidget;
 use App\Filament\Resources\ForecastResource\Widgets\SolcastAllowanceStatusWidget;
 use App\Filament\Resources\ForecastResource\Widgets\SolcastAllowanceLogsWidget;
 use App\Domain\Forecasting\Models\Forecast;
+use Filament\Actions;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables;
 use Filament\Tables\Table;
 
@@ -17,11 +18,11 @@ class ForecastResource extends Resource
 {
     protected static ?string $model = Forecast::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-presentation-chart-line';
+    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-presentation-chart-line';
 
-    public static function form(Form $form): Form
+    public static function form(Schema $schema): Schema
     {
-        return $form
+        return $schema
             ->schema([
                 Forms\Components\DateTimePicker::make('period_end'),
                 Forms\Components\TextInput::make('pv_estimate')
@@ -127,11 +128,11 @@ class ForecastResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Actions\EditAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                Actions\BulkActionGroup::make([
+                    Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

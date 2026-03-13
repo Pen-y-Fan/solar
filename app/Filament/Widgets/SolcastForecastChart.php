@@ -13,21 +13,21 @@ use Throwable;
 
 class SolcastForecastChart extends ChartWidget
 {
-    protected static ?string $heading = 'Solcast forecast';
+    protected ?string $heading = 'Solcast forecast';
 
-    protected static ?string $pollingInterval = '120s';
+    protected ?string $pollingInterval = '120s';
 
     protected function getData(): array
     {
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
-            self::$heading = 'No data for Solcast forecast';
+            $this->heading = 'No data for Solcast forecast';
 
             return [];
         }
 
-        self::$heading = sprintf(
+        $this->heading = sprintf(
             'Solcast forecast for %s to %s (last updated %s)',
             Carbon::parse($rawData->first()['period_end'], 'UTC')
                 ->timezone('Europe/London')

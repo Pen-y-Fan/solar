@@ -10,9 +10,9 @@ use Illuminate\Support\Collection;
 
 class SolcastWithActualAndRealChart extends ChartWidget
 {
-    protected static ?string $heading = 'PV Yield vs Forecast Solcast actual forecast chart';
+    protected ?string $heading = 'PV Yield vs Forecast Solcast actual forecast chart';
 
-    protected static ?string $pollingInterval = '120s';
+    protected ?string $pollingInterval = '120s';
 
     public ?string $filter = '';
 
@@ -21,7 +21,7 @@ class SolcastWithActualAndRealChart extends ChartWidget
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
-            self::$heading = 'No data for PV yield vs Solcast actual forecast';
+            $this->heading = 'No data for PV yield vs Solcast actual forecast';
 
             return [];
         }
@@ -94,7 +94,7 @@ class SolcastWithActualAndRealChart extends ChartWidget
 
     private function setHeading(Collection $rawData): void
     {
-        self::$heading = sprintf(
+        $this->heading = sprintf(
             'Solcast actual (%01.2f) vs PV Yield (%01.2f) Chart from %s to %s',
             $rawData->sum('pv_estimate'),
             $rawData->sum('inverter_yield'),

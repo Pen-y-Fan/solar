@@ -20,7 +20,7 @@ This guide lists common issues encountered during local development and CI, alon
     - cp .env.example .env
     - php artisan key:generate
 - Composer not installed or wrong PHP version
-  - Ensure PHP >= 8.2 and Composer are installed (Laravel Herd recommended).
+  - Ensure PHP >= 8.5 and Composer are installed (Laravel Herd recommended).
 - Vendor autoload not found
   - Run: composer install
 

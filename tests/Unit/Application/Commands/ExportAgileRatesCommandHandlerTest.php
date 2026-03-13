@@ -17,7 +17,6 @@ final class ExportAgileRatesCommandHandlerTest extends TestCase
     {
         /** @var m\MockInterface&AgileExportAction $action */
         $action = m::mock(AgileExportAction::class);
-        // @phpstan-ignore-next-line
         $action->shouldReceive('execute')
             ->once()
             ->andReturn(ActionResult::success(['records' => 1], 'Agile export updated'));

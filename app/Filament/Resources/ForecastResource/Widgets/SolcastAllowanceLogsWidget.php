@@ -33,7 +33,6 @@ class SolcastAllowanceLogsWidget extends BaseWidget
                 Tables\Columns\TextColumn::make('status')->label('HTTP')->toggleable(),
                 Tables\Columns\TextColumn::make('backoff_until')->label('Backoff Until')->dateTime()->toggleable(),
             ])
-            ->paginationPageOptions([25])
             ->paginated(false);
     }
 }

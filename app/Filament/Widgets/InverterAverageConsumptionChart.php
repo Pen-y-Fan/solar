@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class InverterAverageConsumptionChart extends ChartWidget
 {
-    protected static ?string $pollingInterval = '120s';
+    protected ?string $pollingInterval = '120s';
 
     public int $count = 1;
 
@@ -20,12 +20,12 @@ class InverterAverageConsumptionChart extends ChartWidget
         $data = $this->getDatabaseData();
 
         if ($data->count() === 0) {
-            self::$heading = 'No average consumption data';
+            $this->heading = 'No average consumption data';
 
             return [];
         }
 
-        self::$heading = sprintf(
+        $this->heading = sprintf(
             'Average consumption since %s is %0.2f kWh',
             $this->startDate->format('D jS M Y'),
             $data->sum('value')

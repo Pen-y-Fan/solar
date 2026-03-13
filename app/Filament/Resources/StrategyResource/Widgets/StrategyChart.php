@@ -15,21 +15,21 @@ class StrategyChart extends ChartWidget
 
     protected int|string|array $columnSpan = 2;
 
-    protected static ?string $maxHeight = '400px';
+    protected ?string $maxHeight = '400px';
 
-    protected static ?string $heading = 'Strategy';
+    protected ?string $heading = 'Strategy';
 
     protected function getData(): array
     {
         $rawData = $this->getDatabaseData();
 
         if ($rawData->count() === 0) {
-            self::$heading = 'No strategy data';
+            $this->heading = 'No strategy data';
 
             return [];
         }
 
-        self::$heading = sprintf(
+        $this->heading = sprintf(
             'Strategy for %s to %s cost £%0.2f',
             $rawData->first()['period_end']
                 ->timezone('Europe/London')

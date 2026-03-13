@@ -23,7 +23,6 @@ class AgileChartDiTest extends TestCase
 
         /** @var m\MockInterface&CommandBus $bus */
         $bus = m::mock(CommandBus::class);
-        // @phpstan-ignore-next-line Mockery dynamic expectation count method
         $bus->shouldReceive('dispatch')
             ->once()
             ->with(m::on(fn($cmd) => $cmd instanceof ImportAgileRatesCommand))
@@ -43,7 +42,6 @@ class AgileChartDiTest extends TestCase
 
         /** @var m\MockInterface&CommandBus $bus */
         $bus = m::mock(CommandBus::class);
-        // @phpstan-ignore-next-line Mockery dynamic expectation count method
         $bus->shouldReceive('dispatch')
             ->once()
             ->with(m::on(fn($cmd) => $cmd instanceof ExportAgileRatesCommand))

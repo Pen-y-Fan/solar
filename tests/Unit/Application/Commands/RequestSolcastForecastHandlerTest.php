@@ -23,16 +23,13 @@ final class RequestSolcastForecastHandlerTest extends TestCase
         /** @var m\MockInterface&ForecastAction $action */
         $action = m::mock(ForecastAction::class);
 
-        // @phpstan-ignore-next-line mock expectation
         $svc->shouldReceive('checkAndLock')
             ->once()
             ->with(Endpoint::FORECAST, false)
             ->andReturn(AllowanceDecision::allow('reserved'));
-        // @phpstan-ignore-next-line mock expectation
         $action->shouldReceive('execute')
             ->once()
             ->andReturn(ActionResult::success(['records' => 10], 'Forecast updated'));
-        // @phpstan-ignore-next-line mock expectation
         $svc->shouldReceive('recordSuccess')->once()->with(Endpoint::FORECAST);
 
         $handler = new RequestSolcastForecastHandler($svc, $action);
@@ -49,7 +46,6 @@ final class RequestSolcastForecastHandlerTest extends TestCase
         /** @var m\MockInterface&ForecastAction $action */
         $action = m::mock(ForecastAction::class);
 
-        // @phpstan-ignore-next-line mock expectation
         $svc->shouldReceive('checkAndLock')
             ->once()
             ->with(Endpoint::FORECAST, false)
@@ -72,16 +68,13 @@ final class RequestSolcastForecastHandlerTest extends TestCase
         /** @var m\MockInterface&ForecastAction $action */
         $action = m::mock(ForecastAction::class);
 
-        // @phpstan-ignore-next-line mock expectation
         $svc->shouldReceive('checkAndLock')
             ->once()
             ->with(Endpoint::FORECAST, true)
             ->andReturn(AllowanceDecision::allow('reserved'));
-        // @phpstan-ignore-next-line mock expectation
         $action->shouldReceive('execute')
             ->once()
             ->andReturn(ActionResult::failure('Rate limit exceeded (429)'));
-        // @phpstan-ignore-next-line mock expectation
         $svc->shouldReceive('recordFailure')->once()->with(Endpoint::FORECAST, 429);
 
         $handler = new RequestSolcastForecastHandler($svc, $action);

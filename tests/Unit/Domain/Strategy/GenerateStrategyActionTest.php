@@ -90,7 +90,6 @@ final class GenerateStrategyActionTest extends TestCase
         $action->baseStrategy = $strategies;
 
         $refMethod = new ReflectionMethod($action, 'calculateBaselineCosts');
-        $refMethod->setAccessible(true);
         $refMethod->invoke($action);
 
         $this->assertNotNull($action->baselineCost);
@@ -125,7 +124,6 @@ final class GenerateStrategyActionTest extends TestCase
         $action->baseStrategy = $strategies;
 
         $refMethod = new ReflectionMethod($action, 'calculateBaselineCosts');
-        $refMethod->setAccessible(true);
         $refMethod->invoke($action);
 
         $this->assertNotNull($action->baselineCost);
@@ -155,11 +153,9 @@ final class GenerateStrategyActionTest extends TestCase
         }
         $action->baseStrategy = $strategies;
         $refBattery = new ReflectionProperty(GenerateStrategyAction::class, 'startBatteryPercentage');
-        $refBattery->setAccessible(true);
         $refBattery->setValue($action, 10);
 
         $refMethod = new ReflectionMethod($action, 'calculateBaselineCosts');
-        $refMethod->setAccessible(true);
         $refMethod->invoke($action);
 
         $this->assertNull($action->baselineCost);
@@ -195,7 +191,6 @@ final class GenerateStrategyActionTest extends TestCase
         $action->baseStrategy = $strategies;
 
         $refMethod = new ReflectionMethod($action, 'calculateStrategyCosts');
-        $refMethod->setAccessible(true);
 
         // Act
         $refMethod->invoke($action);
@@ -227,13 +222,11 @@ final class GenerateStrategyActionTest extends TestCase
         }
 
         $refBattery = new ReflectionProperty(GenerateStrategyAction::class, 'startBatteryPercentage');
-        $refBattery->setAccessible(true);
         $refBattery->setValue($action, 10);
 
         $action->baseStrategy = $strategies;
 
         $refMethod = new ReflectionMethod($action, 'calculateStrategyCosts');
-        $refMethod->setAccessible(true);
         $refMethod->invoke($action);
 
         $this->assertNotNull($action->optimizedCost);
@@ -266,7 +259,6 @@ final class GenerateStrategyActionTest extends TestCase
         $action->baseStrategy = $strategies;
 
         $refMethod = new ReflectionMethod($action, 'calculateStrategyCosts');
-        $refMethod->setAccessible(true);
         $refMethod->invoke($action);
 
         $this->assertNotNull($action->optimizedCost);
@@ -297,17 +289,13 @@ final class GenerateStrategyActionTest extends TestCase
         }
         $action->baseStrategy = $strategies;
         $refProp = new ReflectionProperty(GenerateStrategyAction::class, 'startBatteryPercentage');
-        $refProp->setAccessible(true);
         $refProp->setValue($action, 100);
         $refCostProp = new ReflectionProperty(GenerateStrategyAction::class, 'optimizedCost');
-        $refCostProp->setAccessible(true);
         $refCostProp->setValue($action, 5.0);
         $refBaseProp = new ReflectionProperty(GenerateStrategyAction::class, 'baselineCost');
-        $refBaseProp->setAccessible(true);
         $refBaseProp->setValue($action, 10.0);
 
         $refMethod = new ReflectionMethod($action, 'calculateFinalCost');
-        $refMethod->setAccessible(true);
         $refMethod->invoke($action);
 
         $action->baseStrategy->each(function ($strategy, $index) {
@@ -342,17 +330,13 @@ final class GenerateStrategyActionTest extends TestCase
         }
         $action->baseStrategy = $strategies;
         $refProp = new ReflectionProperty(GenerateStrategyAction::class, 'startBatteryPercentage');
-        $refProp->setAccessible(true);
         $refProp->setValue($action, 100);
         $refCostProp = new ReflectionProperty(GenerateStrategyAction::class, 'optimizedCost');
-        $refCostProp->setAccessible(true);
         $refCostProp->setValue($action, 5.0); // opt battery, but preserve
         $refBaseProp = new ReflectionProperty(GenerateStrategyAction::class, 'baselineCost');
-        $refBaseProp->setAccessible(true);
         $refBaseProp->setValue($action, 10.0);
 
         $refMethod = new ReflectionMethod($action, 'calculateFinalCost');
-        $refMethod->setAccessible(true);
         $refMethod->invoke($action);
 
         $this->assertTrue($action->baseStrategy[1]->strategy_manual); // preserved
