@@ -232,6 +232,15 @@ Once the dashboard chart is interactive, also update the similar chart in strate
 - [x] Add unit tests for `OutgoingOctopus::getRate` to verify the correct rate is returned for different dates.
 - [x] Verify that the Octopus chart and strategy generation still work as expected and use the correct rates.
 
+### 1.1.22 Troubleshoot Filament production login (403 error)
+
+- [x] Use TDD to reproduce and fix the 403 error when `APP_ENV=production`.
+    - [x] Create a feature test that simulates `APP_ENV=production` and asserts a 403 response when a user attempts to
+      access Filament.
+    - [x] Implement the `FilamentUser` interface on the `User` model and implement `canAccessPanel`.
+    - [x] Verify that the test now passes (returns a successful response or redirect to login).
+- [x] Verify `composer all` passes.
+
 ## 1.2 Foundation and Security (Phase 1 alignment)
 
 - Ensure security and initial QA items are prioritised per `docs/plan.md`.
