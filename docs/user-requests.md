@@ -173,8 +173,9 @@ Filament does not allow a user to log in when the project is deployed and the en
 
 - Every user is shown a 403 page, they are not able to log in.
     - The guest '/welcome' page can be viewed.
-- Current action: Add a task to section 1.1.x of  `docs/tasks.md`
-- Status: Not started
+- I believe Filament has not been registered in the `User` model.
+- Current action: Added a task to section 1.1.22 of `docs/tasks.md` and completed
+- Status: Complete
 
 #### The CI code-quality check is not consistent
 
@@ -268,8 +269,8 @@ static method `GetOutgoingOctopus($date)` switch or match to return the correct 
 Then update the chart `app/Filament/Widgets/OctopusChart.php` and the
 `app/Domain/Strategy/Actions/GenerateStrategyAction.php` to use the new method, instead of the constant.
 
-- Current action: Add a task to section 1.1.21 of `docs/tasks.md`
-- Status: Complete
+- Current action: Added as task 1.1.21 of `docs/tasks.md`
+- Status: Completed
 
 ## Laravel AI Helper - Boost
 
@@ -291,6 +292,10 @@ a Dependabot upgrade. Update docs with the new requirements.
 - Current action: Added as task 1.1.17 of `docs/tasks.md`
 - Status: Completed
 
+### Upgrade Filament
+
+Filament is locked to v3.3.33, I would like to upgrade to v5.3.4.
+
 ## Solis API
 
 We now have access to the Solis API. The inverter data can be downloaded using the API instead of Excel.
@@ -308,7 +313,7 @@ of concept (PoC) create a console command to call an Action which will get the l
 Now we have access to the Solis API. The inverter data can be downloaded using the API instead of downloading and
 parsing Excel. We can also automatically update the charge times for each period, based on the strategy.
 
-- Current action: Task 1.1.18 in docs/tasks.md
+- Current action: Added as task 1.1.18 in docs/tasks.md
 - Status: Complete
 
 ### Automate inverter data fetching
