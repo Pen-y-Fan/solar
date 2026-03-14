@@ -252,13 +252,17 @@ all, or the following key commands:
         - Import Solis inverter XLS files from `storage/app/uploads/`.
     - `php artisan solis:inverter-data {date?}`
         - Fetch and upsert daily inverter data from Solis API for the optional date (YYYY-MM-DD); defaults to yesterday.
+        - The common `GetInverterDayDataCommand.php` command also powers the manual “Fetch Inverter Data” action in the
+          Filament Inverter admin resource.
     - `php artisan solis:inverter-list`
-        - Fetch the inverter list from the Solis API and find the first inverter's id (useful for setting `SOLIS_INVERTER_ID` in `.env`).
+        - Fetch the inverter list from the Solis API and find the first inverter's id (useful for setting
+          `SOLIS_INVERTER_ID` in `.env`).
 - Maintenance:
     - `php artisan solcast:prune-logs {--days=}`
         - Prune `solcast_allowance_logs` older than the retention window (default 14 days, or override with `--days`).
     - `php artisan test:coverage {--format=html} {--open}`
-        - Run PHPUnit tests with code coverage. Format defaults to `html`; use `--open` to open the report in the browser.
+        - Run PHPUnit tests with code coverage. Format defaults to `html`; use `--open` to open the report in the
+          browser.
 
 Notes:
 
@@ -330,8 +334,8 @@ Once the **.env** file and database have already been configured, the project ca
 Note: The docker url is http://localhost (not https) and port 80 (can be configured in .env).
 
 ```ini
-APP_URL=http://localhost
-APP_PORT=80
+APP_URL = http://localhost
+APP_PORT = 80
 ```
 
 Run `npm install` using the official node docker image

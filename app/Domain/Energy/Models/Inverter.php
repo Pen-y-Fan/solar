@@ -4,6 +4,7 @@ namespace App\Domain\Energy\Models;
 
 use App\Domain\Energy\ValueObjects\BatteryStateOfCharge;
 use App\Domain\Energy\ValueObjects\EnergyFlow;
+use Database\Factories\InverterFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -36,6 +37,11 @@ use Illuminate\Database\Eloquent\Model;
 class Inverter extends Model
 {
     use HasFactory;
+
+    protected static function newFactory(): InverterFactory
+    {
+        return InverterFactory::new();
+    }
 
     protected $fillable = [
         'period',
