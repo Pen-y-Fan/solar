@@ -250,6 +250,14 @@ Once the dashboard chart is interactive, also update the similar chart in strate
 - [x] Update GitHub Actions to use PHP 8.5.
 - [x] Verify `composer all` passes.
 
+### 1.1.24 Inverter Status Resource and Chart
+
+- [x] Create Inverter resource to display counts per day.
+- [x] Add Inverter count chart with month filter (up to 6 months).
+- [x] Add page filter for specific day.
+- [x] Add header action to trigger `GetInverterDayDataCommand` for the selected day.
+- [x] Follow TDD to create the resource/page and chart.
+
 ## 1.2 Foundation and Security (Phase 1 alignment)
 
 - Ensure security and initial QA items are prioritised per `docs/plan.md`.

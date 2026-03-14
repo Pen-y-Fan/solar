@@ -145,6 +145,33 @@ total cost of different strategies:
 - Current action: Added as task 1.1.3 of  `docs/tasks.md`
 - Status: Complete
 
+## Inverter
+
+When view in the strategy resource, I can see some missing inverted data. It is challenging to identify which days have
+missing data. I would like a new inverter page or resource to display a chart, showing the count of inverted data per
+day for a given month. Most days will show 48 periods. The resource or page should have a filter to switch to a date with
+missing data, e.g. a date with the number of periods filled in less than 48. And have a button to trigger the action via
+the command to download that today's inverter data. The command`GetInverterDayDataCommand`and action
+`SolisInverterDayDataAction` already exist, to download data for a given day. the command can currently be run via an
+artisan `SolisInverterData`. The same command/handler can be reused.
+
+1. Create a page or resource to display the inverter chart data, count per day, for a given month.
+2. Add a filter to the chart to select previous months, up to 6 months.
+3. Add a filter to the page or resource to select a specific day.
+4. Add a button to trigger the action via the command to download that today's inverter data.
+5. Follow TDD to create the resource/page and chart.
+
+Useful files:
+
+- `app/Console/Commands/SolisInverterData.php` artisan command
+- `app/Application/Commands/Strategy/GetInverterDayDataCommand.php` command
+- `app/Application/Commands/Strategy/GetInverterDayDataHandler.php` handler
+- `app/Domain/Solis/Actions/SolisInverterDayDataAction.php` action
+- `app/Filament/Resources/StrategyResource.php` existing resource with charts, action buttons and filters
+- `app/Domain/Strategy/Actions/CalculateBatteryAction.php` example button (action) to call a command to recalculate the
+  battery
+- `app/Filament/Widgets/ForecastChart.php` example chart with a filter.
+
 ### General
 
 #### Add CI badges to the README.md
@@ -222,7 +249,7 @@ Checklist:
 
 Compare the current Octopus tariff with other available based on sample consumption and PV generation.
 
-- The comparison should calculate a week's worth of cost for each available domestic Octopus tariff, display graphs per
+- The comparison should calculate a week's worth of cost for each available domestic Octopus tariff, display charts per
   day, and a total for the week, based on the usage from the previous week.
 - Current action: Add a task to section 1.1.x of  `docs/tasks.md`
 - Status: Not started
@@ -294,8 +321,8 @@ a Dependabot upgrade. Update docs with the new requirements.
 
 ### Upgrade Filament and PHP
 
-- Filament is locked to v3.3.33, I would like to upgrade to v5.3.4. 
-- Locally we are using PHP 8.4, I would like to upgrade to 8.5, which was released 4 months ago. 
+- Filament is locked to v3.3.33, I would like to upgrade to v5.3.4.
+- Locally we are using PHP 8.4, I would like to upgrade to 8.5, which was released 4 months ago.
 - Also Laravel Sail upgrade to v1.53.0 with PHP 8.5
 
 This will allow us to use the latest version of Filament.
@@ -389,5 +416,5 @@ Create a comparison with Octopus Outgoing (currently 12p/kwh export)
 
 Update the output from the "OctopusAccount command" `app:octopus-account` to display the current tariffs.
 
-- Current action: Add a task to section 1.1.x of  `docs/tasks.md`
+- Current action: Add a task to section 1.1.x of `docs/tasks.md`
 - Status: Not started
