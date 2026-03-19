@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Console\Commands;
+namespace Tests\Feature\Console;
 
 use App\Domain\Energy\Models\Inverter;
 use Illuminate\Http\Client\Request;
