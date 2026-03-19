@@ -381,8 +381,8 @@ to go to the inverter resource and click a filament action to fetch the inverted
 The default view for an inverter resource is yesterday, the 48 x 30 minute periods. The user can select another day from
 a filter of days similar to the Strategies resource, except it will be a full day from midnight, not 4 pm.
 
-- Current action: Add a task to section 1.1.x of `docs/tasks.md`
-- Status: Not started
+- Current action: Add a task to section 1.1.22 of `docs/tasks.md`
+- Status: Complete
 
 ### Fetch inverter data for multiple days
 
@@ -390,8 +390,10 @@ The inverter data command will allow data to be fetched for one day. Expand the 
 that allows the user to fetch inverter data for multiple consecutive days at once. This feature is useful when the user
 needs to fetch missing inverter data for a range of days. E.g. a holiday period.
 
-- Current action: Add a task to section 1.1.x of `docs/tasks.md`
-- Status: Not started
+So far multiple days are not required, the inverter can fetch data for a single day. Multiple days can be added later.
+
+- Current action: On hold
+- Status: Not required
 
 ### Update inverter charge times
 

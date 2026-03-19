@@ -516,7 +516,8 @@ Local development steps:
 
    ```shell
    npm run dev
-   ```
+
+      ```
 
    Alternatively, build for production:
 
