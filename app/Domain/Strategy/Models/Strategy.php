@@ -114,6 +114,7 @@ class Strategy extends Model
         'export_value_inc_vat',
         'consumption_average_cost',
         'consumption_last_week_cost',
+        'battery_percentage1',
     ];
 
     protected $casts = [
@@ -355,7 +356,7 @@ class Strategy extends Model
     }
 
     /**
-     * Set the battery percentage manual
+     * Set the battery percentage manually
      */
     public function setBatteryPercentageManualAttribute(?int $value): void
     {

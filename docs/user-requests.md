@@ -133,6 +133,28 @@ total cost of different strategies:
 - Current action: Add a task to section 1.1.x of  `docs/tasks.md`
 - Status: Not started
 
+#### Improve the strategy performance
+
+The app is now running on a low-end server, the strategy calculation is taking a long time. The calculate battery
+button should be disabled until the calculation is complete.
+
+Clicking the calculate battery button should be disabled until the calculation is complete. It should also display a
+progress bar to indicate the progress of the calculation. 
+
+If possible, make the calculation faster. If possible, run the calculation in the background.
+
+On page load, the page should render, then run any pending calculations.
+
+The `StrategyOverview` widgets are not required, they can be removed.
+
+Thought on indexing the strategy, inverter, forecast, AgileImport, and AgileExport:
+- are the dates `valid_from`, `period`, `period_end` related to the strategy indexed?
+- should the dates be converted into an integer? e.g. 2025-04-01 19:00 becomes 202504011900, would this be more
+  efficient to index the date as an integer?
+
+- Current action: Add a task to section 1.1.x of  `docs/tasks.md`
+- Status: Not started
+
 ### Dashboard
 
 #### Make the Agile cost chart interactive

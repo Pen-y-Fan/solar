@@ -24,8 +24,11 @@ final class GenerateActionTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        // Seed one strategy record for the current day so the table has rows
-        Strategy::factory()->create(['period' => now()->timezone('UTC')->startOfDay()->addHours(12)]);
+        // Seed one strategy record with battery percentage to avoid auto-calculation in mount
+        Strategy::factory()->create([
+            'period' => now()->timezone('UTC')->startOfDay()->addHours(12),
+            'battery_percentage1' => 50,
+        ]);
 
         /** @var m\MockInterface&CommandBus $bus */
         $bus = m::mock(CommandBus::class);
@@ -47,7 +50,10 @@ final class GenerateActionTest extends TestCase
         $user = User::factory()->create();
         $this->actingAs($user);
 
-        Strategy::factory()->create(['period' => now()->timezone('UTC')->startOfDay()->addHours(12)]);
+        Strategy::factory()->create([
+            'period' => now()->timezone('UTC')->startOfDay()->addHours(12),
+            'battery_percentage1' => 50,
+        ]);
 
         /** @var m\MockInterface&CommandBus $bus */
         $bus = m::mock(CommandBus::class);
