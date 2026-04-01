@@ -8,8 +8,8 @@ use App\Filament\Resources\StrategyResource\Pages;
 use App\Filament\Resources\StrategyResource\Widgets\CostChart;
 use App\Filament\Resources\StrategyResource\Widgets\ElectricImportExportChart;
 use App\Filament\Resources\StrategyResource\Widgets\StrategyChart;
-use App\Filament\Resources\StrategyResource\Widgets\StrategyOverview;
 use App\Domain\Strategy\Models\Strategy;
+use BackedEnum;
 use Carbon\CarbonPeriod;
 use Carbon\Exceptions\InvalidFormatException;
 use Exception;
@@ -31,7 +31,7 @@ class StrategyResource extends Resource
 {
     protected static ?string $model = Strategy::class;
 
-    protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-puzzle-piece';
+    protected static string | BackedEnum | null $navigationIcon = 'heroicon-o-puzzle-piece';
 
     public static function form(Schema $schema): Schema
     {
@@ -265,7 +265,7 @@ class StrategyResource extends Resource
                         if (isset($data['value'])) {
                             try {
                                 $day = Carbon::parse($data['value'], 'Europe/London');
-                            } catch (InvalidFormatException $e) {
+                            } catch (InvalidFormatException) {
                                 $day = now('Europe/London');
                             }
                             $start = $day->copy()->subDay()->setTime(16, 0)->timezone('UTC');
@@ -285,10 +285,10 @@ class StrategyResource extends Resource
                 CalculateBatteryAction::make()
                     ->visible(fn (HasTable $livewire) => $livewire->getAllTableRecordsCount() >= 20),
             ])
-            ->actions([
+            ->recordActions([
                 Actions\EditAction::make()
             ])
-            ->bulkActions([
+            ->toolbarActions([
                 Actions\BulkActionGroup::make([
                     Actions\DeleteBulkAction::make()
                 ]),
@@ -305,10 +305,9 @@ class StrategyResource extends Resource
     public static function getWidgets(): array
     {
         return [
-            StrategyOverview::class,
             StrategyChart::class,
             CostChart::class,
-            ElectricImportExportChart::class,
+            ElectricImportExportChart::class
         ];
     }
 

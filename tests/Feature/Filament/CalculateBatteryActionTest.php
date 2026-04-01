@@ -29,7 +29,10 @@ final class CalculateBatteryActionTest extends TestCase
 
         Carbon::setTestNow('2025-11-20 10:00:00');
         // Ensure the table has at least 21 rows
-        $strategy = Strategy::factory()->create(['period' => now('UTC')]);
+        $strategy = Strategy::factory()->create([
+            'period' => now('UTC'),
+            'battery_percentage1' => 50,
+        ]);
         $periods = new CarbonPeriod(now()->addMinutes(5), '5 minutes', 20);
         $strategyArray = $strategy->toArray();
         unset($strategyArray['id']);
@@ -37,6 +40,7 @@ final class CalculateBatteryActionTest extends TestCase
         $updates = [];
         foreach ($periods as $period) {
             $strategyArray['period'] = $period;
+            $strategyArray['battery_percentage1'] = 50;
             $updates[] = $strategyArray;
         }
         Strategy::insert($updates);

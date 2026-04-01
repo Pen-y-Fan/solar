@@ -258,6 +258,14 @@ Once the dashboard chart is interactive, also update the similar chart in strate
 - [x] Add header action to trigger `GetInverterDayDataCommand` for the selected day.
 - [x] Follow TDD to create the resource/page and chart.
 
+### 1.1.25 Improve the strategy performance
+
+- [x] Disable the 'Calculate battery' button until the calculation is complete and show progress.
+- [x] Optimize strategy calculation performance (investigate indexing and background processing).
+- [x] Render the strategy page first, then run any pending calculations.
+- [x] Remove `StrategyOverview` widgets from `StrategyResource`.
+- [x] Update `CalculateBatteryAction` to handle asynchronous execution or provide better UI feedback.
+
 ## 1.2 Foundation and Security (Phase 1 alignment)
 
 - Ensure security and initial QA items are prioritised per `docs/plan.md`.
