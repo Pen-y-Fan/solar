@@ -6,8 +6,12 @@ use App\Application\Commands\Bus\CommandBus;
 use App\Application\Commands\Bus\SimpleCommandBus;
 use App\Application\Commands\Energy\ExportAgileRatesCommand;
 use App\Application\Commands\Energy\ExportAgileRatesCommandHandler;
+use App\Application\Commands\Energy\ExportOctopusUsageCommand;
+use App\Application\Commands\Energy\ExportOctopusUsageCommandHandler;
 use App\Application\Commands\Energy\ImportAgileRatesCommand;
 use App\Application\Commands\Energy\ImportAgileRatesCommandHandler;
+use App\Application\Commands\Energy\ImportOctopusUsageCommand;
+use App\Application\Commands\Energy\ImportOctopusUsageCommandHandler;
 use App\Application\Commands\Energy\SyncOctopusAccountCommand;
 use App\Application\Commands\Energy\SyncOctopusAccountCommandHandler;
 use App\Application\Commands\Forecasting\RefreshForecastsCommand;
@@ -26,6 +30,8 @@ use App\Application\Commands\Strategy\GetInverterDayDataCommand;
 use App\Application\Commands\Strategy\GetInverterDayDataHandler;
 use App\Application\Commands\Strategy\RecalculateStrategyCostsCommand;
 use App\Application\Commands\Strategy\RecalculateStrategyCostsCommandHandler;
+use App\Events\AgileRatesUpdated;
+use App\Listeners\TriggerStrategyGeneration;
 use App\Domain\Forecasting\Events\SolcastAllowanceReset;
 use App\Domain\Forecasting\Events\SolcastRateLimited;
 use App\Domain\Forecasting\Events\SolcastRequestAttempted;
@@ -39,6 +45,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\ServiceProvider;
+use Throwable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -55,6 +62,8 @@ class AppServiceProvider extends ServiceProvider
             $bus->register(GenerateStrategyCommand::class, GenerateStrategyCommandHandler::class);
             $bus->register(ImportAgileRatesCommand::class, ImportAgileRatesCommandHandler::class);
             $bus->register(ExportAgileRatesCommand::class, ExportAgileRatesCommandHandler::class);
+            $bus->register(ImportOctopusUsageCommand::class, ImportOctopusUsageCommandHandler::class);
+            $bus->register(ExportOctopusUsageCommand::class, ExportOctopusUsageCommandHandler::class);
             $bus->register(SyncOctopusAccountCommand::class, SyncOctopusAccountCommandHandler::class);
             $bus->register(CalculateBatteryCommand::class, CalculateBatteryCommandHandler::class);
             $bus->register(CopyConsumptionWeekAgoCommand::class, CopyConsumptionWeekAgoCommandHandler::class);
@@ -79,9 +88,9 @@ class AppServiceProvider extends ServiceProvider
             try {
                 Log::info('solcast.attempted', [
                     'endpoint' => $e->endpoint->value,
-                    'at' => (string) $e->at,
+                    'at' => (string)$e->at,
                 ]);
-                if ((bool) config('solcast.allowance.log_to_db', false)) {
+                if (config('solcast.allowance.log_to_db', false)) {
                     SolcastAllowanceLog::create([
                         'event_type' => 'attempted',
                         'endpoint' => $e->endpoint->value,
@@ -89,7 +98,7 @@ class AppServiceProvider extends ServiceProvider
                         'created_at' => $e->at,
                     ]);
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 // no-op
             }
         });
@@ -97,9 +106,9 @@ class AppServiceProvider extends ServiceProvider
             try {
                 Log::info('solcast.succeeded', [
                     'endpoint' => $e->endpoint->value,
-                    'at' => (string) $e->at,
+                    'at' => (string)$e->at,
                 ]);
-                if ((bool) config('solcast.allowance.log_to_db', false)) {
+                if (config('solcast.allowance.log_to_db', false)) {
                     SolcastAllowanceLog::create([
                         'event_type' => 'succeeded',
                         'endpoint' => $e->endpoint->value,
@@ -107,7 +116,7 @@ class AppServiceProvider extends ServiceProvider
                         'created_at' => $e->at,
                     ]);
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 // no-op
             }
         });
@@ -117,9 +126,9 @@ class AppServiceProvider extends ServiceProvider
                     'endpoint' => $e->endpoint->value,
                     'reason' => $e->reason,
                     'nextEligibleAt' => $e->nextEligibleAt?->toIso8601String(),
-                    'at' => (string) $e->at,
+                    'at' => (string)$e->at,
                 ]);
-                if ((bool) config('solcast.allowance.log_to_db', false)) {
+                if (config('solcast.allowance.log_to_db', false)) {
                     SolcastAllowanceLog::create([
                         'event_type' => 'skipped',
                         'endpoint' => $e->endpoint->value,
@@ -129,7 +138,7 @@ class AppServiceProvider extends ServiceProvider
                         'created_at' => $e->at,
                     ]);
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 // no-op
             }
         });
@@ -139,9 +148,9 @@ class AppServiceProvider extends ServiceProvider
                     'endpoint' => $e->endpoint->value,
                     'status' => $e->status,
                     'backoffUntil' => $e->backoffUntil->toIso8601String(),
-                    'at' => (string) $e->at,
+                    'at' => (string)$e->at,
                 ]);
-                if ((bool) config('solcast.allowance.log_to_db', false)) {
+                if (config('solcast.allowance.log_to_db', false)) {
                     SolcastAllowanceLog::create([
                         'event_type' => 'rate_limited',
                         'endpoint' => $e->endpoint->value,
@@ -151,7 +160,7 @@ class AppServiceProvider extends ServiceProvider
                         'created_at' => $e->at,
                     ]);
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 // no-op
             }
         });
@@ -161,7 +170,7 @@ class AppServiceProvider extends ServiceProvider
                     'dayKey' => $e->dayKey,
                     'resetAt' => $e->resetAt->toIso8601String(),
                 ]);
-                if ((bool) config('solcast.allowance.log_to_db', false)) {
+                if (config('solcast.allowance.log_to_db', false)) {
                     SolcastAllowanceLog::create([
                         'event_type' => 'allowance_reset',
                         'day_key' => $e->dayKey,
@@ -169,14 +178,14 @@ class AppServiceProvider extends ServiceProvider
                         'payload' => null,
                     ]);
                 }
-            } catch (\Throwable) {
+            } catch (Throwable) {
                 // no-op
             }
         });
 
         // Local-only lightweight SQL profiling toggle.
         // Enable by setting PERF_PROFILE=true in .env when APP_ENV=local or testing.
-        if (app()->environment(['local', 'testing']) && (bool) config('perf.profile', false)) {
+        if (app()->environment(['local', 'testing']) && config('perf.profile', false)) {
             DB::listen(static function (QueryExecuted $query): void {
                 try {
                     Log::debug('sql', [
@@ -185,10 +194,15 @@ class AppServiceProvider extends ServiceProvider
                         'time_ms' => $query->time,
                         'connection' => $query->connectionName,
                     ]);
-                } catch (\Throwable $e) {
+                } catch (Throwable) {
                     // Swallow any logging errors to avoid impacting app behavior during profiling
                 }
             });
         }
+
+        Event::listen(
+            AgileRatesUpdated::class,
+            TriggerStrategyGeneration::class,
+        );
     }
 }

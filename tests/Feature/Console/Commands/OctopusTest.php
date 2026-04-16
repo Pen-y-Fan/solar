@@ -2,13 +2,15 @@
 
 namespace Tests\Feature\Console\Commands;
 
-use App\Console\Commands\Octopus as OctopusCommand;
-use App\Domain\Energy\Actions\AgileExport;
-use App\Domain\Energy\Actions\AgileImport;
-use App\Domain\Energy\Actions\OctopusExport;
-use App\Domain\Energy\Actions\OctopusImport;
+use App\Application\Commands\Bus\CommandBus;
+use App\Application\Commands\Energy\ExportAgileRatesCommand;
+use App\Application\Commands\Energy\ExportOctopusUsageCommand;
+use App\Application\Commands\Energy\ImportAgileRatesCommand;
+use App\Application\Commands\Energy\ImportOctopusUsageCommand;
+use App\Application\Commands\Energy\SyncOctopusAccountCommand;
 use App\Support\Actions\ActionResult;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Mockery as m;
 use Tests\TestCase;
 
 class OctopusTest extends TestCase
@@ -17,42 +19,41 @@ class OctopusTest extends TestCase
 
     public function testOctopusCommandRunsAllActionsAndOutputsMessages(): void
     {
-        // Bind fakes that return success without doing anything
-        $this->app->instance(OctopusImport::class, new class extends OctopusImport
-        {
-            public function execute(): ActionResult
-            {
-                return ActionResult::success();
-            }
-        });
-        $this->app->instance(OctopusExport::class, new class extends OctopusExport
-        {
-            public function execute(): ActionResult
-            {
-                return ActionResult::success();
-            }
-        });
-        $this->app->instance(AgileImport::class, new class extends AgileImport
-        {
-            public function execute(): ActionResult
-            {
-                return ActionResult::success();
-            }
-        });
-        $this->app->instance(AgileExport::class, new class extends AgileExport
-        {
-            public function execute(): ActionResult
-            {
-                return ActionResult::success();
-            }
-        });
+        $commandBus = m::mock(CommandBus::class);
+        $this->app->instance(CommandBus::class, $commandBus);
 
-        $this->artisan((new OctopusCommand())->getName())
+        $commandBus->shouldReceive('dispatch')
+            ->with(m::type(SyncOctopusAccountCommand::class))
+            ->once()
+            ->andReturn(ActionResult::success(null, 'Octopus account synced'));
+
+        $commandBus->shouldReceive('dispatch')
+            ->with(m::type(ImportOctopusUsageCommand::class))
+            ->once()
+            ->andReturn(ActionResult::success(null, 'Octopus usage imported'));
+
+        $commandBus->shouldReceive('dispatch')
+            ->with(m::type(ExportOctopusUsageCommand::class))
+            ->once()
+            ->andReturn(ActionResult::success(null, 'Octopus usage exported'));
+
+        $commandBus->shouldReceive('dispatch')
+            ->with(m::type(ImportAgileRatesCommand::class))
+            ->once()
+            ->andReturn(ActionResult::success(null, 'Octopus Agile import successful'));
+
+        $commandBus->shouldReceive('dispatch')
+            ->with(m::type(ExportAgileRatesCommand::class))
+            ->once()
+            ->andReturn(ActionResult::success(null, 'Octopus Agile export successful'));
+
+        $this->artisan('app:octopus')
             ->expectsOutputToContain('Running Octopus action!')
-            ->expectsOutputToContain('Octopus import has been fetched!')
-            ->expectsOutputToContain('Octopus export has been fetched!')
-            ->expectsOutputToContain('Octopus Agile import has been fetched!')
-            ->expectsOutputToContain('Octopus Agile export has been fetched!')
+            ->expectsOutputToContain('Octopus account sync successful: Octopus account synced')
+            ->expectsOutputToContain('Octopus usage import successful: Octopus usage imported')
+            ->expectsOutputToContain('Octopus usage export successful: Octopus usage exported')
+            ->expectsOutputToContain('Octopus Agile import successful: Octopus Agile import successful')
+            ->expectsOutputToContain('Octopus Agile export successful: Octopus Agile export successful')
             ->assertSuccessful();
     }
 }

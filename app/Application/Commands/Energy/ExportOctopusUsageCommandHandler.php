@@ -6,8 +6,7 @@ namespace App\Application\Commands\Energy;
 
 use App\Application\Commands\Contracts\Command;
 use App\Application\Commands\Contracts\CommandHandler;
-use App\Events\AgileRatesUpdated;
-use App\Domain\Energy\Actions\AgileImport as AgileImportAction;
+use App\Domain\Energy\Actions\OctopusExport as OctopusExportAction;
 use App\Support\Actions\ActionResult;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -15,30 +14,29 @@ use Throwable;
 
 use function assert;
 
-final readonly class ImportAgileRatesCommandHandler implements CommandHandler
+final readonly class ExportOctopusUsageCommandHandler implements CommandHandler
 {
-    public function __construct(private AgileImportAction $action)
+    public function __construct(private OctopusExportAction $action)
     {
     }
 
     public function handle(Command $command): ActionResult
     {
-        assert($command instanceof ImportAgileRatesCommand);
+        assert($command instanceof ExportOctopusUsageCommand);
         $start = microtime(true);
-        Log::info('ImportAgileRatesCommand started');
+        Log::info('ExportOctopusUsageCommand started');
         try {
             $result = $this->action->execute();
             if (!$result->isSuccess()) {
-                throw new RuntimeException($result->getMessage() ?? 'Agile import failed');
+                throw new RuntimeException($result->getMessage() ?? 'Octopus usage export failed');
             }
-            Log::info('ImportAgileRatesCommand finished', [
+            Log::info('ExportOctopusUsageCommand finished', [
                 'success' => true,
                 'ms' => (int) ((microtime(true) - $start) * 1000),
             ]);
-            AgileRatesUpdated::dispatch();
             return $result;
         } catch (Throwable $e) {
-            Log::warning('ImportAgileRatesCommand failed', [
+            Log::warning('ExportOctopusUsageCommand failed', [
                 'exception' => $e->getMessage(),
                 'ms' => (int) ((microtime(true) - $start) * 1000),
             ]);
