@@ -6,15 +6,19 @@ namespace Tests\Unit\Application\Commands;
 
 use App\Application\Commands\Energy\ImportAgileRatesCommand;
 use App\Application\Commands\Energy\ImportAgileRatesCommandHandler;
+use App\Events\AgileRatesUpdated;
 use App\Domain\Energy\Actions\AgileImport as AgileImportAction;
 use App\Support\Actions\ActionResult;
+use Illuminate\Support\Facades\Event;
 use Mockery as m;
 use Tests\TestCase;
 
 final class ImportAgileRatesCommandHandlerTest extends TestCase
 {
-    public function testSuccessPathDelegatesToActionExecute(): void
+    public function testSuccessPathDelegatesToActionExecuteAndDispatchesEvent(): void
     {
+        Event::fake();
+
         /** @var m\MockInterface&AgileImportAction $action */
         $action = m::mock(AgileImportAction::class);
         $action->shouldReceive('execute')
@@ -26,10 +30,14 @@ final class ImportAgileRatesCommandHandlerTest extends TestCase
 
         $this->assertTrue($result->isSuccess());
         $this->assertSame('Agile import updated', $result->getMessage());
+
+        Event::assertDispatched(AgileRatesUpdated::class);
     }
 
-    public function testFailureIsWrappedAndReturned(): void
+    public function testFailureIsWrappedAndReturnedAndDoesNotDispatchEvent(): void
     {
+        Event::fake();
+
         /** @var m\MockInterface&AgileImportAction $action */
         $action = m::mock(AgileImportAction::class);
         // @phpstan-ignore-next-line
@@ -40,5 +48,7 @@ final class ImportAgileRatesCommandHandlerTest extends TestCase
 
         $this->assertFalse($result->isSuccess());
         $this->assertSame('boom', $result->getMessage());
+
+        Event::assertNotDispatched(AgileRatesUpdated::class);
     }
 }

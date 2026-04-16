@@ -139,7 +139,7 @@ The app is now running on a low-end server, the strategy calculation is taking a
 button should be disabled until the calculation is complete.
 
 Clicking the calculate battery button should be disabled until the calculation is complete. It should also display a
-progress bar to indicate the progress of the calculation. 
+progress bar to indicate the progress of the calculation.
 
 If possible, make the calculation faster. If possible, run the calculation in the background.
 
@@ -148,12 +148,36 @@ On page load, the page should render, then run any pending calculations.
 The `StrategyOverview` widgets are not required, they can be removed.
 
 Thought on indexing the strategy, inverter, forecast, AgileImport, and AgileExport:
+
 - are the dates `valid_from`, `period`, `period_end` related to the strategy indexed?
 - should the dates be converted into an integer? e.g. 2025-04-01 19:00 becomes 202504011900, would this be more
   efficient to index the date as an integer?
 
-- Current action: Add a task to section 1.1.x of  `docs/tasks.md`
-- Status: Not started
+- Current action: Add a task to section 1.1.25 of  `docs/tasks.md`
+- Status: Complete
+
+#### Automate the strategy performance
+
+The performance has improved on the strategy page. I would now like to automate the process using a CRON job, which will
+need to call an artisan command to update the agile costs, and once updated, run the strategy generator.
+
+Useful files:
+
+- `app/Filament/Widgets/AgileChart.php` - existing chart, see `updateAgileImport()` method, which calls
+  `ImportAgileRatesCommand()`
+- `app/Application/Commands/Energy/ImportAgileRatesCommandHandler.php` handler for the command.
+- `app/Domain/Energy/Actions/AgileImport.php` action which calls the API and updates the database.
+- `app/Application/Commands/Strategy/GenerateStrategyCommand.php` current strategy command.
+- `app/Application/Commands/Strategy/GenerateStrategyCommandHandler.php` current strategy handler.
+- `app/Console/Commands/Octopus.php` current octopus command, including cost and usage API calls.
+
+I would recommend a listener to be configured for a successful run of the current job, and when a new day of costs has
+been created, a separate listener would trigger the strategy command.
+
+Looking at the handler, a listener could be configured to trigger the strategy command on `ActionResult::success`
+
+- Current action: Add a task to section 1.1.26 of  `docs/tasks.md`
+- Status: Complete
 
 ### Dashboard
 
@@ -169,9 +193,11 @@ Thought on indexing the strategy, inverter, forecast, AgileImport, and AgileExpo
 
 ## Inverter
 
-When view in the strategy resource, I can see some missing inverted data. It is challenging to identify which days have
-missing data. I would like a new inverter page or resource to display a chart, showing the count of inverted data per
-day for a given month. Most days will show 48 periods. The resource or page should have a filter to switch to a date with
+When viewed in the strategy resource, I can see some missing inverted data. It is challenging to identify which days
+have
+missing data. I would like a new inverter page or resource to display a chart showing the count of inverted data per
+day for a given month. Most days will show 48 periods. The resource or page should have a filter to switch to a date
+with
 missing data, e.g. a date with the number of periods filled in less than 48. And have a button to trigger the action via
 the command to download that today's inverter data. The command`GetInverterDayDataCommand`and action
 `SolisInverterDayDataAction` already exist, to download data for a given day. the command can currently be run via an

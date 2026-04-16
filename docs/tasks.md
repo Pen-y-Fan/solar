@@ -196,11 +196,13 @@ Once the dashboard chart is interactive, also update the similar chart in strate
 ### 1.1.18 Get inverter data via Solis API *
 
 - POC implemented (simplistic first-second delta); full implementation in progress
-  * Parse full API array: sort timeStr (Carbon UTC), bucket to 48x 30min periods (00:00-23:30), compute cumulative deltas (eToday/grid*/homeLoad deltas → yield/from_grid/to_grid/consumption), clamp negatives=0 like Excel, battery_soc avg/first per bucket
-  * Handle empty/short data/HTTP timeout: log warning, return []
-  * Update unit test: multipoint mock → multiple bucketed records
-  * Feature test: command mock → assert Inverter::count() increases N
-  * Repo: upsertFromSolisData guards (validate periods sequential, floats)
+    * Parse full API array: sort timeStr (Carbon UTC), bucket to 48x 30min periods (00:00-23:30), compute cumulative
+      deltas (eToday/grid*/homeLoad deltas → yield/from_grid/to_grid/consumption), clamp negatives=0 like Excel,
+      battery_soc avg/first per bucket
+    * Handle empty/short data/HTTP timeout: log warning, return []
+    * Update unit test: multipoint mock → multiple bucketed records
+    * Feature test: command mock → assert Inverter::count() increases N
+    * Repo: upsertFromSolisData guards (validate periods sequential, floats)
 - Reuse auth from existing InverterListAction (app/Domain/Solis/Actions) ✓
 - New SolisInverterDayDataAction -> array records (not VO array) ✓
 - Update EloquentInverterRepository::upsertFromSolisData(array $data) ✓
@@ -227,7 +229,8 @@ Once the dashboard chart is interactive, also update the similar chart in strate
     - Between 8th July 2025 and 1st March 2026: 15p/kWh.
     - From 1st March 2026: 12p/kWh.
 - [x] Update `app/Filament/Widgets/OctopusChart.php` to use the new `getRate` method instead of the constant.
-- [x] Update `app/Domain/Strategy/Actions/GenerateStrategyAction.php` and its dependencies (like `StrategyCostCalculator`)
+- [x] Update `app/Domain/Strategy/Actions/GenerateStrategyAction.php` and its dependencies (like
+  `StrategyCostCalculator`)
   to use the new `getRate` method to ensure correct strategy and cost calculations.
 - [x] Add unit tests for `OutgoingOctopus::getRate` to verify the correct rate is returned for different dates.
 - [x] Verify that the Octopus chart and strategy generation still work as expected and use the correct rates.
@@ -265,6 +268,22 @@ Once the dashboard chart is interactive, also update the similar chart in strate
 - [x] Render the strategy page first, then run any pending calculations.
 - [x] Remove `StrategyOverview` widgets from `StrategyResource`.
 - [x] Update `CalculateBatteryAction` to handle asynchronous execution or provide better UI feedback.
+
+### 1.1.26 Automate the strategy performance
+
+- [x] Use TDD to automate the Agile costs update and strategy generation.
+    - [x] Create and checkout a new git branch `feature/1.1.26-automate-the-strategy-performance`
+    - [x] Create an event `AgileRatesUpdated` that is dispatched by `ImportAgileRatesCommandHandler` upon successful
+      completion.
+    - [x] Create a listener `TriggerStrategyGeneration` that listens for `AgileRatesUpdated` and dispatches
+      `GenerateStrategyCommand` for the relevant period(s).
+    - [x] Refactor the `app:octopus` artisan command (`app/Console/Commands/Octopus.php`) to dispatch
+      `ImportAgileRatesCommand` and other relevant commands instead of calling actions directly.
+    - [x] Update `ImportAgileRatesCommandHandler` to dispatch the `AgileRatesUpdated` event.
+    - [x] Register the event and listener in `AppServiceProvider` or a dedicated EventServiceProvider.
+    - [x] Add unit tests for the event dispatching in the handler and for the listener's logic.
+    - [x] Add a feature test for the `app:octopus` command ensuring it initiates the full flow via the CommandBus.
+    - [x] Ensure all tests pass with `composer all`.
 
 ## 1.2 Foundation and Security (Phase 1 alignment)
 
