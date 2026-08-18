@@ -11,7 +11,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Behind the Cloudflare Tunnel, cloudflared is the only thing that
+        // can ever reach this app (no ports are published to the host), so
+        // trusting every hop that gets this far is safe and lets Laravel
+        // see the real client IP from X-Forwarded-For instead of
+        // cloudflared's internal docker address.
+        $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
