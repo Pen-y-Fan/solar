@@ -17,7 +17,7 @@ class FilamentAccessTest extends TestCase
         App::detectEnvironment(fn() => 'production');
         $this->assertEquals('production', App::environment());
 
-        $user = User::factory()->create();
+        $user = User::factory()->withAppAuthentication()->create();
 
         $response = $this->actingAs($user)
             ->get('/forecasts');
@@ -32,7 +32,7 @@ class FilamentAccessTest extends TestCase
         App::detectEnvironment(fn() => 'local');
         $this->assertEquals('local', App::environment());
 
-        $user = User::factory()->create();
+        $user = User::factory()->withAppAuthentication()->create();
 
         $response = $this->actingAs($user)
             ->get('/forecasts');
