@@ -5,6 +5,10 @@ namespace App\Domain\User\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Domain\User\ValueObjects\Email;
 use Carbon\CarbonImmutable;
+use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthentication;
+use Filament\Auth\MultiFactor\App\Concerns\InteractsWithAppAuthenticationRecovery;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthentication;
+use Filament\Auth\MultiFactor\App\Contracts\HasAppAuthenticationRecovery;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -38,9 +42,11 @@ use Illuminate\Notifications\Notifiable;
  * @method static \Illuminate\Database\Eloquent\Builder<static>|User whereUpdatedAt($value)
  * @mixin \Eloquent
  */
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery
 {
     use HasFactory;
+    use InteractsWithAppAuthentication;
+    use InteractsWithAppAuthenticationRecovery;
     use Notifiable;
 
     /**

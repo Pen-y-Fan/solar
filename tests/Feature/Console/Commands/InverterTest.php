@@ -27,7 +27,10 @@ class InverterTest extends TestCase
         Excel::shouldReceive('import')
             ->once()
             ->with(Mockery::type(InverterImport::class), 'uploads/valid.xls', null, ReaderType::XLS)
-            ->andReturnTrue();
+            // maatwebsite/excel 4.x declares import(): PendingDispatch|PendingBatch|Excel,
+            // so a bare true no longer satisfies the return type. The command ignores
+            // the return value; returning the mock itself keeps the type valid.
+            ->andReturnSelf();
 
         // Act & Assert
         $this->artisan((new InverterCommand())->getName())

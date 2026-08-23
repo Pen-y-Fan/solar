@@ -97,7 +97,6 @@ class ActualForecastAction implements ActionInterface
                 'status_code'   => $status,
                 'response_body' => $response->body(),
                 'url'           => $url,
-                'headers_sent'  => $headers,
             ]);
 
             if ($status >= 500) {

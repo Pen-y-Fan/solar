@@ -18,6 +18,12 @@ class PerformanceSeeder extends Seeder
      */
     public function run(): void
     {
+        if (app()->environment('production')) {
+            $this->command?->error('Refusing to run PerformanceSeeder in production: it creates a user with a well-known password.');
+
+            return;
+        }
+
         // Ensure a known test user exists for local/dev usage
         $user = User::firstOrCreate(
             ['email' => 'test@example.com'],

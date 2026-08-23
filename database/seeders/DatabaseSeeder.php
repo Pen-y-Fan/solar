@@ -13,6 +13,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        if (app()->environment('production')) {
+            $this->command?->error('Refusing to run DatabaseSeeder in production: it creates a user with a well-known password.');
+
+            return;
+        }
+
         // User::factory(10)->create();
 
         User::factory()->create([

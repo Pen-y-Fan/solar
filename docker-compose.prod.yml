@@ -1,0 +1,103 @@
+# Production stack for internet-facing deployment.
+#
+# Security model:
+#   - No service in this file publishes a port to the host. There is no
+#     "ports:" entry anywhere below. The only way in is the outbound
+#     Cloudflare Tunnel, which means there is nothing listening on this
+#     machine's public IP for anyone to scan or attack directly.
+#   - `cloudflared` can reach `app`; nothing else can reach either.
+#
+# Database: SQLite, in WAL mode. The whole ./database directory (not just
+# the .sqlite file) is bind-mounted so the -wal/-shm sidecar files WAL mode
+# creates persist on the host too — mounting only the main file would let
+# not-yet-checkpointed writes vanish whenever the container is recreated.
+# A daily backup (checkpointed + copied) lands in ./storage/app/backups,
+# which is bind-mounted separately so it survives even if database.sqlite
+# itself gets corrupted.
+#
+# Tunnel auth: the classic `cloudflared tunnel login/create/route dns` CLI
+# flow (see .cloudflared/), not a Zero Trust dashboard token — the dashboard
+# route now gates tunnel creation behind entering payment info even on the
+# free plan. The CLI flow creates/runs the tunnel at the plain account/zone
+# level and needs none of that. Credentials live in ./.cloudflared/
+# (gitignored) — cert.pem + <tunnel-id>.json, both locked to this host's
+# uid, which is why the service below runs as that same uid rather than the
+# image's default user.
+#
+# Usage:
+#   cp .env.docker.example .env
+#   # fill in .env (APP_KEY, API keys) — no CLOUDFLARE_TUNNEL_TOKEN needed anymore
+#   # place your real database.sqlite at ./database/database.sqlite
+#   docker compose -f docker-compose.prod.yml up -d --build
+#   docker compose -f docker-compose.prod.yml exec app php artisan migrate --force
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/production/Dockerfile
+      args:
+        WWWUSER: '${WWWUSER:-1000}'
+        WWWGROUP: '${WWWGROUP:-1000}'
+    image: solar-app:prod
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      APP_ENV: production
+      APP_DEBUG: 'false'
+      LOG_CHANNEL: stderr
+      SESSION_SECURE_COOKIE: 'true'
+      DB_CONNECTION: sqlite
+      DB_DATABASE: /var/www/html/database/database.sqlite
+    volumes:
+      - ./database:/var/www/html/database
+      - ./storage/app/backups:/var/www/html/storage/app/backups
+    networks:
+      - edge
+    healthcheck:
+      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:8080/up']
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    # No "ports:" here on purpose — only cloudflared can reach this
+    # container, over the internal-only "edge" docker network.
+
+  # Version explicitly pinned rather than :latest (A06, same practice as the
+  # ScenicRoute stack) so nothing changes under this stack without a
+  # deliberate bump. Bump the tag by hand when you want a newer release.
+  #
+  # If you ever see INTERMITTENT 502s — works for some visitors/networks,
+  # fails for others, with the app itself healthy — check for stray
+  # connectors BEFORE suspecting DNS, ISPs, or Cloudflare's routing:
+  #   docker run --rm --user "$(id -u):$(id -g)" -e HOME=/config \
+  #     -v ./.cloudflared:/config/.cloudflared cloudflare/cloudflared:2026.8.2 \
+  #     tunnel info solar
+  # There must be exactly ONE connector listed. A second one means another
+  # cloudflared is serving this same tunnel; Cloudflare load-balances across
+  # every registered connection, so any request landing on a connector that
+  # can't reach `app:8080` returns 502 while the rest succeed. This bit us on
+  # 2026-08-18: a `timeout 12 docker run … tunnel run` test left a container
+  # alive on the default bridge network (timeout kills the docker CLI client,
+  # NOT the container it started), holding 3 of 6 edge connections and failing
+  # every request routed to it with "lookup app on 1.1.1.1:53: no such host".
+  # Fix is just `docker rm -f <container>`; the edge deregisters within ~20s.
+  cloudflared:
+    image: cloudflare/cloudflared:2026.8.2
+    restart: unless-stopped
+    user: '${WWWUSER:-1000}:${WWWGROUP:-1000}'
+    command: tunnel --no-autoupdate --config /etc/cloudflared/config.yml run
+    volumes:
+      - ./.cloudflared:/etc/cloudflared:ro
+    depends_on:
+      app:
+        condition: service_healthy
+    networks:
+      - edge
+    # No "ports:" — cloudflared makes an OUTBOUND connection to Cloudflare's
+    # edge; it does not listen for inbound internet traffic on this host.
+
+networks:
+  edge:
+    driver: bridge
